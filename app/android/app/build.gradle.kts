@@ -28,6 +28,10 @@ android {
         versionName = flutter.versionName
     }
 
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
@@ -45,4 +49,17 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Android Auto (androidx.car.app) navigation templates + map surface.
+    implementation("androidx.car.app:app:1.7.0")
+    // MapLibre Native for the car map. Same artifact/version the maplibre_gl
+    // plugin uses (it declares it as `implementation`, so it is not on the
+    // app's compile classpath by itself).
+    implementation("org.maplibre.gl:android-sdk-opengl:13.5.0")
+
+    testImplementation("junit:junit:4.13.2")
+    // Real org.json for JVM unit tests (android.jar only ships stubs).
+    testImplementation("org.json:json:20250517")
 }

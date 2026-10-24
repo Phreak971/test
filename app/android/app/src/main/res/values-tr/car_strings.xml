@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android Auto (car) UI strings. -->
+<resources>
+    <string name="car_search">Ara</string>
+    <string name="car_saved">Kaydedilenler</string>
+    <string name="car_nearby">Yakındakiler</string>
+    <string name="car_voice">Ses</string>
+    <string name="car_end">Bitir</string>
+    <string name="car_search_hint">Bir yer ara</string>
+    <string name="car_no_results">Sonuç yok</string>
+    <string name="car_search_failed">Arama başarısız. Bağlantınızı kontrol edin.</string>
+    <string name="car_saved_title">Kaydedilen yerler</string>
+    <string name="car_recent">Son aramalar</string>
+    <string name="car_no_saved">Telefonunuzdaki Overworld\'de favori ekleyin</string>
+    <string name="car_nearby_title">Yakındakiler</string>
+    <string name="car_cat_restaurant">Restoranlar</string>
+    <string name="car_cat_fast_food">Fast food</string>
+    <string name="car_cat_cafe">Kafeler</string>
+    <string name="car_cat_fuel">Benzin istasyonları</string>
+    <string name="car_cat_charging_station">Elektrikli şarj</string>
+    <string name="car_cat_parking">Otopark</string>
+    <string name="car_cat_hotel">Oteller</string>
+    <string name="car_cat_supermarket">Süpermarketler</string>
+    <string name="car_cat_pharmacy">Eczaneler</string>
+    <string name="car_cat_hospital">Hastaneler</string>
+    <string name="car_cat_station">İstasyonlar</string>
+    <string name="car_cat_bank">Bankalar</string>
+    <string name="car_nearby_failed">Yakındaki yerler yüklenemedi. Bağlantınızı kontrol edin.</string>
+    <string name="car_route_title">%1$s rotası</string>
+    <string name="car_route_failed">Rota bulunamadı</string>
+    <string name="car_route_error">Rota hesaplanamadı. Bağlantınızı kontrol edin.</string>
+    <string name="car_navigate">Git</string>
+    <string name="car_retry">Tekrar dene</string>
+    <string name="car_pro_title">Overworld Pro</string>
+    <string name="car_pro_message">Araç navigasyonu için Overworld Pro gerekir. Telefonunuzdaki Overworld uygulamasından kilidini açın.</string>
+    <string name="car_ok">Tamam</string>
+    <string name="car_location_needed">Navigasyon için telefonunuzda konum erişimine izin verin.</string>
+    <string name="car_grant">İzin ver</string>
+    <string name="car_waiting_location">Konum bekleniyor…</string>
+    <string name="car_arrived">Varış noktanıza ulaştınız</string>
+    <string name="car_rerouting">Rota yeniden hesaplanıyor…</string>
+    <string name="car_voice_title">Sesli yönlendirme</string>
+    <string name="car_voice_mute">Sesli yönlendirmeyi kapat</string>
+    <string name="car_voice_current">Ses: %1$s</string>
+    <string name="car_voice_change_on_phone">Sesi telefonunuzdaki Overworld\'den değiştirin</string>
+    <string name="car_voice_test">Sesi dene</string>
+    <string name="car_muted">Ses kapalı</string>
+    <string name="car_unmuted">Ses açık</string>
+    <string name="car_home">Ev</string>
+    <string name="car_setup_phone">Araç haritasını kurmak için Overworld\'ü telefonunuzda bir kez açın.</string>
+    <string name="car_route_option">En hızlı rota</string>
+    <string name="car_nav_notification_title">Overworld ile navigasyon</string>
+    <string name="car_nav_channel">Navigasyon</string>
+    <string name="car_loading">Yükleniyor…</string>
+</resources>

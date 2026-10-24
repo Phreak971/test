@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android Auto (car) UI strings. -->
+<resources>
+    <string name="car_search">Buscar</string>
+    <string name="car_saved">Guardados</string>
+    <string name="car_nearby">Cerca</string>
+    <string name="car_voice">Voz</string>
+    <string name="car_end">Finalizar</string>
+    <string name="car_search_hint">Buscar un lugar</string>
+    <string name="car_no_results">Sin resultados</string>
+    <string name="car_search_failed">La búsqueda falló. Comprueba tu conexión.</string>
+    <string name="car_saved_title">Lugares guardados</string>
+    <string name="car_recent">Recientes</string>
+    <string name="car_no_saved">Añade favoritos en Overworld en tu teléfono</string>
+    <string name="car_nearby_title">Cerca</string>
+    <string name="car_cat_restaurant">Restaurantes</string>
+    <string name="car_cat_fast_food">Comida rápida</string>
+    <string name="car_cat_cafe">Cafeterías</string>
+    <string name="car_cat_fuel">Gasolineras</string>
+    <string name="car_cat_charging_station">Carga eléctrica</string>
+    <string name="car_cat_parking">Aparcamiento</string>
+    <string name="car_cat_hotel">Hoteles</string>
+    <string name="car_cat_supermarket">Supermercados</string>
+    <string name="car_cat_pharmacy">Farmacias</string>
+    <string name="car_cat_hospital">Hospitales</string>
+    <string name="car_cat_station">Estaciones</string>
+    <string name="car_cat_bank">Bancos</string>
+    <string name="car_nearby_failed">No se pudieron cargar los lugares cercanos. Comprueba tu conexión.</string>
+    <string name="car_route_title">Ruta a %1$s</string>
+    <string name="car_route_failed">No se encontró ninguna ruta</string>
+    <string name="car_route_error">No se pudo calcular la ruta. Comprueba tu conexión.</string>
+    <string name="car_navigate">Ir</string>
+    <string name="car_retry">Reintentar</string>
+    <string name="car_pro_title">Overworld Pro</string>
+    <string name="car_pro_message">La navegación en el coche requiere Overworld Pro. Desbloquéalo en la app Overworld de tu teléfono.</string>
+    <string name="car_ok">Aceptar</string>
+    <string name="car_location_needed">Permite el acceso a la ubicación en tu teléfono para navegar.</string>
+    <string name="car_grant">Permitir acceso</string>
+    <string name="car_waiting_location">Esperando la ubicación…</string>
+    <string name="car_arrived">Has llegado</string>
+    <string name="car_rerouting">Recalculando la ruta…</string>
+    <string name="car_voice_title">Guía por voz</string>
+    <string name="car_voice_mute">Silenciar la guía por voz</string>
+    <string name="car_voice_current">Voz: %1$s</string>
+    <string name="car_voice_change_on_phone">Cambia la voz en Overworld en tu teléfono</string>
+    <string name="car_voice_test">Probar voz</string>
+    <string name="car_muted">Voz silenciada</string>
+    <string name="car_unmuted">Voz activada</string>
+    <string name="car_home">Casa</string>
+    <string name="car_setup_phone">Abre Overworld una vez en tu teléfono para configurar el mapa del coche.</string>
+    <string name="car_route_option">Ruta más rápida</string>
+    <string name="car_nav_notification_title">Navegando con Overworld</string>
+    <string name="car_nav_channel">Navegación</string>
+    <string name="car_loading">Cargando…</string>
+</resources>
