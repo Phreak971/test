@@ -5,7 +5,7 @@ Outputs:
   assets/icons/<id>.png                         in-app previews (256 px)
   android/app/src/main/res/mipmap-*/ic_launcher[_<id>].png
   ios/Runner/Assets.xcassets/AppIcon.appiconset/*.png  (default icon only)
-  ios/Runner/AltIcons/<id>@2x.png, @3x.png      alternate icons for iOS
+  ios/Runner/Assets.xcassets/AppIcon-<id>.appiconset  alternate icons for iOS
 """
 import json
 import math
@@ -143,7 +143,6 @@ def make(id_, spec):
 
 def main():
     os.makedirs('assets/icons', exist_ok=True)
-    os.makedirs('ios/Runner/AltIcons', exist_ok=True)
     mip = {'mdpi': 48, 'hdpi': 72, 'xhdpi': 96, 'xxhdpi': 144, 'xxxhdpi': 192}
     for id_, spec in ICONS.items():
         img = make(id_, spec)
@@ -154,8 +153,15 @@ def main():
             os.makedirs(out, exist_ok=True)
             img.resize((px, px), Image.LANCZOS).save(f'{out}/{name}.png')
         if id_ != 'default':
-            img.resize((120, 120), Image.LANCZOS).save(f'ios/Runner/AltIcons/AppIcon-{id_}@2x.png')
-            img.resize((180, 180), Image.LANCZOS).save(f'ios/Runner/AltIcons/AppIcon-{id_}@3x.png')
+            # Alternate icon as its own single-size asset catalog set; listed in
+            # ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES in the Xcode project.
+            set_dir = f'ios/Runner/Assets.xcassets/AppIcon-{id_}.appiconset'
+            os.makedirs(set_dir, exist_ok=True)
+            img.save(f'{set_dir}/icon-1024.png')
+            json.dump({
+                'images': [{'filename': 'icon-1024.png', 'idiom': 'universal', 'platform': 'ios', 'size': '1024x1024'}],
+                'info': {'author': 'xcode', 'version': 1},
+            }, open(f'{set_dir}/Contents.json', 'w'), indent=2)
         else:
             set_dir = 'ios/Runner/Assets.xcassets/AppIcon.appiconset'
             contents = json.load(open(f'{set_dir}/Contents.json'))
