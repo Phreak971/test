@@ -23,7 +23,12 @@ class GeoUri {
         point = Geo(lat, lng);
       }
     }
-    final q = uri.queryParameters['q']?.trim();
+    String? q;
+    try {
+      q = uri.queryParameters['q']?.trim();
+    } on FormatException {
+      return null; // malformed percent-encoding
+    }
     if (q != null && q.isNotEmpty) {
       // "q=lat,lng(Label)"
       final m = RegExp(r'^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*(?:\((.*)\))?\s*$').firstMatch(q);

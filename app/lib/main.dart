@@ -9,8 +9,5 @@ import 'state/providers.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
-  runApp(ProviderScope(
-    overrides: [localStoreProvider.overrideWithValue(LocalStore(prefs))],
-    child: const OverworldApp(),
-  ));
+  runApp(ProviderScope(overrides: [localStoreProvider.overrideWithValue(LocalStore(prefs))], child: const OverworldApp()));
 }

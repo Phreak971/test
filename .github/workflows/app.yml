@@ -33,6 +33,8 @@ jobs:
       - run: flutter gen-l10n
       - run: flutter analyze
       - run: flutter test
+      - name: Web-compiled tests (dart2js integer semantics)
+        run: flutter test --platform chrome test/geo_web_safe_test.dart
       - name: Validate map styles with the MapLibre style spec
         run: |
           npm install --no-save --silent @maplibre/maplibre-gl-style-spec@23

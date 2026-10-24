@@ -14,22 +14,24 @@ class NoRouteException implements Exception {
 /// Driving directions from an OSRM server.
 class RoutingService {
   RoutingService({JsonClient? client, this.base = 'https://router.project-osrm.org'})
-      : _client = client ?? JsonClient(timeout: const Duration(seconds: 15));
+    : _client = client ?? JsonClient(timeout: const Duration(seconds: 15));
 
   final JsonClient _client;
   final String base;
 
   Future<RouteResult> route(Geo from, Geo to, {double? headingDeg}) async {
     final coords = '${from.lng},${from.lat};${to.lng},${to.lat}';
-    final uri = Uri.parse('$base/route/v1/driving/$coords').replace(queryParameters: {
-      'overview': 'full',
-      'geometries': 'polyline6',
-      'steps': 'true',
-      'alternatives': 'false',
-      // Prefer continuing in the current direction when rerouting.
-      if (headingDeg != null) 'bearings': '${headingDeg.round() % 360},60;',
-      if (headingDeg != null) 'radiuses': '50;unlimited',
-    });
+    final uri = Uri.parse('$base/route/v1/driving/$coords').replace(
+      queryParameters: {
+        'overview': 'full',
+        'geometries': 'polyline6',
+        'steps': 'true',
+        'alternatives': 'false',
+        // Prefer continuing in the current direction when rerouting.
+        if (headingDeg != null) 'bearings': '${headingDeg.round() % 360},60;',
+        if (headingDeg != null) 'radiuses': '50;unlimited',
+      },
+    );
     final json = await _client.getJson(uri) as Map<String, dynamic>;
     return parseOsrmRoute(json);
   }
@@ -39,6 +41,19 @@ class RoutingService {
 
 /// Parses an OSRM `route` response. Exposed for tests.
 RouteResult parseOsrmRoute(Map<String, dynamic> json) {
+  try {
+    final r = _parseOsrm(json);
+    // Navigation needs a drawable line and at least one maneuver.
+    if (r.geometry.length < 2 || r.steps.isEmpty) throw const NoRouteException('InvalidRoute');
+    return r;
+  } on NoRouteException {
+    rethrow;
+  } catch (_) {
+    throw const NoRouteException('InvalidRoute');
+  }
+}
+
+RouteResult _parseOsrm(Map<String, dynamic> json) {
   final code = json['code'] as String? ?? 'Error';
   final routes = (json['routes'] as List?)?.cast<Map<String, dynamic>>() ?? const [];
   if (code != 'Ok' || routes.isEmpty) throw NoRouteException(code);
@@ -49,15 +64,17 @@ RouteResult parseOsrmRoute(Map<String, dynamic> json) {
     for (final s in (leg['steps'] as List).cast<Map<String, dynamic>>()) {
       final m = (s['maneuver'] as Map).cast<String, dynamic>();
       final loc = (m['location'] as List).cast<num>();
-      steps.add(RouteStep(
-        kind: maneuverKind(m['type'] as String?, m['modifier'] as String?),
-        location: Geo(loc[1].toDouble(), loc[0].toDouble()),
-        distanceM: (s['distance'] as num).toDouble(),
-        durationS: (s['duration'] as num).toDouble(),
-        streetName: _streetName(s),
-        geometry: decodePolyline(s['geometry'] as String, precision: 6),
-        roundaboutExit: (m['exit'] as num?)?.toInt(),
-      ));
+      steps.add(
+        RouteStep(
+          kind: maneuverKind(m['type'] as String?, m['modifier'] as String?),
+          location: Geo(loc[1].toDouble(), loc[0].toDouble()),
+          distanceM: (s['distance'] as num).toDouble(),
+          durationS: (s['duration'] as num).toDouble(),
+          streetName: _streetName(s),
+          geometry: decodePolyline(s['geometry'] as String, precision: 6),
+          roundaboutExit: (m['exit'] as num?)?.toInt(),
+        ),
+      );
     }
   }
   return RouteResult(

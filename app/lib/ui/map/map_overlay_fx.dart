@@ -67,7 +67,12 @@ class _FxPainter extends CustomPainter {
         }
         // Grid references along the edges, like a recon sheet.
         final tp = TextPainter(textDirection: TextDirection.ltr);
-        final style = TextStyle(color: Color(palette.label).withValues(alpha: 0.45), fontSize: 9, fontWeight: FontWeight.w700, letterSpacing: 1);
+        final style = TextStyle(
+          color: Color(palette.label).withValues(alpha: 0.45),
+          fontSize: 9,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1,
+        );
         var col = 0;
         for (var x = 0.0; x < size.width; x += step, col++) {
           tp.text = TextSpan(text: String.fromCharCode(65 + col % 26), style: style);

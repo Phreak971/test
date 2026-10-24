@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../state/location.dart';
+import '../../state/providers.dart';
 import '../hud.dart';
 
 /// Explains location use before the system prompt (HIG: prime, then ask),
@@ -25,7 +26,7 @@ class LocationPermissionSheet extends ConsumerWidget {
             width: 76,
             height: 76,
             decoration: BoxDecoration(color: hud.accent.withValues(alpha: 0.18), shape: BoxShape.circle),
-            child: Icon(Icons.my_location_rounded, color: hud.accent, size: 38),
+            child: Icon(Icons.my_location_rounded, color: hud.accentText, size: 38),
           ),
           const SizedBox(height: 14),
           Semantics(
@@ -37,7 +38,11 @@ class LocationPermissionSheet extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(l.obLocationBody, style: TextStyle(color: hud.muted, fontSize: 15, height: 1.35), textAlign: TextAlign.center),
+          Text(
+            blocked ? l.locationDeniedBody : l.obLocationBody,
+            style: TextStyle(color: hud.muted, fontSize: 15, height: 1.35),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 20),
           PrimaryButton(
             hud: hud,
@@ -57,8 +62,14 @@ class LocationPermissionSheet extends ConsumerWidget {
           const SizedBox(height: 8),
           TextButton(
             style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(l.obSkipLocation, style: TextStyle(color: hud.muted, fontWeight: FontWeight.w600)),
+            onPressed: () {
+              ref.read(settingsProvider.notifier).dismissLocationPrompt();
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              l.obSkipLocation,
+              style: TextStyle(color: hud.muted, fontWeight: FontWeight.w600),
+            ),
           ),
         ],
       ),

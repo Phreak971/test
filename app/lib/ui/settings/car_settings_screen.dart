@@ -7,6 +7,7 @@ import '../../state/providers.dart';
 import '../../themes/map_theme.dart';
 import '../../themes/theme_catalog.dart';
 import '../hud.dart';
+import '../paywall/paywall_screen.dart';
 import '../themes/theme_swatch.dart';
 
 /// Light/dark map styles for CarPlay / Android Auto.
@@ -41,11 +42,11 @@ class CarSettingsScreen extends ConsumerWidget {
                 return Semantics(
                   button: true,
                   selected: selected,
-                  label: '${t.name}${selected ? ', ${l.currentlyActive}' : ''}',
+                  label: '${t.name}${selected ? ', ${l.currentlyActive}' : ''}${locked ? ', ${l.proLocked}' : ''}',
                   excludeSemantics: true,
                   child: GestureDetector(
                     onTap: locked
-                        ? null
+                        ? () => Navigator.of(context).push(MaterialPageRoute(fullscreenDialog: true, builder: (_) => const PaywallScreen()))
                         : () {
                             onPick(t.id);
                             ref.read(toastProvider.notifier).show(l.carUpdated);
@@ -74,7 +75,12 @@ class CarSettingsScreen extends ConsumerWidget {
                               ),
                             ),
                             const SizedBox(height: 6),
-                            Text(t.name, style: TextStyle(color: selected ? hud.accent : hud.text, fontWeight: FontWeight.w700, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
+                            Text(
+                              t.name,
+                              style: TextStyle(color: selected ? hud.accentText : hud.text, fontWeight: FontWeight.w700, fontSize: 13),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ],
                         ),
                       ),
@@ -102,8 +108,11 @@ class CarSettingsScreen extends ConsumerWidget {
                 SwitchListTile.adaptive(
                   value: s.carAlwaysDark,
                   activeTrackColor: hud.accent,
-                  secondary: Icon(Icons.dark_mode_rounded, color: hud.accent),
-                  title: Text(l.carAlwaysDark, style: TextStyle(color: hud.text, fontWeight: FontWeight.w600)),
+                  secondary: Icon(Icons.dark_mode_rounded, color: hud.accentText),
+                  title: Text(
+                    l.carAlwaysDark,
+                    style: TextStyle(color: hud.text, fontWeight: FontWeight.w600),
+                  ),
                   onChanged: (v) {
                     n.setCarAlwaysDark(v);
                     ref.read(toastProvider.notifier).show(l.carUpdated);

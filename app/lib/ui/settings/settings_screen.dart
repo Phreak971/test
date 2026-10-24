@@ -47,19 +47,23 @@ class SettingsScreen extends ConsumerWidget {
     final notifier = ref.read(settingsProvider.notifier);
 
     Widget tile(IconData icon, String title, {String? value, VoidCallback? onTap, Widget? trailing, Color? color}) => ListTile(
-          minTileHeight: 56,
-          leading: Icon(icon, color: color ?? hud.accent),
-          title: Text(title, style: TextStyle(color: color ?? hud.text, fontWeight: FontWeight.w600, fontSize: 16)),
-          trailing: trailing ??
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (value != null) Text(value, style: TextStyle(color: hud.muted, fontSize: 15)),
-                  if (onTap != null) Icon(Icons.chevron_right_rounded, color: hud.muted),
-                ],
-              ),
-          onTap: onTap,
-        );
+      minTileHeight: 56,
+      leading: Icon(icon, color: color ?? hud.accentText),
+      title: Text(
+        title,
+        style: TextStyle(color: color ?? hud.text, fontWeight: FontWeight.w600, fontSize: 16),
+      ),
+      trailing:
+          trailing ??
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (value != null) Text(value, style: TextStyle(color: hud.muted, fontSize: 15)),
+              if (onTap != null) Icon(Icons.chevron_right_rounded, color: hud.muted),
+            ],
+          ),
+      onTap: onTap,
+    );
 
     void push(Widget w) => Navigator.of(context).push(MaterialPageRoute(builder: (_) => w));
 
@@ -116,17 +120,31 @@ class SettingsScreen extends ConsumerWidget {
                 tile(Icons.apps_rounded, l.appIcon, onTap: () => push(const AppIconScreen())),
                 HudSectionHeader(hud: hud, text: l.sectionNavigation),
                 tile(Icons.record_voice_over_rounded, l.voice, value: personaById(s.voiceId).name, onTap: () => push(const VoiceScreen())),
-                tile(Icons.directions_car_rounded, _isIOS ? l.carSettingsIos : l.carSettingsAndroid, onTap: () => push(const CarSettingsScreen())),
+                tile(
+                  Icons.directions_car_rounded,
+                  _isIOS ? l.carSettingsIos : l.carSettingsAndroid,
+                  onTap: () => push(const CarSettingsScreen()),
+                ),
                 HudSectionHeader(hud: hud, text: l.sectionSupport),
                 tile(Icons.star_rounded, l.rateUs, onTap: openStoreReview),
-                tile(Icons.ios_share_rounded, l.shareApp, onTap: () {
-                  final box = context.findRenderObject() as RenderBox?;
-                  SharePlus.instance.share(ShareParams(
-                    text: '${l.shareText}\n${_isIOS ? AppConfig.appStoreUrl : AppConfig.playStoreUrl}',
-                    sharePositionOrigin: box == null ? null : box.localToGlobal(Offset.zero) & box.size,
-                  ));
-                }),
-                tile(Icons.groups_rounded, l.community, onTap: () => launchUrl(AppConfig.communityUrl, mode: LaunchMode.externalApplication)),
+                tile(
+                  shareIcon,
+                  l.shareApp,
+                  onTap: () {
+                    final box = context.findRenderObject() as RenderBox?;
+                    SharePlus.instance.share(
+                      ShareParams(
+                        text: '${l.shareText}\n${_isIOS ? AppConfig.appStoreUrl : AppConfig.playStoreUrl}',
+                        sharePositionOrigin: box == null ? null : box.localToGlobal(Offset.zero) & box.size,
+                      ),
+                    );
+                  },
+                ),
+                tile(
+                  Icons.groups_rounded,
+                  l.community,
+                  onTap: () => launchUrl(AppConfig.communityUrl, mode: LaunchMode.externalApplication),
+                ),
                 tile(Icons.mail_rounded, l.contactUs, onTap: () => push(const ContactScreen())),
                 tile(Icons.restore_rounded, l.restorePurchases, onTap: () => restorePurchases(context, ref)),
                 HudSectionHeader(hud: hud, text: l.sectionLegal),
@@ -135,7 +153,11 @@ class SettingsScreen extends ConsumerWidget {
                 tile(Icons.delete_forever_rounded, l.cleanData, color: const Color(0xFFE57373), onTap: () => _cleanData(context, ref)),
                 Padding(
                   padding: const EdgeInsets.all(20),
-                  child: Text(l.versionLabel(appVersion), style: TextStyle(color: hud.muted), textAlign: TextAlign.center),
+                  child: Text(
+                    l.versionLabel(appVersion),
+                    style: TextStyle(color: hud.muted),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ],
             ),

@@ -8,6 +8,7 @@ import '../../l10n/app_localizations.dart';
 import '../../purchases/purchases.dart';
 import '../../state/providers.dart';
 import '../../themes/theme_catalog.dart';
+import '../home/places_sheets.dart' show adaptiveAction;
 import '../hud.dart';
 import '../themes/theme_swatch.dart';
 
@@ -55,7 +56,12 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   Future<void> _buy(Plan plan) async {
     final l = L.of(context);
     setState(() => _busy = true);
-    final outcome = await ref.read(purchaseServiceProvider).buy(plan);
+    PurchaseOutcome outcome;
+    try {
+      outcome = await ref.read(purchaseServiceProvider).buy(plan);
+    } catch (_) {
+      outcome = PurchaseOutcome.failed;
+    }
     if (!mounted) return;
     setState(() => _busy = false);
     switch (outcome) {
@@ -67,7 +73,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           builder: (ctx) => AlertDialog.adaptive(
             title: Text(l.purchaseSuccessTitle),
             content: Text(l.purchaseSuccessBody),
-            actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(l.continueLabel))],
+            actions: [adaptiveAction(ctx, label: l.continueLabel, isDefault: true, onPressed: () => Navigator.of(ctx).pop())],
           ),
         );
         if (mounted) _close();
@@ -84,18 +90,18 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   }
 
   String _periodLabel(L l, PlanPeriod p) => switch (p) {
-        PlanPeriod.weekly => l.planWeekly,
-        PlanPeriod.monthly => l.planMonthly,
-        PlanPeriod.yearly => l.planYearly,
-        PlanPeriod.lifetime => l.planLifetime,
-      };
+    PlanPeriod.weekly => l.planWeekly,
+    PlanPeriod.monthly => l.planMonthly,
+    PlanPeriod.yearly => l.planYearly,
+    PlanPeriod.lifetime => l.planLifetime,
+  };
 
   String _billing(L l, Plan p) => switch (p.period) {
-        PlanPeriod.weekly => l.billedWeekly,
-        PlanPeriod.monthly => l.billedMonthly,
-        PlanPeriod.yearly => p.hasTrial ? '${l.freeTrial} · ${l.billedYearly}' : l.billedYearly,
-        PlanPeriod.lifetime => l.oneTimePurchase,
-      };
+    PlanPeriod.weekly => l.billedWeekly,
+    PlanPeriod.monthly => l.billedMonthly,
+    PlanPeriod.yearly => p.hasTrial ? l.trialTerms(p.trialDays!, p.price) : l.billedYearly,
+    PlanPeriod.lifetime => l.oneTimePurchase,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -132,9 +138,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                 child: GridView.count(
                   physics: const NeverScrollableScrollPhysics(),
                   crossAxisCount: 4,
-                  children: [
-                    for (final t in themeCatalog.take(12)) ThemeSwatch(theme: t, variant: t.baseVariant),
-                  ],
+                  children: [for (final t in themeCatalog.take(12)) ThemeSwatch(theme: t, variant: t.baseVariant)],
                 ),
               ),
             ),
@@ -150,74 +154,112 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                   ),
                 ),
                 Expanded(
-                  child: ListView(
-                    padding: EdgeInsets.fromLTRB(20, mq.size.height * 0.08, 20, 8),
-                    children: [
-                      Semantics(header: true, child: Text(l.paywallTitle, style: displayStyle(hud, 32), textAlign: TextAlign.center)),
-                      const SizedBox(height: 14),
-                      for (final f in [
-                        (Icons.map_rounded, l.paywallFeatureMaps),
-                        (Icons.record_voice_over_rounded, l.paywallFeatureVoices),
-                        (Icons.directions_car_rounded, l.paywallFeatureCar),
-                        (Icons.auto_awesome_rounded, l.paywallFeatureUpdates),
-                      ])
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                          child: Row(children: [
-                            Icon(f.$1, color: hud.accent),
-                            const SizedBox(width: 12),
-                            Expanded(child: Text(f.$2, style: TextStyle(color: hud.text, fontSize: 16, fontWeight: FontWeight.w600))),
-                          ]),
-                        ),
-                      const SizedBox(height: 14),
-                      if (premium)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          child: Text(l.proActive, style: displayStyle(hud, 18, color: hud.accent), textAlign: TextAlign.center),
-                        )
-                      else
-                        plansAsync.when(
-                          loading: () => Padding(padding: const EdgeInsets.all(24), child: Center(child: CircularProgressIndicator(color: hud.accent))),
-                          error: (_, _) => Text(l.storeUnavailable, style: TextStyle(color: hud.muted), textAlign: TextAlign.center),
-                          data: (plans) => plans.isEmpty
-                              ? Text(l.storeUnavailable, style: TextStyle(color: hud.muted), textAlign: TextAlign.center)
-                              : Column(
-                                  children: [
-                                    for (final p in plans)
-                                      _PlanTile(
-                                        hud: hud,
-                                        title: _periodLabel(l, p.period),
-                                        subtitle: _billing(l, p),
-                                        price: p.price,
-                                        badge: p.period == PlanPeriod.yearly ? l.bestValue : null,
-                                        selected: p.id == selectedId,
-                                        onTap: () => setState(() => _selectedId = p.id),
-                                      ),
-                                  ],
-                                ),
-                        ),
-                      const SizedBox(height: 6),
-                      Text(l.autoRenew, style: TextStyle(color: hud.muted, fontSize: 11), textAlign: TextAlign.center),
-                      Wrap(
-                        alignment: WrapAlignment.center,
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 520),
+                      child: ListView(
+                        // Content begins where the swatch hero has faded out.
+                        padding: EdgeInsets.fromLTRB(20, mq.size.height * 0.3 - 72, 20, 8),
                         children: [
-                          TextButton(onPressed: () => restorePurchases(context, ref), child: Text(l.restore)),
-                          TextButton(onPressed: () => launchUrl(AppConfig.termsUrl), child: Text(l.terms)),
-                          TextButton(onPressed: () => launchUrl(AppConfig.privacyUrl), child: Text(l.privacy)),
+                          Semantics(
+                            header: true,
+                            child: Text(l.paywallTitle, style: displayStyle(hud, 32), textAlign: TextAlign.center),
+                          ),
+                          const SizedBox(height: 14),
+                          for (final f in [
+                            (Icons.map_rounded, l.paywallFeatureMaps),
+                            (Icons.record_voice_over_rounded, l.paywallFeatureVoices),
+                            (Icons.directions_car_rounded, l.paywallFeatureCar),
+                            (Icons.auto_awesome_rounded, l.paywallFeatureUpdates),
+                          ])
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              child: Row(
+                                children: [
+                                  Icon(f.$1, color: hud.accentText),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      f.$2,
+                                      style: TextStyle(color: hud.text, fontSize: 16, fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          const SizedBox(height: 14),
+                          if (premium)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              child: Text(
+                                l.proActive,
+                                style: displayStyle(hud, 18, color: hud.accentText),
+                                textAlign: TextAlign.center,
+                              ),
+                            )
+                          else
+                            plansAsync.when(
+                              loading: () => Padding(
+                                padding: const EdgeInsets.all(24),
+                                child: Center(child: CircularProgressIndicator(color: hud.accentText)),
+                              ),
+                              error: (_, _) => Text(
+                                l.storeUnavailable,
+                                style: TextStyle(color: hud.muted),
+                                textAlign: TextAlign.center,
+                              ),
+                              data: (plans) => plans.isEmpty
+                                  ? Text(
+                                      l.storeUnavailable,
+                                      style: TextStyle(color: hud.muted),
+                                      textAlign: TextAlign.center,
+                                    )
+                                  : Column(
+                                      children: [
+                                        for (final p in plans)
+                                          _PlanTile(
+                                            hud: hud,
+                                            title: _periodLabel(l, p.period),
+                                            subtitle: _billing(l, p),
+                                            price: p.price,
+                                            badge: p.period == PlanPeriod.yearly ? l.bestValue : null,
+                                            selected: p.id == selectedId,
+                                            onTap: () => setState(() => _selectedId = p.id),
+                                          ),
+                                      ],
+                                    ),
+                            ),
+                          const SizedBox(height: 6),
+                          Text(
+                            l.autoRenew,
+                            style: TextStyle(color: hud.muted, fontSize: 11),
+                            textAlign: TextAlign.center,
+                          ),
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            children: [
+                              TextButton(onPressed: () => restorePurchases(context, ref), child: Text(l.restore)),
+                              TextButton(onPressed: () => launchUrl(AppConfig.termsUrl), child: Text(l.terms)),
+                              TextButton(onPressed: () => launchUrl(AppConfig.privacyUrl), child: Text(l.privacy)),
+                            ],
+                          ),
                         ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
                 // Pinned call to action within thumb reach.
                 if (!premium && selectedId != null)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-                    child: PrimaryButton(
-                      hud: hud,
-                      busy: _busy,
-                      label: l.continueLabel,
-                      onPressed: () => _buy(plans.firstWhere((p) => p.id == selectedId)),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 520),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                      child: PrimaryButton(
+                        hud: hud,
+                        busy: _busy,
+                        label: plans.firstWhere((p) => p.id == selectedId).hasTrial ? l.startFreeTrial : l.continueLabel,
+                        onPressed: () => _buy(plans.firstWhere((p) => p.id == selectedId)),
+                      ),
                     ),
                   ),
               ],
@@ -231,7 +273,15 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
 }
 
 class _PlanTile extends StatelessWidget {
-  const _PlanTile({required this.hud, required this.title, required this.subtitle, required this.price, required this.selected, required this.onTap, this.badge});
+  const _PlanTile({
+    required this.hud,
+    required this.title,
+    required this.subtitle,
+    required this.price,
+    required this.selected,
+    required this.onTap,
+    this.badge,
+  });
 
   final Hud hud;
   final String title;
@@ -247,6 +297,8 @@ class _PlanTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Semantics(
         selected: selected,
+        checked: selected,
+        inMutuallyExclusiveGroup: true,
         button: true,
         label: '$title, $price, $subtitle${badge != null ? ', $badge' : ''}',
         excludeSemantics: true,
@@ -266,22 +318,33 @@ class _PlanTile extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(selected ? Icons.radio_button_checked_rounded : Icons.radio_button_unchecked_rounded, color: selected ? hud.accent : hud.muted),
+                Icon(
+                  selected ? Icons.radio_button_checked_rounded : Icons.radio_button_unchecked_rounded,
+                  color: selected ? hud.accentText : hud.muted,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Wrap(spacing: 8, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
-                        Text(title, style: displayStyle(hud, 17)),
-                        if (badge != null) ...[
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(color: hud.accent, borderRadius: BorderRadius.circular(4)),
-                            child: Text(badge!, style: TextStyle(color: hud.onAccent, fontSize: 11, fontWeight: FontWeight.w800)),
-                          ),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Text(title, style: displayStyle(hud, 17)),
+                          if (badge != null) ...[
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(color: hud.accent, borderRadius: BorderRadius.circular(4)),
+                              child: Text(
+                                badge!,
+                                style: TextStyle(color: hud.onAccent, fontSize: 11, fontWeight: FontWeight.w800),
+                              ),
+                            ),
+                          ],
                         ],
-                      ]),
+                      ),
                       Text(subtitle, style: TextStyle(color: hud.muted, fontSize: 13)),
                     ],
                   ),
@@ -295,4 +358,3 @@ class _PlanTile extends StatelessWidget {
     );
   }
 }
-

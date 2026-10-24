@@ -9,6 +9,8 @@ abstract final class AppLayers {
   static const pinSource = 'app-pin';
   static const userSource = 'app-user';
   static const destSource = 'app-dest';
+  static const resultsSource = 'app-results';
+  static const results = 'app-results';
 
   static const routeCasing = 'app-route-casing';
   static const routeLine = 'app-route-line';
@@ -76,9 +78,32 @@ const poiClassIcons = <String, String>{
 
 /// Every POI icon id the style can reference.
 const poiIconIds = <String>[
-  'food', 'fastfood', 'coffee', 'bar', 'shop', 'clothes', 'grocery', 'fuel', 'charging',
-  'parking', 'hotel', 'hospital', 'pharmacy', 'bank', 'rail', 'bus', 'school', 'park',
-  'gym', 'hair', 'car', 'cinema', 'museum', 'airport', 'worship', 'dot',
+  'food',
+  'fastfood',
+  'coffee',
+  'bar',
+  'shop',
+  'clothes',
+  'grocery',
+  'fuel',
+  'charging',
+  'parking',
+  'hotel',
+  'hospital',
+  'pharmacy',
+  'bank',
+  'rail',
+  'bus',
+  'school',
+  'park',
+  'gym',
+  'hair',
+  'car',
+  'cinema',
+  'museum',
+  'airport',
+  'worship',
+  'dot',
 ];
 
 String hex(int argb) {
@@ -110,16 +135,31 @@ class StyleBuilder {
     final spacing = t.labelLetterSpacing;
 
     List<Object> roadWidth(double base) => [
-          'interpolate', ['exponential', 1.5], ['zoom'],
-          5, 0.5 * base * w,
-          12, 1.2 * base * w,
-          15, 4 * base * w,
-          18, 18 * base * w,
-          20, 40 * base * w,
-        ];
+      'interpolate',
+      ['exponential', 1.5],
+      ['zoom'],
+      5,
+      0.5 * base * w,
+      12,
+      1.2 * base * w,
+      15,
+      4 * base * w,
+      18,
+      18 * base * w,
+      20,
+      40 * base * w,
+    ];
 
-    Map<String, dynamic> roadLayer(String id, List<Object> classes, int color, double base,
-        {bool casing = false, bool dashed = false, double minzoom = 5, bool tunnel = false}) {
+    Map<String, dynamic> roadLayer(
+      String id,
+      List<Object> classes,
+      int color,
+      double base, {
+      bool casing = false,
+      bool dashed = false,
+      double minzoom = 5,
+      bool tunnel = false,
+    }) {
       return {
         'id': id,
         'type': 'line',
@@ -128,8 +168,25 @@ class StyleBuilder {
         'minzoom': minzoom,
         'filter': [
           'all',
-          ['match', ['get', 'class'], classes, true, false],
-          if (tunnel) ['==', ['get', 'brunnel'], 'tunnel'] else ['!=', ['get', 'brunnel'], 'tunnel'],
+          [
+            'match',
+            ['get', 'class'],
+            classes,
+            true,
+            false,
+          ],
+          if (tunnel)
+            [
+              '==',
+              ['get', 'brunnel'],
+              'tunnel',
+            ]
+          else
+            [
+              '!=',
+              ['get', 'brunnel'],
+              'tunnel',
+            ],
         ],
         'layout': {'line-cap': dashed ? 'butt' : 'round', 'line-join': 'round'},
         'paint': {
@@ -145,13 +202,23 @@ class StyleBuilder {
     final minors = ['minor', 'service', 'street', 'residential', 'living_street', 'unclassified'];
 
     final layers = <Map<String, dynamic>>[
-      {'id': 'background', 'type': 'background', 'paint': {'background-color': hex(p.land)}},
+      {
+        'id': 'background',
+        'type': 'background',
+        'paint': {'background-color': hex(p.land)},
+      },
       {
         'id': 'landuse-residential',
         'type': 'fill',
         'source': 'openmaptiles',
         'source-layer': 'landuse',
-        'filter': ['match', ['get', 'class'], ['residential', 'suburb', 'neighbourhood', 'commercial', 'retail', 'industrial'], true, false],
+        'filter': [
+          'match',
+          ['get', 'class'],
+          ['residential', 'suburb', 'neighbourhood', 'commercial', 'retail', 'industrial'],
+          true,
+          false,
+        ],
         'paint': {'fill-color': hex(p.landAlt)},
       },
       {
@@ -159,7 +226,13 @@ class StyleBuilder {
         'type': 'fill',
         'source': 'openmaptiles',
         'source-layer': 'landcover',
-        'filter': ['match', ['get', 'class'], ['wood', 'grass', 'farmland', 'wetland'], true, false],
+        'filter': [
+          'match',
+          ['get', 'class'],
+          ['wood', 'grass', 'farmland', 'wetland'],
+          true,
+          false,
+        ],
         'paint': {'fill-color': hex(p.park), 'fill-opacity': 0.7},
       },
       {
@@ -174,7 +247,11 @@ class StyleBuilder {
         'type': 'fill',
         'source': 'openmaptiles',
         'source-layer': 'water',
-        'filter': ['!=', ['get', 'brunnel'], 'tunnel'],
+        'filter': [
+          '!=',
+          ['get', 'brunnel'],
+          'tunnel',
+        ],
         'paint': {'fill-color': hex(p.water)},
       },
       {
@@ -192,7 +269,15 @@ class StyleBuilder {
         'source-layer': 'waterway',
         'paint': {
           'line-color': hex(p.water),
-          'line-width': ['interpolate', ['linear'], ['zoom'], 8, 0.5, 16, 4],
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            8,
+            0.5,
+            16,
+            4,
+          ],
         },
       },
       {
@@ -213,9 +298,32 @@ class StyleBuilder {
           'paint': {
             'fill-extrusion-color': hex(p.building),
             'fill-extrusion-height': t.blockyBuildings
-                ? ['*', 6, ['ceil', ['/', ['coalesce', ['get', 'render_height'], 6], 6]]]
-                : ['coalesce', ['get', 'render_height'], 6],
-            'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0],
+                ? [
+                    '*',
+                    6,
+                    [
+                      'ceil',
+                      [
+                        '/',
+                        [
+                          'coalesce',
+                          ['get', 'render_height'],
+                          6,
+                        ],
+                        6,
+                      ],
+                    ],
+                  ]
+                : [
+                    'coalesce',
+                    ['get', 'render_height'],
+                    6,
+                  ],
+            'fill-extrusion-base': [
+              'coalesce',
+              ['get', 'render_min_height'],
+              0,
+            ],
             'fill-extrusion-opacity': 0.85,
           },
         }
@@ -243,10 +351,24 @@ class StyleBuilder {
         'source': 'openmaptiles',
         'source-layer': 'transportation',
         'minzoom': 11,
-        'filter': ['match', ['get', 'class'], ['rail', 'transit'], true, false],
+        'filter': [
+          'match',
+          ['get', 'class'],
+          ['rail', 'transit'],
+          true,
+          false,
+        ],
         'paint': {
           'line-color': hex(p.rail),
-          'line-width': ['interpolate', ['linear'], ['zoom'], 11, 0.6, 18, 2.5],
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            11,
+            0.6,
+            18,
+            2.5,
+          ],
           'line-dasharray': [3, 2],
         },
       },
@@ -255,8 +377,17 @@ class StyleBuilder {
         'type': 'line',
         'source': 'openmaptiles',
         'source-layer': 'boundary',
-        'filter': ['<=', ['get', 'admin_level'], 4],
-        'paint': {'line-color': hex(p.label), 'line-opacity': 0.35, 'line-dasharray': [4, 2], 'line-width': 1},
+        'filter': [
+          '<=',
+          ['get', 'admin_level'],
+          4,
+        ],
+        'paint': {
+          'line-color': hex(p.label),
+          'line-opacity': 0.35,
+          'line-dasharray': [4, 2],
+          'line-width': 1,
+        },
       },
       // App: route under labels so street names stay readable.
       {
@@ -266,7 +397,15 @@ class StyleBuilder {
         'layout': {'line-cap': 'round', 'line-join': 'round'},
         'paint': {
           'line-color': hex(p.routeCasing),
-          'line-width': ['interpolate', ['linear'], ['zoom'], 10, 7, 18, 20],
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            10,
+            7,
+            18,
+            20,
+          ],
         },
       },
       {
@@ -276,7 +415,15 @@ class StyleBuilder {
         'layout': {'line-cap': 'round', 'line-join': 'round'},
         'paint': {
           'line-color': hex(p.route),
-          'line-width': ['interpolate', ['linear'], ['zoom'], 10, 4, 18, 13],
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            10,
+            4,
+            18,
+            13,
+          ],
         },
       },
       {
@@ -285,12 +432,30 @@ class StyleBuilder {
         'source': 'openmaptiles',
         'source-layer': 'transportation_name',
         'minzoom': 13,
-        'filter': ['match', ['get', 'class'], ['motorway', ...majors, ...minors], true, false],
+        'filter': [
+          'match',
+          ['get', 'class'],
+          ['motorway', ...majors, ...minors],
+          true,
+          false,
+        ],
         'layout': {
           'symbol-placement': 'line',
-          'text-field': ['coalesce', ['get', 'name:latin'], ['get', 'name']],
+          'text-field': [
+            'coalesce',
+            ['get', 'name:latin'],
+            ['get', 'name'],
+          ],
           'text-font': regular,
-          'text-size': ['interpolate', ['linear'], ['zoom'], 13, 10, 18, 14],
+          'text-size': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            13,
+            10,
+            18,
+            14,
+          ],
           'text-transform': transform,
           'text-letter-spacing': spacing,
           'text-max-angle': 30,
@@ -303,7 +468,11 @@ class StyleBuilder {
         'source': 'openmaptiles',
         'source-layer': 'water_name',
         'layout': {
-          'text-field': ['coalesce', ['get', 'name:latin'], ['get', 'name']],
+          'text-field': [
+            'coalesce',
+            ['get', 'name:latin'],
+            ['get', 'name'],
+          ],
           'text-font': ['Noto Sans Italic'],
           'text-size': 13,
           'text-letter-spacing': 0.1,
@@ -316,17 +485,44 @@ class StyleBuilder {
         'source': 'openmaptiles',
         'source-layer': 'poi',
         'minzoom': 14,
-        'filter': ['<=', ['get', 'rank'], 8 + t.poiDensity * 8],
+        'filter': [
+          '<=',
+          ['get', 'rank'],
+          8 + t.poiDensity * 8,
+        ],
         'layout': {
           'icon-image': [
             'concat',
             'poi-',
-            ['match', ['get', 'class'], ...poiClassIcons.entries.expand((e) => [e.key, e.value]), 'dot'],
+            [
+              'match',
+              ['get', 'class'],
+              ...poiClassIcons.entries.expand((e) => [e.key, e.value]),
+              'dot',
+            ],
           ],
-          'icon-size': ['interpolate', ['linear'], ['zoom'], 14, 0.55, 18, 0.8],
+          'icon-size': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            14,
+            0.55,
+            18,
+            0.8,
+          ],
           'icon-allow-overlap': false,
           'icon-padding': 4,
-          'text-field': ['step', ['zoom'], '', 17, ['coalesce', ['get', 'name:latin'], ['get', 'name']]],
+          'text-field': [
+            'step',
+            ['zoom'],
+            '',
+            17,
+            [
+              'coalesce',
+              ['get', 'name:latin'],
+              ['get', 'name'],
+            ],
+          ],
           'text-font': regular,
           'text-size': 11,
           'text-offset': [0, 1.4],
@@ -341,18 +537,66 @@ class StyleBuilder {
         'type': 'symbol',
         'source': 'openmaptiles',
         'source-layer': 'place',
-        'filter': ['match', ['get', 'class'], ['city', 'town', 'village', 'suburb', 'neighbourhood', 'quarter'], true, false],
+        'filter': [
+          'match',
+          ['get', 'class'],
+          ['city', 'town', 'village', 'suburb', 'neighbourhood', 'quarter'],
+          true,
+          false,
+        ],
         'layout': {
-          'text-field': ['coalesce', ['get', 'name:latin'], ['get', 'name']],
+          'text-field': [
+            'coalesce',
+            ['get', 'name:latin'],
+            ['get', 'name'],
+          ],
           'text-font': bold,
           // One zoom interpolation with per-class sizes at each stop (the
           // style spec allows only a single zoom curve per expression).
           'text-size': [
-            'interpolate', ['linear'], ['zoom'],
-            6, ['match', ['get', 'class'], 'city', 13, 'town', 10, 9],
-            11, ['match', ['get', 'class'], 'city', 18, 'town', 14, 10],
-            14, ['match', ['get', 'class'], 'city', 22, 'town', 18, 13],
-            16, ['match', ['get', 'class'], 'city', 24, 'town', 20, 14],
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            6,
+            [
+              'match',
+              ['get', 'class'],
+              'city',
+              13,
+              'town',
+              10,
+              9,
+            ],
+            11,
+            [
+              'match',
+              ['get', 'class'],
+              'city',
+              18,
+              'town',
+              14,
+              10,
+            ],
+            14,
+            [
+              'match',
+              ['get', 'class'],
+              'city',
+              22,
+              'town',
+              18,
+              13,
+            ],
+            16,
+            [
+              'match',
+              ['get', 'class'],
+              'city',
+              24,
+              'town',
+              20,
+              14,
+            ],
           ],
           'text-transform': transform,
           'text-letter-spacing': spacing + 0.04,
@@ -362,11 +606,42 @@ class StyleBuilder {
       },
       // App overlay symbols, always on top.
       {
+        'id': AppLayers.results,
+        'type': 'symbol',
+        'source': AppLayers.resultsSource,
+        'layout': {
+          'icon-image': [
+            'concat',
+            'poi-',
+            ['get', 'icon'],
+          ],
+          'icon-size': 0.8,
+          'icon-allow-overlap': true,
+          'text-field': [
+            'step',
+            ['zoom'],
+            '',
+            14,
+            ['get', 'name'],
+          ],
+          'text-font': bold,
+          'text-size': 11,
+          'text-offset': [0, 1.5],
+          'text-anchor': 'top',
+          'text-optional': true,
+        },
+        'paint': {'text-color': hex(p.label), 'text-halo-color': hex(p.labelHalo), 'text-halo-width': 1.6},
+      },
+      {
         'id': AppLayers.places,
         'type': 'symbol',
         'source': AppLayers.placesSource,
         'layout': {
-          'icon-image': ['concat', 'place-', ['get', 'icon']],
+          'icon-image': [
+            'concat',
+            'place-',
+            ['get', 'icon'],
+          ],
           'icon-size': 0.75,
           'icon-allow-overlap': true,
           'icon-anchor': 'bottom',
@@ -414,7 +689,14 @@ class StyleBuilder {
       'glyphs': glyphsUrl,
       'sources': {
         'openmaptiles': {'type': 'vector', 'url': tileJsonUrl},
-        for (final id in [AppLayers.routeSource, AppLayers.placesSource, AppLayers.pinSource, AppLayers.userSource, AppLayers.destSource])
+        for (final id in [
+          AppLayers.routeSource,
+          AppLayers.placesSource,
+          AppLayers.pinSource,
+          AppLayers.userSource,
+          AppLayers.destSource,
+          AppLayers.resultsSource,
+        ])
           id: {'type': 'geojson', 'data': _emptyFc},
       },
       'layers': layers,

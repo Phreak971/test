@@ -20,6 +20,8 @@ class AppSettings {
     this.favoriteGenres = const [],
     this.heardFrom,
     this.appIcon = 'default',
+    this.locationPromptDismissed = false,
+    this.arrivals = 0,
   });
 
   final String themeId;
@@ -37,6 +39,12 @@ class AppSettings {
   final String? heardFrom;
   final String appIcon;
 
+  /// User chose "continue without location"; don't nag on launch.
+  final bool locationPromptDismissed;
+
+  /// Completed trips (drives the store-review prompt timing).
+  final int arrivals;
+
   AppSettings copyWith({
     String? themeId,
     bool? Function()? preferDark,
@@ -50,51 +58,58 @@ class AppSettings {
     List<String>? favoriteGenres,
     String? heardFrom,
     String? appIcon,
-  }) =>
-      AppSettings(
-        themeId: themeId ?? this.themeId,
-        preferDark: preferDark != null ? preferDark() : this.preferDark,
-        unit: unit ?? this.unit,
-        voiceId: voiceId ?? this.voiceId,
-        voiceMuted: voiceMuted ?? this.voiceMuted,
-        carLightThemeId: carLightThemeId ?? this.carLightThemeId,
-        carDarkThemeId: carDarkThemeId ?? this.carDarkThemeId,
-        carAlwaysDark: carAlwaysDark ?? this.carAlwaysDark,
-        onboarded: onboarded ?? this.onboarded,
-        favoriteGenres: favoriteGenres ?? this.favoriteGenres,
-        heardFrom: heardFrom ?? this.heardFrom,
-        appIcon: appIcon ?? this.appIcon,
-      );
+    bool? locationPromptDismissed,
+    int? arrivals,
+  }) => AppSettings(
+    themeId: themeId ?? this.themeId,
+    preferDark: preferDark != null ? preferDark() : this.preferDark,
+    unit: unit ?? this.unit,
+    voiceId: voiceId ?? this.voiceId,
+    voiceMuted: voiceMuted ?? this.voiceMuted,
+    carLightThemeId: carLightThemeId ?? this.carLightThemeId,
+    carDarkThemeId: carDarkThemeId ?? this.carDarkThemeId,
+    carAlwaysDark: carAlwaysDark ?? this.carAlwaysDark,
+    onboarded: onboarded ?? this.onboarded,
+    favoriteGenres: favoriteGenres ?? this.favoriteGenres,
+    heardFrom: heardFrom ?? this.heardFrom,
+    appIcon: appIcon ?? this.appIcon,
+    locationPromptDismissed: locationPromptDismissed ?? this.locationPromptDismissed,
+    arrivals: arrivals ?? this.arrivals,
+  );
 
   Map<String, dynamic> toJson() => {
-        'themeId': themeId,
-        'preferDark': preferDark,
-        'unit': unit.name,
-        'voiceId': voiceId,
-        'voiceMuted': voiceMuted,
-        'carLightThemeId': carLightThemeId,
-        'carDarkThemeId': carDarkThemeId,
-        'carAlwaysDark': carAlwaysDark,
-        'onboarded': onboarded,
-        'favoriteGenres': favoriteGenres,
-        'heardFrom': heardFrom,
-        'appIcon': appIcon,
-      };
+    'themeId': themeId,
+    'preferDark': preferDark,
+    'unit': unit.name,
+    'voiceId': voiceId,
+    'voiceMuted': voiceMuted,
+    'carLightThemeId': carLightThemeId,
+    'carDarkThemeId': carDarkThemeId,
+    'carAlwaysDark': carAlwaysDark,
+    'onboarded': onboarded,
+    'favoriteGenres': favoriteGenres,
+    'heardFrom': heardFrom,
+    'appIcon': appIcon,
+    'locationPromptDismissed': locationPromptDismissed,
+    'arrivals': arrivals,
+  };
 
   factory AppSettings.fromJson(Map<String, dynamic> j) => AppSettings(
-        themeId: j['themeId'] as String? ?? 'palm_metro',
-        preferDark: j['preferDark'] as bool?,
-        unit: DistanceUnit.parse(j['unit'] as String?),
-        voiceId: j['voiceId'] as String? ?? 'classic',
-        voiceMuted: j['voiceMuted'] as bool? ?? false,
-        carLightThemeId: j['carLightThemeId'] as String? ?? 'palm_metro',
-        carDarkThemeId: j['carDarkThemeId'] as String? ?? 'palm_metro',
-        carAlwaysDark: j['carAlwaysDark'] as bool? ?? false,
-        onboarded: j['onboarded'] as bool? ?? false,
-        favoriteGenres: (j['favoriteGenres'] as List?)?.cast<String>() ?? const [],
-        heardFrom: j['heardFrom'] as String?,
-        appIcon: j['appIcon'] as String? ?? 'default',
-      );
+    themeId: j['themeId'] as String? ?? 'palm_metro',
+    preferDark: j['preferDark'] as bool?,
+    unit: DistanceUnit.parse(j['unit'] as String?),
+    voiceId: j['voiceId'] as String? ?? 'classic',
+    voiceMuted: j['voiceMuted'] as bool? ?? false,
+    carLightThemeId: j['carLightThemeId'] as String? ?? 'palm_metro',
+    carDarkThemeId: j['carDarkThemeId'] as String? ?? 'palm_metro',
+    carAlwaysDark: j['carAlwaysDark'] as bool? ?? false,
+    onboarded: j['onboarded'] as bool? ?? false,
+    favoriteGenres: (j['favoriteGenres'] as List?)?.whereType<String>().toList() ?? const [],
+    heardFrom: j['heardFrom'] as String?,
+    appIcon: j['appIcon'] as String? ?? 'default',
+    locationPromptDismissed: j['locationPromptDismissed'] as bool? ?? false,
+    arrivals: (j['arrivals'] as num?)?.toInt() ?? 0,
+  );
 }
 
 /// All local persistence. One JSON blob per concern keeps migrations simple.
@@ -111,8 +126,14 @@ class LocalStore {
 
   static const maxHistory = 20;
 
+  /// Reads a String pref without throwing on a foreign value type.
+  String? _str(String key) {
+    final v = _prefs.get(key);
+    return v is String ? v : null;
+  }
+
   AppSettings loadSettings() {
-    final raw = _prefs.getString(_kSettings);
+    final raw = _str(_kSettings);
     if (raw == null) return const AppSettings();
     try {
       return AppSettings.fromJson(jsonDecode(raw) as Map<String, dynamic>);
@@ -125,8 +146,7 @@ class LocalStore {
 
   List<SavedPlace> loadPlaces() => _decodeList(_kPlaces, SavedPlace.fromJson);
 
-  Future<void> savePlaces(List<SavedPlace> places) =>
-      _prefs.setString(_kPlaces, jsonEncode(places.map((e) => e.toJson()).toList()));
+  Future<void> savePlaces(List<SavedPlace> places) => _prefs.setString(_kPlaces, jsonEncode(places.map((e) => e.toJson()).toList()));
 
   List<SearchHistoryEntry> loadHistory() => _decodeList(_kHistory, SearchHistoryEntry.fromJson);
 
@@ -135,20 +155,29 @@ class LocalStore {
 
   /// Cached entitlement so premium works offline; refreshed from the store.
   ({bool premium, bool lifetime}) loadEntitlement() {
-    final raw = _prefs.getString(_kEntitlement);
-    if (raw == null) return (premium: false, lifetime: false);
-    final j = jsonDecode(raw) as Map<String, dynamic>;
-    return (premium: j['premium'] as bool? ?? false, lifetime: j['lifetime'] as bool? ?? false);
+    try {
+      final j = jsonDecode(_str(_kEntitlement) ?? '{}');
+      if (j is! Map) return (premium: false, lifetime: false);
+      return (premium: j['premium'] == true, lifetime: j['lifetime'] == true);
+    } catch (_) {
+      return (premium: false, lifetime: false);
+    }
   }
 
   Future<void> saveEntitlement({required bool premium, required bool lifetime}) =>
       _prefs.setString(_kEntitlement, jsonEncode({'premium': premium, 'lifetime': lifetime}));
 
   ({double lat, double lng, double zoom})? loadLastCamera() {
-    final raw = _prefs.getString(_kLastCamera);
-    if (raw == null) return null;
-    final j = jsonDecode(raw) as Map<String, dynamic>;
-    return (lat: (j['lat'] as num).toDouble(), lng: (j['lng'] as num).toDouble(), zoom: (j['zoom'] as num).toDouble());
+    try {
+      final j = jsonDecode(_str(_kLastCamera) ?? 'null');
+      if (j is! Map) return null;
+      final lat = j['lat'], lng = j['lng'], zoom = j['zoom'];
+      if (lat is! num || lng is! num || zoom is! num) return null;
+      if (!lat.isFinite || !lng.isFinite || !zoom.isFinite || lat.abs() > 90 || lng.abs() > 180) return null;
+      return (lat: lat.toDouble(), lng: lng.toDouble(), zoom: zoom.toDouble().clamp(1.0, 20.0));
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<void> saveLastCamera(double lat, double lng, double zoom) =>
@@ -162,13 +191,26 @@ class LocalStore {
     await saveEntitlement(premium: ent.premium, lifetime: ent.lifetime);
   }
 
+  /// Decodes each record independently so one corrupt entry can't wipe the
+  /// rest (they would be lost on the next save).
   List<T> _decodeList<T>(String key, T Function(Map<String, dynamic>) f) {
-    final raw = _prefs.getString(key);
+    final raw = _str(key);
     if (raw == null) return [];
+    Object? list;
     try {
-      return (jsonDecode(raw) as List).map((e) => f((e as Map).cast<String, dynamic>())).toList();
+      list = jsonDecode(raw);
     } catch (_) {
       return [];
     }
+    if (list is! List) return [];
+    final out = <T>[];
+    for (final e in list) {
+      try {
+        out.add(f((e as Map).cast<String, dynamic>()));
+      } catch (_) {
+        // Skip the bad record.
+      }
+    }
+    return out;
   }
 }

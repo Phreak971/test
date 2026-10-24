@@ -33,11 +33,11 @@ abstract class LocationSource {
 
 class GeolocatorSource implements LocationSource {
   LocPermission _map(LocationPermission p) => switch (p) {
-        LocationPermission.always || LocationPermission.whileInUse => LocPermission.granted,
-        LocationPermission.deniedForever => LocPermission.deniedForever,
-        LocationPermission.denied => LocPermission.denied,
-        LocationPermission.unableToDetermine => LocPermission.unknown,
-      };
+    LocationPermission.always || LocationPermission.whileInUse => LocPermission.granted,
+    LocationPermission.deniedForever => LocPermission.deniedForever,
+    LocationPermission.denied => LocPermission.denied,
+    LocationPermission.unableToDetermine => LocPermission.unknown,
+  };
 
   @override
   Future<LocPermission> check() async {
@@ -52,12 +52,12 @@ class GeolocatorSource implements LocationSource {
   }
 
   Fix _fix(Position p) => Fix(
-        Geo(p.latitude, p.longitude),
-        headingDeg: p.heading >= 0 && p.speed > 1 ? p.heading : null,
-        speedMps: p.speed < 0 ? 0 : p.speed,
-        accuracyM: p.accuracy,
-        at: p.timestamp,
-      );
+    Geo(p.latitude, p.longitude),
+    headingDeg: p.heading >= 0 && p.speed > 1 ? p.heading : null,
+    speedMps: p.speed < 0 ? 0 : p.speed,
+    accuracyM: p.accuracy,
+    at: p.timestamp,
+  );
 
   @override
   Stream<Fix> watch({required bool navigating}) {
@@ -107,7 +107,11 @@ class GeolocatorSource implements LocationSource {
 
   @override
   Future<void> openSettings() async {
-    await Geolocator.openAppSettings();
+    // Not available on web; the sheet's caller pops regardless.
+    if (kIsWeb) return;
+    try {
+      await Geolocator.openAppSettings();
+    } catch (_) {}
   }
 }
 
@@ -119,7 +123,10 @@ class LocationNotifier extends Notifier<LocationState> {
 
   @override
   LocationState build() {
-    ref.onDispose(() => _sub?.cancel());
+    ref.onDispose(() {
+      _sub?.cancel();
+      _restart?.cancel();
+    });
     return const LocationState();
   }
 
@@ -150,13 +157,31 @@ class LocationNotifier extends Notifier<LocationState> {
 
   void _start() {
     _sub?.cancel();
-    unawaited(_src.current().then((f) {
-      if (f != null && state.fix == null) state = state.copyWith(fix: f);
-    }));
-    _sub = _src.watch(navigating: _navigating).listen(
-      (f) => state = state.copyWith(fix: f),
-      onError: (Object _) {},
+    unawaited(
+      _src.current().then((f) {
+        if (f != null && state.fix == null) state = state.copyWith(fix: f);
+      }),
     );
+    _sub = _src
+        .watch(navigating: _navigating)
+        .listen(
+          (f) => state = state.copyWith(fix: f),
+          // Location service toggled / transient error: resubscribe shortly.
+          onError: (Object _) => _scheduleRestart(),
+          onDone: _scheduleRestart,
+          cancelOnError: true,
+        );
+  }
+
+  Timer? _restart;
+
+  void _scheduleRestart() {
+    _restart?.cancel();
+    _restart = Timer(const Duration(seconds: 3), () async {
+      final p = await _src.check();
+      state = state.copyWith(permission: p);
+      if (p == LocPermission.granted) _start();
+    });
   }
 }
 

@@ -7,8 +7,11 @@ import 'models.dart';
 /// Place search backed by Photon (autocomplete, reverse) and Nominatim
 /// (category / nearby, reverse fallback). Both are OpenStreetMap based.
 class SearchService {
-  SearchService({JsonClient? client, this.photonBase = 'https://photon.komoot.io', this.nominatimBase = 'https://nominatim.openstreetmap.org'})
-      : _client = client ?? JsonClient();
+  SearchService({
+    JsonClient? client,
+    this.photonBase = 'https://photon.komoot.io',
+    this.nominatimBase = 'https://nominatim.openstreetmap.org',
+  }) : _client = client ?? JsonClient();
 
   final JsonClient _client;
   final String photonBase;
@@ -21,17 +24,19 @@ class SearchService {
   Future<List<Place>> autocomplete(String query, {Geo? near, String lang = 'en', int limit = 12}) async {
     final q = query.trim();
     if (q.length < 2) return const [];
-    final uri = Uri.parse('$photonBase/api/').replace(queryParameters: {
-      'q': q,
-      'limit': '$limit',
-      if (_photonLangs.contains(lang)) 'lang': lang,
-      if (near != null) ...{
-        'lat': near.lat.toStringAsFixed(5),
-        'lon': near.lng.toStringAsFixed(5),
-        'location_bias_scale': '0.4',
-        'zoom': '12',
+    final uri = Uri.parse('$photonBase/api/').replace(
+      queryParameters: {
+        'q': q,
+        'limit': '$limit',
+        if (_photonLangs.contains(lang)) 'lang': lang,
+        if (near != null) ...{
+          'lat': near.lat.toStringAsFixed(5),
+          'lon': near.lng.toStringAsFixed(5),
+          'location_bias_scale': '0.4',
+          'zoom': '12',
+        },
       },
-    });
+    );
     final json = await _client.getJson(uri) as Map<String, dynamic>;
     final features = (json['features'] as List? ?? const []).cast<Map<String, dynamic>>();
     final places = <Place>[];
@@ -49,12 +54,14 @@ class SearchService {
   /// found (open sea, service down).
   Future<Place?> reverse(Geo at, {String lang = 'en'}) async {
     try {
-      final uri = Uri.parse('$photonBase/reverse').replace(queryParameters: {
-        'lat': at.lat.toStringAsFixed(6),
-        'lon': at.lng.toStringAsFixed(6),
-        'limit': '1',
-        if (_photonLangs.contains(lang)) 'lang': lang,
-      });
+      final uri = Uri.parse('$photonBase/reverse').replace(
+        queryParameters: {
+          'lat': at.lat.toStringAsFixed(6),
+          'lon': at.lng.toStringAsFixed(6),
+          'limit': '1',
+          if (_photonLangs.contains(lang)) 'lang': lang,
+        },
+      );
       final json = await _client.getJson(uri) as Map<String, dynamic>;
       final features = (json['features'] as List? ?? const []).cast<Map<String, dynamic>>();
       if (features.isNotEmpty) {
@@ -64,33 +71,54 @@ class SearchService {
     } on ApiException {
       // fall through to Nominatim
     }
-    final uri = Uri.parse('$nominatimBase/reverse').replace(queryParameters: {
-      'lat': at.lat.toStringAsFixed(6),
-      'lon': at.lng.toStringAsFixed(6),
-      'format': 'jsonv2',
-      'zoom': '18',
-      'addressdetails': '1',
-      'accept-language': lang,
-    });
+    final uri = Uri.parse('$nominatimBase/reverse').replace(
+      queryParameters: {
+        'lat': at.lat.toStringAsFixed(6),
+        'lon': at.lng.toStringAsFixed(6),
+        'format': 'jsonv2',
+        'zoom': '18',
+        'addressdetails': '1',
+        'accept-language': lang,
+      },
+    );
     final json = await _client.getJson(uri);
     if (json is! Map<String, dynamic> || json.containsKey('error')) return null;
     return nominatimToPlace(json);
   }
 
-  /// Places of [category] around [center], nearest first.
+  /// Places of [category] around [center], nearest first. Nominatim ranks by
+  /// importance inside the box, so search a small box first and widen only
+  /// when it is sparse.
   Future<List<Place>> nearby(NearbyCategory category, Geo center, {String lang = 'en', double radiusM = 3000, int limit = 25}) async {
+    var results = <Place>[];
+    for (final r in [radiusM / 4, radiusM, radiusM * 3]) {
+      results = await _nearbyIn(category, center, lang: lang, radiusM: r, limit: limit);
+      if (results.length >= 8) break;
+    }
+    return results;
+  }
+
+  Future<List<Place>> _nearbyIn(
+    NearbyCategory category,
+    Geo center, {
+    required String lang,
+    required double radiusM,
+    required int limit,
+  }) async {
     final dLat = radiusM / 111320;
     final dLng = radiusM / (111320 * math.cos(center.lat * math.pi / 180)).abs().clamp(1e-6, double.infinity);
-    final uri = Uri.parse('$nominatimBase/search').replace(queryParameters: {
-      'amenity': category.osmValue,
-      'format': 'jsonv2',
-      'limit': '$limit',
-      'bounded': '1',
-      'viewbox': '${center.lng - dLng},${center.lat + dLat},${center.lng + dLng},${center.lat - dLat}',
-      'addressdetails': '1',
-      'extratags': '1',
-      'accept-language': lang,
-    });
+    final uri = Uri.parse('$nominatimBase/search').replace(
+      queryParameters: {
+        'amenity': category.osmValue,
+        'format': 'jsonv2',
+        'limit': '$limit',
+        'bounded': '1',
+        'viewbox': '${center.lng - dLng},${center.lat + dLat},${center.lng + dLng},${center.lat - dLat}',
+        'addressdetails': '1',
+        'extratags': '1',
+        'accept-language': lang,
+      },
+    );
     final json = await _client.getJson(uri) as List;
     final places = json.cast<Map<String, dynamic>>().map(nominatimToPlace).whereType<Place>().toList();
     places.sort((a, b) => distanceM(center, a.location).compareTo(distanceM(center, b.location)));
@@ -100,15 +128,19 @@ class SearchService {
   void dispose() => _client.close();
 }
 
-String _titleCase(String s) => s
-    .replaceAll('_', ' ')
-    .split(' ')
-    .where((w) => w.isNotEmpty)
-    .map((w) => w[0].toUpperCase() + w.substring(1))
-    .join(' ');
+String _titleCase(String s) =>
+    s.replaceAll('_', ' ').split(' ').where((w) => w.isNotEmpty).map((w) => w[0].toUpperCase() + w.substring(1)).join(' ');
 
-/// Parses one Photon GeoJSON feature. Exposed for tests.
+/// Parses one Photon GeoJSON feature; null when unusable. Exposed for tests.
 Place? photonFeatureToPlace(Map<String, dynamic> f) {
+  try {
+    return _photon(f);
+  } catch (_) {
+    return null; // wrongly-typed fields: skip this feature, keep the rest
+  }
+}
+
+Place? _photon(Map<String, dynamic> f) {
   final props = (f['properties'] as Map?)?.cast<String, dynamic>() ?? const {};
   final coords = ((f['geometry'] as Map?)?['coordinates'] as List?)?.cast<num>();
   if (coords == null || coords.length < 2) return null;
@@ -137,8 +169,16 @@ Place? photonFeatureToPlace(Map<String, dynamic> f) {
   );
 }
 
-/// Parses one Nominatim jsonv2 result. Exposed for tests.
+/// Parses one Nominatim jsonv2 result; null when unusable. Exposed for tests.
 Place? nominatimToPlace(Map<String, dynamic> j) {
+  try {
+    return _nominatim(j);
+  } catch (_) {
+    return null;
+  }
+}
+
+Place? _nominatim(Map<String, dynamic> j) {
   final lat = double.tryParse('${j['lat']}');
   final lon = double.tryParse('${j['lon']}');
   if (lat == null || lon == null) return null;
@@ -161,9 +201,18 @@ Place? nominatimToPlace(Map<String, dynamic> j) {
     category: type == null || type == 'yes' ? null : _titleCase(type),
     phone: (extra['phone'] ?? extra['contact:phone']) as String?,
     website: (extra['website'] ?? extra['contact:website']) as String?,
+    social: _instagramUrl((extra['contact:instagram'] ?? extra['instagram']) as String?),
     osmKey: j['category'] as String?,
     osmValue: type,
   );
+}
+
+/// Normalises an OSM instagram tag (handle or URL) to a URL.
+String? _instagramUrl(String? v) {
+  if (v == null || v.trim().isEmpty) return null;
+  final t = v.trim();
+  if (t.startsWith('http')) return t;
+  return 'https://instagram.com/${t.replaceFirst('@', '')}';
 }
 
 extension on String {

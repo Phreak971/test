@@ -64,18 +64,16 @@ class LEn extends L {
   String get obGetStartedTitle => 'Turn your city into a game map';
 
   @override
-  String get obGetStartedBody =>
-      'Pick a world, drop in, and navigate real streets in style.';
+  String get obGetStartedBody => 'Pick a world, drop in, and navigate real streets in style.';
 
   @override
-  String get obStart => 'Get Started';
+  String get obStart => 'Get started';
 
   @override
   String get obGenresTitle => 'What do you love to play?';
 
   @override
-  String get obGenresBody =>
-      'Pick a few and we\'ll suggest worlds you\'ll like.';
+  String get obGenresBody => 'Pick a few and we\'ll suggest worlds you\'ll like.';
 
   @override
   String get obHeardTitle => 'How did you find us?';
@@ -108,8 +106,7 @@ class LEn extends L {
   String get obRatingTitle => 'Enjoying the ride?';
 
   @override
-  String get obRatingBody =>
-      'A quick rating helps other players find Overworld.';
+  String get obRatingBody => 'A quick rating helps other players find Overworld.';
 
   @override
   String get obRateNow => 'Rate Overworld';
@@ -121,12 +118,10 @@ class LEn extends L {
   String get obCarTitle => 'Take it on the road';
 
   @override
-  String get obCarBodyIos =>
-      'Navigate on CarPlay with a character voice of your choice.';
+  String get obCarBodyIos => 'Navigate on CarPlay with a character voice of your choice.';
 
   @override
-  String get obCarBodyAndroid =>
-      'Navigate on Android Auto with a character voice of your choice.';
+  String get obCarBodyAndroid => 'Navigate on Android Auto with a character voice of your choice.';
 
   @override
   String get obListenVoice => 'Listen';
@@ -273,7 +268,7 @@ class LEn extends L {
   String get catBank => 'Banks';
 
   @override
-  String get getDirections => 'Get Directions';
+  String get getDirections => 'Get directions';
 
   @override
   String get savePlace => 'Save';
@@ -334,8 +329,7 @@ class LEn extends L {
   String get savedEmptyTitle => 'No saved places yet';
 
   @override
-  String get savedEmptyBody =>
-      'Long-press the map or save a search result to keep it here.';
+  String get savedEmptyBody => 'Long-press the map or save a search result to keep it here.';
 
   @override
   String get routeTitle => 'Route';
@@ -344,10 +338,10 @@ class LEn extends L {
   String get fromMyLocation => 'My location';
 
   @override
-  String get startNow => 'Start Now';
+  String get startNow => 'Start now';
 
   @override
-  String get endRoute => 'End Route';
+  String get endRoute => 'End route';
 
   @override
   String get arrival => 'Arrival';
@@ -473,8 +467,7 @@ class LEn extends L {
   String get cleanDataTitle => 'Clean my data?';
 
   @override
-  String get cleanDataBody =>
-      'This deletes saved places, search history and preferences on this device. Purchases are not affected.';
+  String get cleanDataBody => 'This deletes saved places, search history and preferences on this device. Purchases are not affected.';
 
   @override
   String get cleanDataConfirm => 'Delete data';
@@ -491,8 +484,7 @@ class LEn extends L {
   }
 
   @override
-  String get shareText =>
-      'I\'m exploring my city as a game map with Overworld!';
+  String get shareText => 'I\'m exploring my city as a game map with Overworld!';
 
   @override
   String get carTitle => 'Car display';
@@ -522,8 +514,7 @@ class LEn extends L {
   String get iconFailed => 'Couldn\'t change the app icon';
 
   @override
-  String get iconUnsupported =>
-      'Your device doesn\'t support changing the icon';
+  String get iconUnsupported => 'Your device doesn\'t support changing the icon';
 
   @override
   String get voiceTitle => 'Navigation voice';
@@ -559,8 +550,7 @@ class LEn extends L {
   String get contactSentTitle => 'Thanks for reaching out!';
 
   @override
-  String get contactSentBody =>
-      'Your message is ready in your mail app. We\'ll get back to you soon.';
+  String get contactSentBody => 'Your message is ready in your mail app. We\'ll get back to you soon.';
 
   @override
   String get paywallTitle => 'Unlock every world';
@@ -617,8 +607,7 @@ class LEn extends L {
   String get purchaseSuccessBody => 'Every map and voice is now unlocked.';
 
   @override
-  String get purchaseFailed =>
-      'The purchase didn\'t go through. Please try again.';
+  String get purchaseFailed => 'The purchase didn\'t go through. Please try again.';
 
   @override
   String get purchasePending => 'Your purchase is pending approval.';
@@ -640,8 +629,7 @@ class LEn extends L {
   String get updateTitle => 'Update required';
 
   @override
-  String get updateBody =>
-      'Please update to the latest version to keep using Overworld.';
+  String get updateBody => 'Please update to the latest version to keep using Overworld.';
 
   @override
   String get updateCta => 'Update now';
@@ -669,4 +657,209 @@ class LEn extends L {
 
   @override
   String get homeSet => 'Home location set';
+
+  @override
+  String get themeTaglinePalmMetro => 'Sun-bleached radar of a crime-capital city';
+
+  @override
+  String get themeGenrePalmMetro => 'Open-world crime';
+
+  @override
+  String get themeTaglineBattleIsle => 'Candy-bright island, drop in anywhere';
+
+  @override
+  String get themeGenreBattleIsle => 'Battle royale';
+
+  @override
+  String get themeTaglineDesertState => 'Retro radar across a sunburnt state';
+
+  @override
+  String get themeGenreDesertState => 'Retro crime';
+
+  @override
+  String get themeTaglineFrontier => 'Hand-inked trails on weathered parchment';
+
+  @override
+  String get themeGenreFrontier => 'Western';
+
+  @override
+  String get themeTaglineNeonSprawl => 'Rain-slick megacity in electric yellow';
+
+  @override
+  String get themeGenreNeonSprawl => 'Cyberpunk';
+
+  @override
+  String get themeTaglineBlockland => 'A world built one cube at a time';
+
+  @override
+  String get themeGenreBlockland => 'Sandbox';
+
+  @override
+  String get themeTaglineWasteland => 'Green phosphor field terminal';
+
+  @override
+  String get themeGenreWasteland => 'Post-apocalyptic';
+
+  @override
+  String get themeTaglineAshenRealm => 'Gilded runes over a fallen kingdom';
+
+  @override
+  String get themeGenreAshenRealm => 'Dark fantasy';
+
+  @override
+  String get themeTaglineNorthernSaga => 'Frost-bitten cartography of the far north';
+
+  @override
+  String get themeGenreNorthernSaga => 'Epic fantasy';
+
+  @override
+  String get themeTaglineHuntersChart => 'A monster slayer\'s worn travel map';
+
+  @override
+  String get themeGenreHuntersChart => 'Fantasy RPG';
+
+  @override
+  String get themeTaglineTacticalOps => 'Gridded recon map for the drop zone';
+
+  @override
+  String get themeGenreTacticalOps => 'Military shooter';
+
+  @override
+  String get themeTaglineRuneStone => 'Carved teal stone of the old gods\' realms';
+
+  @override
+  String get themeGenreRuneStone => 'Mythic action';
+
+  @override
+  String get themeTaglineShadowParchment => 'An assassin\'s annotated city plan';
+
+  @override
+  String get themeGenreShadowParchment => 'Stealth adventure';
+
+  @override
+  String get themeTaglineStreetRacer => 'Midnight streets lit in neon trails';
+
+  @override
+  String get themeGenreStreetRacer => 'Racing';
+
+  @override
+  String get themeTaglineOvergrown => 'Nature reclaims the quiet city';
+
+  @override
+  String get themeGenreOvergrown => 'Survival';
+
+  @override
+  String get voiceTaglineClassic => 'Clear, calm directions';
+
+  @override
+  String get voiceTaglineGetaway => 'Keeps it cool under pressure';
+
+  @override
+  String get voiceTaglineRanger => 'Dusty trails, steady hands';
+
+  @override
+  String get voiceTaglineBuilder => 'Every road is a crafting recipe';
+
+  @override
+  String get voiceTaglineHerald => 'Announces every turn with fanfare';
+
+  @override
+  String get voiceTaglineShipai => 'Precise. Synthetic. Slightly smug.';
+
+  @override
+  String get voiceTaglineSergeant => 'No slacking at intersections';
+
+  @override
+  String get voiceTaglineCaptain => 'Charts the seas and the streets';
+
+  @override
+  String get placeIconStar => 'Star';
+
+  @override
+  String get placeIconHome => 'Home';
+
+  @override
+  String get placeIconWork => 'Work';
+
+  @override
+  String get placeIconFood => 'Food';
+
+  @override
+  String get placeIconCoffee => 'Coffee';
+
+  @override
+  String get placeIconBar => 'Bar';
+
+  @override
+  String get placeIconShop => 'Shop';
+
+  @override
+  String get placeIconGym => 'Gym';
+
+  @override
+  String get placeIconHeart => 'Favorite';
+
+  @override
+  String get placeIconFlag => 'Flag';
+
+  @override
+  String get placeIconCar => 'Car';
+
+  @override
+  String get placeIconSchool => 'School';
+
+  @override
+  String get voiceGuidance => 'Voice guidance';
+
+  @override
+  String get stateOn => 'On';
+
+  @override
+  String get stateOff => 'Off';
+
+  @override
+  String get startFreeTrial => 'Start free trial';
+
+  @override
+  String trialTerms(int days, String price) {
+    return '$days-day free trial, then $price per year';
+  }
+
+  @override
+  String get railMore => 'More';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get locationDeniedBody => 'Turn on location for Overworld in Settings to see yourself on the map and get directions.';
+
+  @override
+  String stepOf(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get clearText => 'Clear text';
+
+  @override
+  String get mapAppearance => 'Map appearance';
+
+  @override
+  String resultsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count results', one: '1 result', zero: 'No results');
+    return '$_temp0';
+  }
+
+  @override
+  String get homeLocked => 'Home uses the house icon';
+
+  @override
+  String get proLocked => 'Pro, locked';
+
+  @override
+  String get selectedLabel => 'Selected';
+
+  @override
+  String get showOnMap => 'Show on map';
 }

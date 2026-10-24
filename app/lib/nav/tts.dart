@@ -19,27 +19,16 @@ class TtsSpeaker implements Speaker {
   final FlutterTts _tts;
   bool _ready = false;
 
-  static const _locales = {
-    'en': 'en-US',
-    'de': 'de-DE',
-    'fr': 'fr-FR',
-    'it': 'it-IT',
-    'es': 'es-ES',
-    'tr': 'tr-TR',
-  };
+  static const _locales = {'en': 'en-US', 'de': 'de-DE', 'fr': 'fr-FR', 'it': 'it-IT', 'es': 'es-ES', 'tr': 'tr-TR'};
 
   Future<void> _init() async {
     try {
       if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
         await _tts.setSharedInstance(true);
-        await _tts.setIosAudioCategory(
-          IosTextToSpeechAudioCategory.playback,
-          [
-            IosTextToSpeechAudioCategoryOptions.duckOthers,
-            IosTextToSpeechAudioCategoryOptions.interruptSpokenAudioAndMixWithOthers,
-          ],
-          IosTextToSpeechAudioMode.voicePrompt,
-        );
+        await _tts.setIosAudioCategory(IosTextToSpeechAudioCategory.playback, [
+          IosTextToSpeechAudioCategoryOptions.duckOthers,
+          IosTextToSpeechAudioCategoryOptions.interruptSpokenAudioAndMixWithOthers,
+        ], IosTextToSpeechAudioMode.voicePrompt);
       }
       if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
         await _tts.setAudioAttributesForNavigation();
@@ -51,10 +40,21 @@ class TtsSpeaker implements Speaker {
     _ready = true;
   }
 
+  /// Serialises speak calls so language/pitch settings of overlapping
+  /// prompts can't interleave; a newer prompt replaces the current one.
+  Future<void> _queue = Future.value();
+
   @override
-  Future<void> speak(String text, VoicePersona persona, String langCode) async {
+  Future<void> speak(String text, VoicePersona persona, String langCode) {
+    final next = _queue.then((_) => _speak(text, persona, langCode));
+    _queue = next.catchError((_) {});
+    return next;
+  }
+
+  Future<void> _speak(String text, VoicePersona persona, String langCode) async {
     if (!_ready) await _init();
     try {
+      await _tts.stop();
       await _tts.setLanguage(_locales[langCode] ?? 'en-US');
       await _tts.setPitch(persona.pitch.clamp(0.5, 2.0));
       await _tts.setSpeechRate(persona.rate.clamp(0.1, 1.0));

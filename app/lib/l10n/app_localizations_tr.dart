@@ -64,8 +64,7 @@ class LTr extends L {
   String get obGetStartedTitle => 'Şehrini bir oyun haritasına dönüştür';
 
   @override
-  String get obGetStartedBody =>
-      'Bir dünya seç, içine dal ve gerçek sokaklarda tarzınla yol al.';
+  String get obGetStartedBody => 'Bir dünya seç, içine dal ve gerçek sokaklarda tarzınla yol al.';
 
   @override
   String get obStart => 'Başla';
@@ -107,8 +106,7 @@ class LTr extends L {
   String get obRatingTitle => 'Yolculuk hoşuna gidiyor mu?';
 
   @override
-  String get obRatingBody =>
-      'Kısa bir puan, diğer oyuncuların Overworld\'ü keşfetmesine yardımcı olur.';
+  String get obRatingBody => 'Kısa bir puan, diğer oyuncuların Overworld\'ü keşfetmesine yardımcı olur.';
 
   @override
   String get obRateNow => 'Overworld\'ü puanla';
@@ -123,8 +121,7 @@ class LTr extends L {
   String get obCarBodyIos => 'CarPlay\'de dilediğin karakter sesiyle yol al.';
 
   @override
-  String get obCarBodyAndroid =>
-      'Android Auto\'da dilediğin karakter sesiyle yol al.';
+  String get obCarBodyAndroid => 'Android Auto\'da dilediğin karakter sesiyle yol al.';
 
   @override
   String get obListenVoice => 'Dinle';
@@ -332,8 +329,7 @@ class LTr extends L {
   String get savedEmptyTitle => 'Henüz kayıtlı yer yok';
 
   @override
-  String get savedEmptyBody =>
-      'Burada saklamak için haritaya uzun bas veya bir arama sonucunu kaydet.';
+  String get savedEmptyBody => 'Burada saklamak için haritaya uzun bas veya bir arama sonucunu kaydet.';
 
   @override
   String get routeTitle => 'Rota';
@@ -471,8 +467,7 @@ class LTr extends L {
   String get cleanDataTitle => 'Verilerin temizlensin mi?';
 
   @override
-  String get cleanDataBody =>
-      'Bu işlem, bu cihazdaki kayıtlı yerleri, arama geçmişini ve tercihleri siler. Satın alımlar etkilenmez.';
+  String get cleanDataBody => 'Bu işlem, bu cihazdaki kayıtlı yerleri, arama geçmişini ve tercihleri siler. Satın alımlar etkilenmez.';
 
   @override
   String get cleanDataConfirm => 'Verileri sil';
@@ -489,8 +484,7 @@ class LTr extends L {
   }
 
   @override
-  String get shareText =>
-      'Overworld ile şehrimi bir oyun haritası gibi keşfediyorum!';
+  String get shareText => 'Overworld ile şehrimi bir oyun haritası gibi keşfediyorum!';
 
   @override
   String get carTitle => 'Araç ekranı';
@@ -556,8 +550,7 @@ class LTr extends L {
   String get contactSentTitle => 'Bize yazdığın için teşekkürler!';
 
   @override
-  String get contactSentBody =>
-      'Mesajın e-posta uygulamanda hazır. En kısa sürede sana dönüş yapacağız.';
+  String get contactSentBody => 'Mesajın e-posta uygulamanda hazır. En kısa sürede sana dönüş yapacağız.';
 
   @override
   String get paywallTitle => 'Tüm dünyaların kilidini aç';
@@ -611,8 +604,7 @@ class LTr extends L {
   String get purchaseSuccessTitle => 'Pro\'ya hoş geldin!';
 
   @override
-  String get purchaseSuccessBody =>
-      'Tüm haritaların ve seslerin kilidi artık açık.';
+  String get purchaseSuccessBody => 'Tüm haritaların ve seslerin kilidi artık açık.';
 
   @override
   String get purchaseFailed => 'Satın alma tamamlanamadı. Lütfen tekrar dene.';
@@ -637,8 +629,7 @@ class LTr extends L {
   String get updateTitle => 'Güncelleme gerekli';
 
   @override
-  String get updateBody =>
-      'Overworld\'ü kullanmaya devam etmek için lütfen en son sürüme güncelle.';
+  String get updateBody => 'Overworld\'ü kullanmaya devam etmek için lütfen en son sürüme güncelle.';
 
   @override
   String get updateCta => 'Şimdi güncelle';
@@ -666,4 +657,209 @@ class LTr extends L {
 
   @override
   String get homeSet => 'Ev konumu ayarlandı';
+
+  @override
+  String get themeTaglinePalmMetro => 'Suç başkentinin güneşte solmuş radarı';
+
+  @override
+  String get themeGenrePalmMetro => 'Açık dünya suç';
+
+  @override
+  String get themeTaglineBattleIsle => 'Şeker renkli ada, istediğin yere atla';
+
+  @override
+  String get themeGenreBattleIsle => 'Battle royale';
+
+  @override
+  String get themeTaglineDesertState => 'Güneşten kavrulmuş bir eyalette retro radar';
+
+  @override
+  String get themeGenreDesertState => 'Retro suç';
+
+  @override
+  String get themeTaglineFrontier => 'Yıpranmış parşömende elle mürekkeplenmiş patikalar';
+
+  @override
+  String get themeGenreFrontier => 'Vahşi Batı';
+
+  @override
+  String get themeTaglineNeonSprawl => 'Yağmurla ıslanmış, elektrik sarısı megakent';
+
+  @override
+  String get themeGenreNeonSprawl => 'Siberpunk';
+
+  @override
+  String get themeTaglineBlockland => 'Küp küp inşa edilmiş bir dünya';
+
+  @override
+  String get themeGenreBlockland => 'Sandbox';
+
+  @override
+  String get themeTaglineWasteland => 'Yeşil fosforlu saha terminali';
+
+  @override
+  String get themeGenreWasteland => 'Kıyamet sonrası';
+
+  @override
+  String get themeTaglineAshenRealm => 'Düşmüş bir krallığın üzerinde yaldızlı rünler';
+
+  @override
+  String get themeGenreAshenRealm => 'Karanlık fantastik';
+
+  @override
+  String get themeTaglineNorthernSaga => 'Uzak kuzeyin buz tutmuş haritası';
+
+  @override
+  String get themeGenreNorthernSaga => 'Epik fantastik';
+
+  @override
+  String get themeTaglineHuntersChart => 'Bir canavar avcısının yıpranmış seyahat haritası';
+
+  @override
+  String get themeGenreHuntersChart => 'Fantastik RPG';
+
+  @override
+  String get themeTaglineTacticalOps => 'İniş bölgesi için ızgaralı keşif haritası';
+
+  @override
+  String get themeGenreTacticalOps => 'Askeri nişancı';
+
+  @override
+  String get themeTaglineRuneStone => 'Eski tanrıların diyarlarından oyma camgöbeği taş';
+
+  @override
+  String get themeGenreRuneStone => 'Mitolojik aksiyon';
+
+  @override
+  String get themeTaglineShadowParchment => 'Bir suikastçının notlarla dolu şehir planı';
+
+  @override
+  String get themeGenreShadowParchment => 'Gizlilik macerası';
+
+  @override
+  String get themeTaglineStreetRacer => 'Neon izleriyle aydınlanan gece yarısı sokakları';
+
+  @override
+  String get themeGenreStreetRacer => 'Yarış';
+
+  @override
+  String get themeTaglineOvergrown => 'Doğa sessiz şehri geri alıyor';
+
+  @override
+  String get themeGenreOvergrown => 'Hayatta kalma';
+
+  @override
+  String get voiceTaglineClassic => 'Net ve sakin yönlendirme';
+
+  @override
+  String get voiceTaglineGetaway => 'Baskı altında soğukkanlı kalır';
+
+  @override
+  String get voiceTaglineRanger => 'Tozlu patikalar, sağlam eller';
+
+  @override
+  String get voiceTaglineBuilder => 'Her yol bir üretim tarifi';
+
+  @override
+  String get voiceTaglineHerald => 'Her dönüşü borazanlarla duyurur';
+
+  @override
+  String get voiceTaglineShipai => 'Hassas. Sentetik. Biraz kendini beğenmiş.';
+
+  @override
+  String get voiceTaglineSergeant => 'Kavşaklarda oyalanmak yok';
+
+  @override
+  String get voiceTaglineCaptain => 'Denizlerin ve sokakların rotasını çizer';
+
+  @override
+  String get placeIconStar => 'Yıldız';
+
+  @override
+  String get placeIconHome => 'Ev';
+
+  @override
+  String get placeIconWork => 'İş';
+
+  @override
+  String get placeIconFood => 'Yemek';
+
+  @override
+  String get placeIconCoffee => 'Kahve';
+
+  @override
+  String get placeIconBar => 'Bar';
+
+  @override
+  String get placeIconShop => 'Mağaza';
+
+  @override
+  String get placeIconGym => 'Spor salonu';
+
+  @override
+  String get placeIconHeart => 'Favori';
+
+  @override
+  String get placeIconFlag => 'Bayrak';
+
+  @override
+  String get placeIconCar => 'Araba';
+
+  @override
+  String get placeIconSchool => 'Okul';
+
+  @override
+  String get voiceGuidance => 'Sesli yönlendirme';
+
+  @override
+  String get stateOn => 'Açık';
+
+  @override
+  String get stateOff => 'Kapalı';
+
+  @override
+  String get startFreeTrial => 'Ücretsiz denemeyi başlat';
+
+  @override
+  String trialTerms(int days, String price) {
+    return '$days gün ücretsiz deneme, ardından yıllık $price';
+  }
+
+  @override
+  String get railMore => 'Daha fazla';
+
+  @override
+  String get back => 'Geri';
+
+  @override
+  String get locationDeniedBody => 'Kendini haritada görmek ve yol tarifi almak için Ayarlar\'dan Overworld\'ün konum erişimini aç.';
+
+  @override
+  String stepOf(int current, int total) {
+    return 'Adım $current/$total';
+  }
+
+  @override
+  String get clearText => 'Metni temizle';
+
+  @override
+  String get mapAppearance => 'Harita görünümü';
+
+  @override
+  String resultsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count sonuç', one: '1 sonuç', zero: 'Sonuç yok');
+    return '$_temp0';
+  }
+
+  @override
+  String get homeLocked => 'Ev, ev simgesini kullanır';
+
+  @override
+  String get proLocked => 'Pro, kilitli';
+
+  @override
+  String get selectedLabel => 'Seçili';
+
+  @override
+  String get showOnMap => 'Haritada göster';
 }

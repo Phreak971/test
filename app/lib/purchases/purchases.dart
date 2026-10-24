@@ -17,14 +17,18 @@ abstract final class ProductIds {
 enum PlanPeriod { weekly, monthly, yearly, lifetime }
 
 class Plan {
-  const Plan({required this.id, required this.period, required this.price, this.rawPrice, this.currency, this.hasTrial = false});
+  const Plan({required this.id, required this.period, required this.price, this.rawPrice, this.currency, this.trialDays});
 
   final String id;
   final PlanPeriod period;
   final String price;
   final double? rawPrice;
   final String? currency;
-  final bool hasTrial;
+
+  /// Free-trial length when the store reports one (introductory offer).
+  final int? trialDays;
+
+  bool get hasTrial => (trialDays ?? 0) > 0;
 }
 
 enum PurchaseOutcome { purchased, restored, cancelled, pending, failed, nothingToRestore, unavailable }
@@ -52,11 +56,11 @@ abstract class PurchaseService {
 }
 
 PlanPeriod _periodFor(String id) => switch (id) {
-      ProductIds.weekly => PlanPeriod.weekly,
-      ProductIds.monthly => PlanPeriod.monthly,
-      ProductIds.yearly => PlanPeriod.yearly,
-      _ => PlanPeriod.lifetime,
-    };
+  ProductIds.weekly => PlanPeriod.weekly,
+  ProductIds.monthly => PlanPeriod.monthly,
+  ProductIds.yearly => PlanPeriod.yearly,
+  _ => PlanPeriod.lifetime,
+};
 
 /// StoreKit / Play Billing via `in_app_purchase`.
 ///
@@ -65,10 +69,7 @@ PlanPeriod _periodFor(String id) => switch (id) {
 /// from purchase/restore events and cached locally.
 class StorePurchaseService implements PurchaseService {
   StorePurchaseService({InAppPurchase? iap}) : _iap = iap ?? InAppPurchase.instance {
-    _sub = _iap.purchaseStream.listen(_onPurchases, onError: (Object e) {
-      _pending?.complete(PurchaseOutcome.failed);
-      _pending = null;
-    });
+    _sub = _iap.purchaseStream.listen(_onPurchases, onError: (Object e) => _completePending(PurchaseOutcome.failed));
   }
 
   final InAppPurchase _iap;
@@ -76,8 +77,12 @@ class StorePurchaseService implements PurchaseService {
   final _ent = StreamController<Entitlement>.broadcast();
   final _products = <String, ProductDetails>{};
   Completer<PurchaseOutcome>? _pending;
+  String? _pendingProduct;
   bool _restoring = false;
   bool _restoredAny = false;
+  int _restoreEvents = 0;
+  int _seenRestoreEvents = 0;
+  int _quietTicks = 0;
 
   @override
   Stream<Entitlement> get entitlements => _ent.stream;
@@ -92,10 +97,11 @@ class StorePurchaseService implements PurchaseService {
     for (final p in res.productDetails) {
       _products[p.id] = p;
     }
-    final plans = res.productDetails
-        .map((p) => Plan(id: p.id, period: _periodFor(p.id), price: p.price, rawPrice: p.rawPrice, currency: p.currencyCode))
-        .toList()
-      ..sort((a, b) => a.period.index.compareTo(b.period.index));
+    final plans =
+        res.productDetails
+            .map((p) => Plan(id: p.id, period: _periodFor(p.id), price: p.price, rawPrice: p.rawPrice, currency: p.currencyCode))
+            .toList()
+          ..sort((a, b) => a.period.index.compareTo(b.period.index));
     return plans;
   }
 
@@ -105,12 +111,36 @@ class StorePurchaseService implements PurchaseService {
     if (product == null) return PurchaseOutcome.unavailable;
     _pending?.complete(PurchaseOutcome.cancelled);
     final c = _pending = Completer<PurchaseOutcome>();
-    final ok = await _iap.buyNonConsumable(purchaseParam: PurchaseParam(productDetails: product));
-    if (!ok) {
-      _pending = null;
+    _pendingProduct = plan.id;
+    try {
+      final ok = await _iap.buyNonConsumable(purchaseParam: PurchaseParam(productDetails: product));
+      if (!ok) {
+        _clearPending();
+        return PurchaseOutcome.failed;
+      }
+    } catch (_) {
+      // e.g. PlatformException: product already owned / store busy.
+      _clearPending();
       return PurchaseOutcome.failed;
     }
-    return c.future.timeout(const Duration(minutes: 5), onTimeout: () => PurchaseOutcome.pending);
+    return c.future.timeout(
+      const Duration(minutes: 5),
+      onTimeout: () {
+        _clearPending();
+        return PurchaseOutcome.pending;
+      },
+    );
+  }
+
+  void _clearPending() {
+    _pending = null;
+    _pendingProduct = null;
+  }
+
+  void _completePending(PurchaseOutcome o) {
+    final c = _pending;
+    _clearPending();
+    if (c != null && !c.isCompleted) c.complete(o);
   }
 
   @override
@@ -118,34 +148,69 @@ class StorePurchaseService implements PurchaseService {
     if (!await available) return PurchaseOutcome.unavailable;
     _restoring = true;
     _restoredAny = false;
-    await _iap.restorePurchases();
-    // Restored purchases arrive on the stream; give the store a moment.
-    await Future<void>.delayed(const Duration(seconds: 3));
-    _restoring = false;
+    _restoreEvents = 0;
+    _seenRestoreEvents = 0;
+    _quietTicks = 0;
+    try {
+      await _iap.restorePurchases();
+      // Restored purchases trickle in on the stream. Finish 1.5 s after the
+      // last one, give up after 8 s with none, never wait beyond 15 s.
+      // Count ticks rather than reading the clock so fake-time tests work.
+      const tick = Duration(milliseconds: 250);
+      var elapsed = 0;
+      while (true) {
+        await Future<void>.delayed(tick);
+        elapsed++;
+        if (_restoreEvents != _seenRestoreEvents) {
+          _seenRestoreEvents = _restoreEvents;
+          _quietTicks = 0;
+        } else {
+          _quietTicks++;
+        }
+        if (_restoreEvents > 0 && _quietTicks >= 6) break; // 1.5 s quiet
+        if (_restoreEvents == 0 && elapsed >= 32) break; // 8 s, nothing
+        if (elapsed >= 60) break; // 15 s cap
+      }
+    } catch (_) {
+      return PurchaseOutcome.failed;
+    } finally {
+      _restoring = false;
+    }
     return _restoredAny ? PurchaseOutcome.restored : PurchaseOutcome.nothingToRestore;
   }
 
   Future<void> _onPurchases(List<PurchaseDetails> list) async {
     for (final p in list) {
+      final matchesPending = _pendingProduct == null || p.productID == _pendingProduct;
       switch (p.status) {
         case PurchaseStatus.pending:
-          break;
+          // Ask to Buy / slow payment: tell the paywall now instead of
+          // spinning for minutes.
+          if (matchesPending) _completePending(PurchaseOutcome.pending);
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
           if (ProductIds.all.contains(p.productID)) {
             _ent.add(Entitlement(premium: true, lifetime: p.productID == ProductIds.lifetime));
-            if (p.status == PurchaseStatus.restored || _restoring) _restoredAny = true;
-            _pending?.complete(p.status == PurchaseStatus.restored ? PurchaseOutcome.restored : PurchaseOutcome.purchased);
-            _pending = null;
+            if (p.status == PurchaseStatus.restored || _restoring) {
+              _restoredAny = true;
+              _restoreEvents++;
+            }
+            if (_pending != null && p.productID == _pendingProduct) {
+              _completePending(p.status == PurchaseStatus.restored ? PurchaseOutcome.restored : PurchaseOutcome.purchased);
+            }
           }
         case PurchaseStatus.error:
-          _pending?.complete(PurchaseOutcome.failed);
-          _pending = null;
+          if (matchesPending) _completePending(PurchaseOutcome.failed);
         case PurchaseStatus.canceled:
-          _pending?.complete(PurchaseOutcome.cancelled);
-          _pending = null;
+          if (matchesPending) _completePending(PurchaseOutcome.cancelled);
       }
-      if (p.pendingCompletePurchase) await _iap.completePurchase(p);
+      if (p.pendingCompletePurchase) {
+        try {
+          await _iap.completePurchase(p);
+        } catch (_) {
+          // The store will redeliver; keep processing the rest of the batch.
+        }
+      }
     }
   }
 
@@ -173,11 +238,11 @@ class FakePurchaseService implements PurchaseService {
 
   @override
   Future<List<Plan>> loadPlans() async => const [
-        Plan(id: ProductIds.weekly, period: PlanPeriod.weekly, price: '\$4.99', rawPrice: 4.99, currency: 'USD'),
-        Plan(id: ProductIds.monthly, period: PlanPeriod.monthly, price: '\$7.99', rawPrice: 7.99, currency: 'USD'),
-        Plan(id: ProductIds.yearly, period: PlanPeriod.yearly, price: '\$24.99', rawPrice: 24.99, currency: 'USD', hasTrial: true),
-        Plan(id: ProductIds.lifetime, period: PlanPeriod.lifetime, price: '\$39.99', rawPrice: 39.99, currency: 'USD'),
-      ];
+    Plan(id: ProductIds.weekly, period: PlanPeriod.weekly, price: '\$4.99', rawPrice: 4.99, currency: 'USD'),
+    Plan(id: ProductIds.monthly, period: PlanPeriod.monthly, price: '\$7.99', rawPrice: 7.99, currency: 'USD'),
+    Plan(id: ProductIds.yearly, period: PlanPeriod.yearly, price: '\$24.99', rawPrice: 24.99, currency: 'USD', trialDays: 3),
+    Plan(id: ProductIds.lifetime, period: PlanPeriod.lifetime, price: '\$39.99', rawPrice: 39.99, currency: 'USD'),
+  ];
 
   @override
   Future<PurchaseOutcome> buy(Plan plan) async {
@@ -199,5 +264,4 @@ class FakePurchaseService implements PurchaseService {
 
 const _fakeStore = bool.fromEnvironment('FAKE_STORE');
 
-PurchaseService createPurchaseService() =>
-    (kIsWeb || _fakeStore) ? FakePurchaseService() : StorePurchaseService();
+PurchaseService createPurchaseService() => (kIsWeb || _fakeStore) ? FakePurchaseService() : StorePurchaseService();

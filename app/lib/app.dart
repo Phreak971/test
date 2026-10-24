@@ -113,11 +113,18 @@ class _UpdateRequired extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.system_update_rounded, color: hud.accent, size: 72),
+              Icon(Icons.system_update_rounded, color: hud.accentText, size: 72),
               const SizedBox(height: 16),
-              Semantics(header: true, child: Text(l.updateTitle, style: displayStyle(hud, 26), textAlign: TextAlign.center)),
+              Semantics(
+                header: true,
+                child: Text(l.updateTitle, style: displayStyle(hud, 26), textAlign: TextAlign.center),
+              ),
               const SizedBox(height: 8),
-              Text(l.updateBody, style: TextStyle(color: hud.muted, fontSize: 16), textAlign: TextAlign.center),
+              Text(
+                l.updateBody,
+                style: TextStyle(color: hud.muted, fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 24),
               PrimaryButton(
                 hud: hud,

@@ -66,8 +66,7 @@ import 'app_localizations_tr.dart';
 /// be consistent with the languages listed in the L.supportedLocales
 /// property.
 abstract class L {
-  L(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  L(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -87,23 +86,15 @@ abstract class L {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[
-    Locale('de'),
-    Locale('en'),
-    Locale('es'),
-    Locale('fr'),
-    Locale('it'),
-    Locale('tr'),
-  ];
+  static const List<Locale> supportedLocales = <Locale>[Locale('de'), Locale('en'), Locale('es'), Locale('fr'), Locale('it'), Locale('tr')];
 
   /// No description provided for @appName.
   ///
@@ -222,7 +213,7 @@ abstract class L {
   /// No description provided for @obStart.
   ///
   /// In en, this message translates to:
-  /// **'Get Started'**
+  /// **'Get started'**
   String get obStart;
 
   /// No description provided for @obGenresTitle.
@@ -618,7 +609,7 @@ abstract class L {
   /// No description provided for @getDirections.
   ///
   /// In en, this message translates to:
-  /// **'Get Directions'**
+  /// **'Get directions'**
   String get getDirections;
 
   /// No description provided for @savePlace.
@@ -750,13 +741,13 @@ abstract class L {
   /// No description provided for @startNow.
   ///
   /// In en, this message translates to:
-  /// **'Start Now'**
+  /// **'Start now'**
   String get startNow;
 
   /// No description provided for @endRoute.
   ///
   /// In en, this message translates to:
-  /// **'End Route'**
+  /// **'End route'**
   String get endRoute;
 
   /// No description provided for @arrival.
@@ -1382,6 +1373,402 @@ abstract class L {
   /// In en, this message translates to:
   /// **'Home location set'**
   String get homeSet;
+
+  /// No description provided for @themeTaglinePalmMetro.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun-bleached radar of a crime-capital city'**
+  String get themeTaglinePalmMetro;
+
+  /// No description provided for @themeGenrePalmMetro.
+  ///
+  /// In en, this message translates to:
+  /// **'Open-world crime'**
+  String get themeGenrePalmMetro;
+
+  /// No description provided for @themeTaglineBattleIsle.
+  ///
+  /// In en, this message translates to:
+  /// **'Candy-bright island, drop in anywhere'**
+  String get themeTaglineBattleIsle;
+
+  /// No description provided for @themeGenreBattleIsle.
+  ///
+  /// In en, this message translates to:
+  /// **'Battle royale'**
+  String get themeGenreBattleIsle;
+
+  /// No description provided for @themeTaglineDesertState.
+  ///
+  /// In en, this message translates to:
+  /// **'Retro radar across a sunburnt state'**
+  String get themeTaglineDesertState;
+
+  /// No description provided for @themeGenreDesertState.
+  ///
+  /// In en, this message translates to:
+  /// **'Retro crime'**
+  String get themeGenreDesertState;
+
+  /// No description provided for @themeTaglineFrontier.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand-inked trails on weathered parchment'**
+  String get themeTaglineFrontier;
+
+  /// No description provided for @themeGenreFrontier.
+  ///
+  /// In en, this message translates to:
+  /// **'Western'**
+  String get themeGenreFrontier;
+
+  /// No description provided for @themeTaglineNeonSprawl.
+  ///
+  /// In en, this message translates to:
+  /// **'Rain-slick megacity in electric yellow'**
+  String get themeTaglineNeonSprawl;
+
+  /// No description provided for @themeGenreNeonSprawl.
+  ///
+  /// In en, this message translates to:
+  /// **'Cyberpunk'**
+  String get themeGenreNeonSprawl;
+
+  /// No description provided for @themeTaglineBlockland.
+  ///
+  /// In en, this message translates to:
+  /// **'A world built one cube at a time'**
+  String get themeTaglineBlockland;
+
+  /// No description provided for @themeGenreBlockland.
+  ///
+  /// In en, this message translates to:
+  /// **'Sandbox'**
+  String get themeGenreBlockland;
+
+  /// No description provided for @themeTaglineWasteland.
+  ///
+  /// In en, this message translates to:
+  /// **'Green phosphor field terminal'**
+  String get themeTaglineWasteland;
+
+  /// No description provided for @themeGenreWasteland.
+  ///
+  /// In en, this message translates to:
+  /// **'Post-apocalyptic'**
+  String get themeGenreWasteland;
+
+  /// No description provided for @themeTaglineAshenRealm.
+  ///
+  /// In en, this message translates to:
+  /// **'Gilded runes over a fallen kingdom'**
+  String get themeTaglineAshenRealm;
+
+  /// No description provided for @themeGenreAshenRealm.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark fantasy'**
+  String get themeGenreAshenRealm;
+
+  /// No description provided for @themeTaglineNorthernSaga.
+  ///
+  /// In en, this message translates to:
+  /// **'Frost-bitten cartography of the far north'**
+  String get themeTaglineNorthernSaga;
+
+  /// No description provided for @themeGenreNorthernSaga.
+  ///
+  /// In en, this message translates to:
+  /// **'Epic fantasy'**
+  String get themeGenreNorthernSaga;
+
+  /// No description provided for @themeTaglineHuntersChart.
+  ///
+  /// In en, this message translates to:
+  /// **'A monster slayer\'s worn travel map'**
+  String get themeTaglineHuntersChart;
+
+  /// No description provided for @themeGenreHuntersChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Fantasy RPG'**
+  String get themeGenreHuntersChart;
+
+  /// No description provided for @themeTaglineTacticalOps.
+  ///
+  /// In en, this message translates to:
+  /// **'Gridded recon map for the drop zone'**
+  String get themeTaglineTacticalOps;
+
+  /// No description provided for @themeGenreTacticalOps.
+  ///
+  /// In en, this message translates to:
+  /// **'Military shooter'**
+  String get themeGenreTacticalOps;
+
+  /// No description provided for @themeTaglineRuneStone.
+  ///
+  /// In en, this message translates to:
+  /// **'Carved teal stone of the old gods\' realms'**
+  String get themeTaglineRuneStone;
+
+  /// No description provided for @themeGenreRuneStone.
+  ///
+  /// In en, this message translates to:
+  /// **'Mythic action'**
+  String get themeGenreRuneStone;
+
+  /// No description provided for @themeTaglineShadowParchment.
+  ///
+  /// In en, this message translates to:
+  /// **'An assassin\'s annotated city plan'**
+  String get themeTaglineShadowParchment;
+
+  /// No description provided for @themeGenreShadowParchment.
+  ///
+  /// In en, this message translates to:
+  /// **'Stealth adventure'**
+  String get themeGenreShadowParchment;
+
+  /// No description provided for @themeTaglineStreetRacer.
+  ///
+  /// In en, this message translates to:
+  /// **'Midnight streets lit in neon trails'**
+  String get themeTaglineStreetRacer;
+
+  /// No description provided for @themeGenreStreetRacer.
+  ///
+  /// In en, this message translates to:
+  /// **'Racing'**
+  String get themeGenreStreetRacer;
+
+  /// No description provided for @themeTaglineOvergrown.
+  ///
+  /// In en, this message translates to:
+  /// **'Nature reclaims the quiet city'**
+  String get themeTaglineOvergrown;
+
+  /// No description provided for @themeGenreOvergrown.
+  ///
+  /// In en, this message translates to:
+  /// **'Survival'**
+  String get themeGenreOvergrown;
+
+  /// No description provided for @voiceTaglineClassic.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear, calm directions'**
+  String get voiceTaglineClassic;
+
+  /// No description provided for @voiceTaglineGetaway.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeps it cool under pressure'**
+  String get voiceTaglineGetaway;
+
+  /// No description provided for @voiceTaglineRanger.
+  ///
+  /// In en, this message translates to:
+  /// **'Dusty trails, steady hands'**
+  String get voiceTaglineRanger;
+
+  /// No description provided for @voiceTaglineBuilder.
+  ///
+  /// In en, this message translates to:
+  /// **'Every road is a crafting recipe'**
+  String get voiceTaglineBuilder;
+
+  /// No description provided for @voiceTaglineHerald.
+  ///
+  /// In en, this message translates to:
+  /// **'Announces every turn with fanfare'**
+  String get voiceTaglineHerald;
+
+  /// No description provided for @voiceTaglineShipai.
+  ///
+  /// In en, this message translates to:
+  /// **'Precise. Synthetic. Slightly smug.'**
+  String get voiceTaglineShipai;
+
+  /// No description provided for @voiceTaglineSergeant.
+  ///
+  /// In en, this message translates to:
+  /// **'No slacking at intersections'**
+  String get voiceTaglineSergeant;
+
+  /// No description provided for @voiceTaglineCaptain.
+  ///
+  /// In en, this message translates to:
+  /// **'Charts the seas and the streets'**
+  String get voiceTaglineCaptain;
+
+  /// No description provided for @placeIconStar.
+  ///
+  /// In en, this message translates to:
+  /// **'Star'**
+  String get placeIconStar;
+
+  /// No description provided for @placeIconHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get placeIconHome;
+
+  /// No description provided for @placeIconWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Work'**
+  String get placeIconWork;
+
+  /// No description provided for @placeIconFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Food'**
+  String get placeIconFood;
+
+  /// No description provided for @placeIconCoffee.
+  ///
+  /// In en, this message translates to:
+  /// **'Coffee'**
+  String get placeIconCoffee;
+
+  /// No description provided for @placeIconBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar'**
+  String get placeIconBar;
+
+  /// No description provided for @placeIconShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop'**
+  String get placeIconShop;
+
+  /// No description provided for @placeIconGym.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym'**
+  String get placeIconGym;
+
+  /// No description provided for @placeIconHeart.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorite'**
+  String get placeIconHeart;
+
+  /// No description provided for @placeIconFlag.
+  ///
+  /// In en, this message translates to:
+  /// **'Flag'**
+  String get placeIconFlag;
+
+  /// No description provided for @placeIconCar.
+  ///
+  /// In en, this message translates to:
+  /// **'Car'**
+  String get placeIconCar;
+
+  /// No description provided for @placeIconSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'School'**
+  String get placeIconSchool;
+
+  /// No description provided for @voiceGuidance.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice guidance'**
+  String get voiceGuidance;
+
+  /// No description provided for @stateOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get stateOn;
+
+  /// No description provided for @stateOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get stateOff;
+
+  /// No description provided for @startFreeTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Start free trial'**
+  String get startFreeTrial;
+
+  /// No description provided for @trialTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'{days}-day free trial, then {price} per year'**
+  String trialTerms(int days, String price);
+
+  /// No description provided for @railMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get railMore;
+
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// No description provided for @locationDeniedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on location for Overworld in Settings to see yourself on the map and get directions.'**
+  String get locationDeniedBody;
+
+  /// No description provided for @stepOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {current} of {total}'**
+  String stepOf(int current, int total);
+
+  /// No description provided for @clearText.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear text'**
+  String get clearText;
+
+  /// No description provided for @mapAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Map appearance'**
+  String get mapAppearance;
+
+  /// No description provided for @resultsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No results} =1{1 result} other{{count} results}}'**
+  String resultsCount(int count);
+
+  /// No description provided for @homeLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Home uses the house icon'**
+  String get homeLocked;
+
+  /// No description provided for @proLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro, locked'**
+  String get proLocked;
+
+  /// No description provided for @selectedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected'**
+  String get selectedLabel;
+
+  /// No description provided for @showOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Show on map'**
+  String get showOnMap;
 }
 
 class _LDelegate extends LocalizationsDelegate<L> {
@@ -1393,14 +1780,7 @@ class _LDelegate extends LocalizationsDelegate<L> {
   }
 
   @override
-  bool isSupported(Locale locale) => <String>[
-    'de',
-    'en',
-    'es',
-    'fr',
-    'it',
-    'tr',
-  ].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['de', 'en', 'es', 'fr', 'it', 'tr'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_LDelegate old) => false;

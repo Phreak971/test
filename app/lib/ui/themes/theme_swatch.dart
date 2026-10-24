@@ -45,10 +45,13 @@ class _SwatchPainter extends CustomPainter {
       ..lineTo(w, 0)
       ..close();
     canvas.drawPath(water, Paint()..color = Color(p.water));
-    canvas.drawPath(water, Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5
-      ..color = Color(p.waterLine));
+    canvas.drawPath(
+      water,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5
+        ..color = Color(p.waterLine),
+    );
     // Buildings.
     final b = Paint()..color = Color(p.building);
     for (var i = 0; i < 10; i++) {
@@ -61,16 +64,22 @@ class _SwatchPainter extends CustomPainter {
         path.lineTo(pt.dx, pt.dy);
       }
       final cap = theme.dashedMinorRoads ? StrokeCap.butt : StrokeCap.round;
-      canvas.drawPath(path, Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = width + 2.5
-        ..strokeCap = cap
-        ..color = Color(p.casing));
-      canvas.drawPath(path, Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = width
-        ..strokeCap = cap
-        ..color = Color(color));
+      canvas.drawPath(
+        path,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = width + 2.5
+          ..strokeCap = cap
+          ..color = Color(p.casing),
+      );
+      canvas.drawPath(
+        path,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = width
+          ..strokeCap = cap
+          ..color = Color(color),
+      );
     }
 
     final rw = theme.roadWidth;
@@ -90,10 +99,13 @@ class _SwatchPainter extends CustomPainter {
       }
       final path = shapePath(theme.poiShape, r);
       canvas.drawPath(path, Paint()..color = Color(p.poiFill));
-      canvas.drawPath(path, Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.5
-        ..color = Color(p.poiStroke));
+      canvas.drawPath(
+        path,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.5
+          ..color = Color(p.poiStroke),
+      );
       canvas.drawCircle(c, 2.5, Paint()..color = Color(p.poiGlyph));
       if (id.isEmpty) break;
     }
@@ -105,10 +117,13 @@ class _SwatchPainter extends CustomPainter {
       ..lineTo(w * 0.34 - 7, h * 0.84 + 16)
       ..close();
     canvas.drawPath(puck, Paint()..color = Color(p.accent));
-    canvas.drawPath(puck, Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5
-      ..color = Color(p.casing));
+    canvas.drawPath(
+      puck,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5
+        ..color = Color(p.casing),
+    );
   }
 
   @override

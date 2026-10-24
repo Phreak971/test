@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../app.dart';
@@ -44,6 +45,9 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   final _map = GameMapController();
   Place? _selected;
+
+  /// Nearby results currently plotted on the map.
+  (NearbyCategory, List<Place>)? _results;
   bool _follow = true;
   bool _centeredOnce = false;
   String? _areaName;
@@ -58,11 +62,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final cam = ref.read(localStoreProvider).loadLastCamera();
     _initialCenter = cam == null ? _fallbackCenter : Geo(cam.lat, cam.lng);
     _initialZoom = cam?.zoom ?? 13;
+    // fireImmediately: a cold-start link arrives during the splash, before
+    // this screen exists.
+    ref.listenManual<GeoUri?>(
+      pendingGeoLinkProvider,
+      (prev, next) => WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _onGeoLink(prev, next);
+      }),
+      fireImmediately: true,
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final p = await ref.read(locationProvider.notifier).init();
       if (p == LocPermission.unknown || p == LocPermission.denied) {
         // Permission wasn't settled during onboarding (e.g. skipped).
-        if (mounted && ref.read(settingsProvider).onboarded) {
+        final st = ref.read(settingsProvider);
+        if (mounted && st.onboarded && !st.locationPromptDismissed) {
           await showHudSheet<void>(context, hud: ref.read(hudProvider), builder: (_) => const LocationPermissionSheet());
         }
       }
@@ -83,6 +97,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _onNav(NavState? prev, NavState next) {
+    if (next is NavActive && prev is NavActive) {
+      final a = prev.progress?.currentStepIndex, b = next.progress?.currentStepIndex;
+      if (a != null && b != null && b > a) HapticFeedback.lightImpact();
+    }
+    if (next is NavArrived && prev is! NavArrived) {
+      HapticFeedback.heavyImpact();
+      final trips = ref.read(settingsProvider.notifier).recordArrival();
+      // Ask for a rating only after real use (2nd and 6th trip), per HIG.
+      if (trips == 2 || trips == 6) {
+        unawaited(
+          Future<void>.delayed(const Duration(seconds: 2), () async {
+            try {
+              final r = InAppReview.instance;
+              if (await r.isAvailable()) await r.requestReview();
+            } catch (_) {}
+          }),
+        );
+      }
+    }
     if (next is NavPreview && next.route != null && (prev is! NavPreview || prev.route != next.route)) {
       unawaited(_map.fitPoints(next.route!.geometry));
     }
@@ -111,7 +144,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     setState(() => _bearing = cam.bearing);
     final center = toGeo(cam.target);
     unawaited(ref.read(localStoreProvider).saveLastCamera(center.lat, center.lng, cam.zoom));
-    if (_areaLookedUpAt != null && distanceM(_areaLookedUpAt!, center) < 200) return;
+    if (_areaLookedUpAt != null && distanceM(_areaLookedUpAt!, center) < 200) {
+      return;
+    }
     _areaLookedUpAt = center;
     try {
       final place = await ref.read(searchServiceProvider).reverse(center, lang: Localizations.localeOf(context).languageCode);
@@ -127,15 +162,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Geo get _searchCenter => ref.read(locationProvider).position ?? toGeo(_map.camera?.target ?? toLatLng(_initialCenter));
 
-  Future<void> _openSearch({NearbyCategory? category, String? query}) async {
+  Future<void> _openSearch({NearbyCategory? category, String? query, bool nearby = false}) async {
     final hud = ref.read(hudProvider);
     final res = await showHudSheet<SearchOutcome>(
       context,
       hud: hud,
       expand: true,
-      builder: (_) => SearchSheet(center: _searchCenter, initialCategory: category, initialQuery: query),
+      // "Find nearby" opens with the category chips visible (no keyboard).
+      builder: (_) => SearchSheet(center: _searchCenter, initialCategory: category, initialQuery: query, autofocus: !nearby),
     );
     if (res is PickedPlace) _select(res.place);
+    if (res is ShowOnMap) {
+      setState(() {
+        _results = (res.category, res.places);
+        _selected = null;
+        _follow = false;
+      });
+      final me = ref.read(locationProvider).position;
+      unawaited(_map.fitPoints([...res.places.map((p) => p.location), ?me]));
+    }
   }
 
   void _select(Place p, {bool fly = true}) {
@@ -160,6 +205,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _onFeatureTap(String layer, Map<String, dynamic> props, Geo at) {
+    if (layer == AppLayers.results) {
+      final i = (props['rid'] as num?)?.toInt();
+      final list = _results?.$2;
+      if (i != null && list != null && i >= 0 && i < list.length) _select(list[i], fly: false);
+      return;
+    }
     if (layer == AppLayers.places) {
       final saved = ref.read(placesProvider).where((p) => p.id == props['id']).firstOrNull;
       if (saved != null) _select(saved.toPlace());
@@ -187,7 +238,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final loc = ref.read(locationProvider);
     if (loc.permission != LocPermission.granted) {
       await showHudSheet<void>(context, hud: ref.read(hudProvider), builder: (_) => const LocationPermissionSheet());
-      if (!mounted || ref.read(locationProvider).permission != LocPermission.granted) return;
+      if (!mounted || ref.read(locationProvider).permission != LocPermission.granted) {
+        return;
+      }
     }
     setState(() => _selected = null);
     unawaited(ref.read(carBridgeProvider).previewRoute(p));
@@ -195,16 +248,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _editSaved(SavedPlace s) async {
-    await showHudSheet<bool>(context, hud: ref.read(hudProvider), builder: (_) => PlaceEditorSheet(existing: s));
+    await showHudSheet<bool>(
+      context,
+      hud: ref.read(hudProvider),
+      builder: (_) => PlaceEditorSheet(existing: s),
+    );
     if (!mounted) return;
     final still = ref.read(placesProvider).where((p) => p.id == s.id).firstOrNull;
     if (_selected != null && savedMatch([s], _selected!) != null) {
-      setState(() => _selected = still?.toPlace());
+      // Keep phone/website/category from the original place; only the saved name changes.
+      setState(() => _selected = still == null ? null : _selected!.copyWith(name: still.name));
     }
   }
 
   Future<void> _savePlace(Place p) async {
-    await showHudSheet<bool>(context, hud: ref.read(hudProvider), builder: (_) => PlaceEditorSheet(newPlace: p));
+    await showHudSheet<bool>(
+      context,
+      hud: ref.read(hudProvider),
+      builder: (_) => PlaceEditorSheet(newPlace: p),
+    );
   }
 
   Future<void> _openSaved() async {
@@ -212,10 +274,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final picked = await showHudSheet<SavedPlace>(
       context,
       hud: hud,
-      builder: (ctx) => SavedPlacesSheet(onEdit: (s) {
-        Navigator.of(ctx).pop();
-        _editSaved(s);
-      }),
+      builder: (ctx) => SavedPlacesSheet(
+        onEdit: (s) {
+          Navigator.of(ctx).pop();
+          _editSaved(s);
+        },
+      ),
     );
     if (picked != null) _select(picked.toPlace());
   }
@@ -251,20 +315,68 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ref.read(settingsProvider.notifier).setPreferDark(nextDark == (a.theme.baseVariant == MapVariant.dark) ? null : nextDark);
   }
 
+  Future<void> _openMore(BuildContext button, MapVariant variant) async {
+    final l = L.of(context);
+    final hud = ref.read(hudProvider);
+    final box = button.findRenderObject() as RenderBox?;
+    final overlay = Overlay.of(context).context.findRenderObject() as RenderBox?;
+    if (box == null || overlay == null) return;
+    final topLeft = box.localToGlobal(Offset.zero, ancestor: overlay);
+    final choice = await showMenu<String>(
+      context: context,
+      color: hud.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(hud.radius.clamp(8, 18))),
+      position: RelativeRect.fromRect(topLeft & box.size, Offset.zero & overlay.size),
+      items: [
+        for (final (id, icon, label) in [
+          ('nearby', Icons.local_dining_rounded, l.railNearby),
+          ('home', Icons.home_rounded, l.railHome),
+          ('appearance', variant == MapVariant.dark ? Icons.light_mode_rounded : Icons.dark_mode_rounded, l.mapAppearance),
+        ])
+          PopupMenuItem(
+            value: id,
+            height: 52,
+            child: Row(
+              children: [
+                Icon(icon, color: hud.accentText),
+                const SizedBox(width: 12),
+                Text(
+                  label,
+                  style: TextStyle(color: hud.text, fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+    switch (choice) {
+      case 'nearby':
+        await _openSearch(nearby: true);
+      case 'home':
+        _goHome();
+      case 'appearance':
+        _toggleAppearance();
+    }
+  }
+
   void _openThemes() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ThemePickerScreen()));
 
   void _openSettings() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
 
   void _onGeoLink(GeoUri? _, GeoUri? link) {
     if (link == null) return;
-    ref.read(pendingGeoLinkProvider.notifier).set(null);
+    // Never silently end active guidance; keep the link for afterwards.
+    if (ref.read(navProvider) is NavActive) return;
+    Future.microtask(() => ref.read(pendingGeoLinkProvider.notifier).set(null));
     if (link.point != null) {
-      _select(Place(
-        id: 'geo:${link.point!.lat},${link.point!.lng}',
-        name: link.label ?? L.of(context).pinnedLocation,
-        location: link.point!,
-        isPinned: link.label == null,
-      ));
+      _select(
+        Place(
+          id: 'geo:${link.point!.lat},${link.point!.lng}',
+          name: link.label ?? L.of(context).pinnedLocation,
+          location: link.point!,
+          isPinned: link.label == null,
+        ),
+      );
     } else if (link.query != null) {
       _openSearch(query: link.query);
     }
@@ -276,7 +388,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     ref.listen(locationProvider, _onLocation);
     ref.listen(navProvider, _onNav);
-    ref.listen<GeoUri?>(pendingGeoLinkProvider, _onGeoLink);
     ref.watch(carSyncProvider);
 
     final l = L.of(context);
@@ -304,6 +415,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     };
     final navigating = nav is NavActive;
     final mq = MediaQuery.of(context);
+    _map.reduceMotion = MediaQuery.disableAnimationsOf(context);
 
     Widget? bottom;
     if (nav is NavPreview) {
@@ -354,6 +466,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     pin: _selected?.isPinned == true ? _selected!.location : null,
                     dest: dest,
                     route: route,
+                    results: navigating || _results == null ? const [] : [for (final p in _results!.$2) (p, nearbyPoiIcon(_results!.$1))],
                   ),
                   onTap: (_) => setState(() => _selected = null),
                   onFeatureTap: navigating ? null : _onFeatureTap,
@@ -364,41 +477,67 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   },
                 ),
               ),
-              Positioned.fill(child: MapOverlayFx(overlay: theme.overlay, palette: palette)),
+              Positioned.fill(
+                child: MapOverlayFx(overlay: theme.overlay, palette: palette),
+              ),
 
               // Title badge (top-left) or maneuver banner while navigating.
               Positioned(
-                left: 12,
-                right: navigating ? 12 : 76,
+                left: 12 + mq.padding.left,
+                right: (navigating ? 12 : 76) + mq.padding.right,
                 top: mq.padding.top + 8,
                 child: navigating
-                    ? ManeuverBanner(state: nav)
+                    ? Align(
+                        alignment: Alignment.topLeft,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 520),
+                          child: ManeuverBanner(state: nav),
+                        ),
+                      )
                     : Align(
                         alignment: Alignment.centerLeft,
                         child: _TitleBadge(hud: hud, theme: theme, variant: variant, onTap: _openThemes),
                       ),
               ),
 
-              // Right rail.
-              if (!navigating)
+              if (_results != null && !navigating)
                 Positioned(
-                  right: 12,
+                  left: 12 + mq.padding.left,
+                  top: mq.padding.top + 80,
+                  child: InputChip(
+                    avatar: Icon(categoryIcon(_results!.$1), size: 18, color: hud.accentText),
+                    label: Text('${categoryLabel(l, _results!.$1)} · ${_results!.$2.length}'),
+                    labelStyle: TextStyle(color: hud.text, fontWeight: FontWeight.w700),
+                    backgroundColor: hud.panel,
+                    side: BorderSide(color: hud.text.withValues(alpha: 0.15)),
+                    deleteIcon: Icon(Icons.close_rounded, color: hud.muted, size: 18),
+                    deleteButtonTooltipMessage: l.close,
+                    onDeleted: () => setState(() => _results = null),
+                    onPressed: () => _openSearch(category: _results!.$1),
+                  ),
+                ),
+
+              // Right rail: four primary actions plus a "More" menu so it fits
+              // above the map controls on small phones and in landscape.
+              if (!navigating && (bottom == null || mq.size.height >= 700))
+                Positioned(
+                  right: 12 + mq.padding.right,
                   top: mq.padding.top + 8,
-                  bottom: mq.padding.bottom + (bottom != null ? 260 : 96),
+                  bottom: mq.padding.bottom + (bottom != null ? 16 + _bottomInset(nav) + 64 : _attributionClearance + 128),
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
                         for (final b in <Widget>[
                           HudIconButton(hud: hud, icon: Icons.search_rounded, label: l.railSearch, onPressed: _openSearch),
                           HudIconButton(hud: hud, icon: Icons.map_rounded, label: l.railChangeMap, onPressed: _openThemes),
-                          HudIconButton(hud: hud, icon: Icons.storefront_rounded, label: l.railNearby, onPressed: () => _openSearch(category: NearbyCategory.restaurant)),
                           HudIconButton(hud: hud, icon: Icons.bookmarks_rounded, label: l.railSaved, onPressed: _openSaved),
-                          HudIconButton(hud: hud, icon: Icons.home_rounded, label: l.railHome, onPressed: _goHome),
-                          HudIconButton(
-                            hud: hud,
-                            icon: variant == MapVariant.dark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                            label: l.railAppearance,
-                            onPressed: _toggleAppearance,
+                          Builder(
+                            builder: (btn) => HudIconButton(
+                              hud: hud,
+                              icon: Icons.more_horiz_rounded,
+                              label: l.railMore,
+                              onPressed: () => _openMore(btn, variant),
+                            ),
                           ),
                           HudIconButton(hud: hud, icon: Icons.settings_rounded, label: l.railSettings, onPressed: _openSettings),
                         ])
@@ -411,7 +550,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               // Bottom-left area label + bottom-right map controls.
               if (bottom == null)
                 Positioned(
-                  left: 12,
+                  left: 12 + mq.padding.left,
                   bottom: mq.padding.bottom + _attributionClearance,
                   right: 140,
                   child: _areaName == null
@@ -419,17 +558,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       : Semantics(
                           label: _areaName,
                           child: Text(
-                            theme.uppercaseLabels ? _areaName!.toUpperCase() : _areaName!,
+                            theme.uppercaseLabels ? upper(context, _areaName!) : _areaName!,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: displayStyle(hud, 20, color: Color(palette.label)).copyWith(
-                              shadows: [Shadow(color: Color(palette.labelHalo), blurRadius: 6), Shadow(color: Color(palette.labelHalo), blurRadius: 2)],
+                              shadows: [
+                                Shadow(color: Color(palette.labelHalo), blurRadius: 6),
+                                Shadow(color: Color(palette.labelHalo), blurRadius: 2),
+                              ],
                             ),
                           ),
                         ),
                 ),
               Positioned(
-                right: 12,
+                right: 12 + mq.padding.right,
                 bottom: mq.padding.bottom + (bottom != null ? 16 + _bottomInset(nav) : _attributionClearance),
                 child: Column(
                   children: [
@@ -460,20 +602,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
               // Bottom panel.
               Positioned(
-                left: 8,
-                right: 8,
+                left: 8 + mq.padding.left,
+                right: 8 + mq.padding.right,
                 bottom: mq.padding.bottom + 8,
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 220),
-                  transitionBuilder: (c, a) => SlideTransition(
-                    position: Tween(begin: const Offset(0, 0.25), end: Offset.zero).animate(CurvedAnimation(parent: a, curve: Curves.easeOutCubic)),
-                    child: FadeTransition(opacity: a, child: c),
+                // Docked bottom-left and width-capped on tablets / landscape.
+                child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 480),
+                    child: AnimatedSwitcher(
+                      duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 220),
+                      transitionBuilder: (c, a) => SlideTransition(
+                        position: Tween(
+                          begin: const Offset(0, 0.25),
+                          end: Offset.zero,
+                        ).animate(CurvedAnimation(parent: a, curve: Curves.easeOutCubic)),
+                        child: FadeTransition(opacity: a, child: c),
+                      ),
+                      child: bottom ?? const SizedBox.shrink(),
+                    ),
                   ),
-                  child: bottom ?? const SizedBox.shrink(),
                 ),
               ),
 
-              if (!unlocked) Positioned.fill(child: _LockedOverlay(theme: theme)),
+              // Modal: hide everything behind it from assistive tech.
+              if (!unlocked)
+                Positioned.fill(
+                  child: BlockSemantics(child: _LockedOverlay(theme: theme)),
+                ),
               const ToastHost(),
             ],
           ),
@@ -483,11 +639,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   double _bottomInset(NavState nav) => switch (nav) {
-        NavActive() => 84,
-        NavPreview() => 190,
-        NavArrived() => 220,
-        NavIdle() => 230,
-      };
+    NavActive() => 84,
+    NavPreview() => 190,
+    NavArrived() => 220,
+    NavIdle() => 230,
+  };
 }
 
 class _TitleBadge extends StatelessWidget {
@@ -559,17 +715,25 @@ class _LockedOverlay extends ConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.lock_rounded, color: hud.accent, size: 48),
+                  Icon(Icons.lock_rounded, color: hud.accentText, size: 48),
                   const SizedBox(height: 10),
-                  Semantics(header: true, child: Text(l.lockedTitle, style: displayStyle(hud, 24), textAlign: TextAlign.center)),
+                  Semantics(
+                    header: true,
+                    child: Text(l.lockedTitle, style: displayStyle(hud, 24), textAlign: TextAlign.center),
+                  ),
                   const SizedBox(height: 6),
-                  Text(l.lockedBody(theme.name), style: TextStyle(color: hud.muted, fontSize: 15), textAlign: TextAlign.center),
+                  Text(
+                    l.lockedBody(theme.name),
+                    style: TextStyle(color: hud.muted, fontSize: 15),
+                    textAlign: TextAlign.center,
+                  ),
                   const SizedBox(height: 18),
                   PrimaryButton(
                     hud: hud,
                     label: l.lockedCta,
                     icon: Icons.lock_open_rounded,
-                    onPressed: () => Navigator.of(context).push(MaterialPageRoute(fullscreenDialog: true, builder: (_) => const PaywallScreen())),
+                    onPressed: () =>
+                        Navigator.of(context).push(MaterialPageRoute(fullscreenDialog: true, builder: (_) => const PaywallScreen())),
                   ),
                   const SizedBox(height: 8),
                   SecondaryButton(
@@ -586,3 +750,19 @@ class _LockedOverlay extends ConsumerWidget {
     );
   }
 }
+
+/// POI icon id used to plot results of a nearby category.
+String nearbyPoiIcon(NearbyCategory c) => switch (c) {
+  NearbyCategory.restaurant => 'food',
+  NearbyCategory.fastFood => 'fastfood',
+  NearbyCategory.cafe => 'coffee',
+  NearbyCategory.fuel => 'fuel',
+  NearbyCategory.charging => 'charging',
+  NearbyCategory.parking => 'parking',
+  NearbyCategory.hotel => 'hotel',
+  NearbyCategory.supermarket => 'grocery',
+  NearbyCategory.pharmacy => 'pharmacy',
+  NearbyCategory.hospital => 'hospital',
+  NearbyCategory.subway => 'rail',
+  NearbyCategory.bank => 'bank',
+};

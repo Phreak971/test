@@ -12,38 +12,46 @@ import '../../state/providers.dart';
 import '../hud.dart';
 
 String categoryLabel(L l, NearbyCategory c) => switch (c) {
-      NearbyCategory.restaurant => l.catRestaurant,
-      NearbyCategory.fastFood => l.catFastFood,
-      NearbyCategory.cafe => l.catCafe,
-      NearbyCategory.fuel => l.catFuel,
-      NearbyCategory.charging => l.catCharging,
-      NearbyCategory.parking => l.catParking,
-      NearbyCategory.hotel => l.catHotel,
-      NearbyCategory.supermarket => l.catSupermarket,
-      NearbyCategory.pharmacy => l.catPharmacy,
-      NearbyCategory.hospital => l.catHospital,
-      NearbyCategory.subway => l.catSubway,
-      NearbyCategory.bank => l.catBank,
-    };
+  NearbyCategory.restaurant => l.catRestaurant,
+  NearbyCategory.fastFood => l.catFastFood,
+  NearbyCategory.cafe => l.catCafe,
+  NearbyCategory.fuel => l.catFuel,
+  NearbyCategory.charging => l.catCharging,
+  NearbyCategory.parking => l.catParking,
+  NearbyCategory.hotel => l.catHotel,
+  NearbyCategory.supermarket => l.catSupermarket,
+  NearbyCategory.pharmacy => l.catPharmacy,
+  NearbyCategory.hospital => l.catHospital,
+  NearbyCategory.subway => l.catSubway,
+  NearbyCategory.bank => l.catBank,
+};
 
 IconData categoryIcon(NearbyCategory c) => switch (c) {
-      NearbyCategory.restaurant => Icons.restaurant,
-      NearbyCategory.fastFood => Icons.fastfood,
-      NearbyCategory.cafe => Icons.local_cafe,
-      NearbyCategory.fuel => Icons.local_gas_station,
-      NearbyCategory.charging => Icons.ev_station,
-      NearbyCategory.parking => Icons.local_parking,
-      NearbyCategory.hotel => Icons.hotel,
-      NearbyCategory.supermarket => Icons.shopping_basket,
-      NearbyCategory.pharmacy => Icons.medication,
-      NearbyCategory.hospital => Icons.local_hospital,
-      NearbyCategory.subway => Icons.subway,
-      NearbyCategory.bank => Icons.account_balance,
-    };
+  NearbyCategory.restaurant => Icons.restaurant,
+  NearbyCategory.fastFood => Icons.fastfood,
+  NearbyCategory.cafe => Icons.local_cafe,
+  NearbyCategory.fuel => Icons.local_gas_station,
+  NearbyCategory.charging => Icons.ev_station,
+  NearbyCategory.parking => Icons.local_parking,
+  NearbyCategory.hotel => Icons.hotel,
+  NearbyCategory.supermarket => Icons.shopping_basket,
+  NearbyCategory.pharmacy => Icons.medication,
+  NearbyCategory.hospital => Icons.local_hospital,
+  NearbyCategory.subway => Icons.subway,
+  NearbyCategory.bank => Icons.account_balance,
+};
 
 /// Result of the sheet: a single place, or a list to show on the map.
 sealed class SearchOutcome {
   const SearchOutcome();
+}
+
+/// Nearby results to plot on the map.
+class ShowOnMap extends SearchOutcome {
+  const ShowOnMap(this.category, this.places);
+
+  final NearbyCategory category;
+  final List<Place> places;
 }
 
 class PickedPlace extends SearchOutcome {
@@ -54,12 +62,13 @@ class PickedPlace extends SearchOutcome {
 
 /// Full-height search: query, recents, and nearby categories.
 class SearchSheet extends ConsumerStatefulWidget {
-  const SearchSheet({super.key, required this.center, this.initialCategory, this.initialQuery});
+  const SearchSheet({super.key, required this.center, this.initialCategory, this.initialQuery, this.autofocus = true});
 
   /// Where to bias results (map centre or user).
   final Geo center;
   final NearbyCategory? initialCategory;
   final String? initialQuery;
+  final bool autofocus;
 
   @override
   ConsumerState<SearchSheet> createState() => _SearchSheetState();
@@ -83,7 +92,7 @@ class _SearchSheetState extends ConsumerState<SearchSheet> {
       WidgetsBinding.instance.addPostFrameCallback((_) => _runQuery(widget.initialQuery!));
     } else if (widget.initialCategory != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _runCategory(widget.initialCategory!));
-    } else {
+    } else if (widget.autofocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _focus.requestFocus());
     }
   }
@@ -102,6 +111,7 @@ class _SearchSheetState extends ConsumerState<SearchSheet> {
     _debounce?.cancel();
     setState(() => _category = null);
     if (q.trim().length < 2) {
+      _token++; // discard any request still in flight
       setState(() {
         _results = null;
         _loading = false;
@@ -194,7 +204,7 @@ class _SearchSheetState extends ConsumerState<SearchSheet> {
                     suffixIcon: _ctrl.text.isEmpty
                         ? null
                         : IconButton(
-                            tooltip: l.clearHistory,
+                            tooltip: l.clearText,
                             icon: Icon(Icons.cancel_rounded, color: hud.muted),
                             onPressed: () {
                               _ctrl.clear();
@@ -206,7 +216,10 @@ class _SearchSheetState extends ConsumerState<SearchSheet> {
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: Text(l.cancel, style: TextStyle(color: hud.accent, fontWeight: FontWeight.w700, fontSize: 16)),
+                child: Text(
+                  l.cancel,
+                  style: TextStyle(color: hud.accentText, fontWeight: FontWeight.w700, fontSize: 16),
+                ),
               ),
             ],
           ),
@@ -225,12 +238,15 @@ class _SearchSheetState extends ConsumerState<SearchSheet> {
                   unit: unit,
                   onPick: _pick,
                   onRetry: () => _category != null ? _runCategory(_category!) : _runQuery(_ctrl.text),
+                  onShowOnMap: _category == null || (_results?.isEmpty ?? true) || _loading
+                      ? null
+                      : () => Navigator.of(context).pop(ShowOnMap(_category!, _results!)),
                   onBack: _category == null
                       ? null
                       : () => setState(() {
-                            _category = null;
-                            _results = null;
-                          }),
+                          _category = null;
+                          _results = null;
+                        }),
                 )
               : ListView(
                   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -244,7 +260,7 @@ class _SearchSheetState extends ConsumerState<SearchSheet> {
                         children: [
                           for (final c in NearbyCategory.values)
                             ActionChip(
-                              avatar: Icon(categoryIcon(c), size: 18, color: hud.accent),
+                              avatar: Icon(categoryIcon(c), size: 18, color: hud.accentText),
                               label: Text(categoryLabel(l, c)),
                               labelStyle: TextStyle(color: hud.text, fontWeight: FontWeight.w600),
                               backgroundColor: hud.text.withValues(alpha: 0.07),
@@ -261,11 +277,21 @@ class _SearchSheetState extends ConsumerState<SearchSheet> {
                         text: l.recent,
                         trailing: TextButton(
                           onPressed: () => ref.read(historyProvider.notifier).clear(),
-                          child: Text(l.clearHistory, style: TextStyle(color: hud.accent, fontWeight: FontWeight.w700)),
+                          child: Text(
+                            l.clearHistory,
+                            style: TextStyle(color: hud.accentText, fontWeight: FontWeight.w700),
+                          ),
                         ),
                       ),
                       for (final h in history)
-                        _PlaceTile(hud: hud, place: h.place, me: me, unit: unit, leading: Icons.history_rounded, onTap: () => _pick(h.place)),
+                        _PlaceTile(
+                          hud: hud,
+                          place: h.place,
+                          me: me,
+                          unit: unit,
+                          leading: Icons.history_rounded,
+                          onTap: () => _pick(h.place),
+                        ),
                     ],
                     const SizedBox(height: 24),
                   ],
@@ -290,6 +316,7 @@ class _ResultsList extends StatelessWidget {
     this.title,
     this.emptyBody,
     this.onBack,
+    this.onShowOnMap,
   });
 
   final Hud hud;
@@ -304,15 +331,26 @@ class _ResultsList extends StatelessWidget {
   final ValueChanged<Place> onPick;
   final VoidCallback onRetry;
   final VoidCallback? onBack;
+  final VoidCallback? onShowOnMap;
 
   @override
   Widget build(BuildContext context) {
     final l = L.of(context);
     Widget content;
     if (loading) {
-      content = Center(child: Padding(padding: const EdgeInsets.all(32), child: CircularProgressIndicator(color: hud.accent)));
+      content = Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: CircularProgressIndicator(color: hud.accentText),
+        ),
+      );
     } else if (error) {
-      content = _Empty(hud: hud, icon: Icons.wifi_off_rounded, title: l.searchUnavailable, action: TextButton(onPressed: onRetry, child: Text(l.retry)));
+      content = _Empty(
+        hud: hud,
+        icon: Icons.wifi_off_rounded,
+        title: l.searchUnavailable,
+        action: TextButton(onPressed: onRetry, child: Text(l.retry)),
+      );
     } else if (results.isEmpty) {
       content = _Empty(hud: hud, icon: Icons.search_off_rounded, title: emptyTitle, body: emptyBody);
     } else {
@@ -332,6 +370,9 @@ class _ResultsList extends StatelessWidget {
               onPressed: onBack,
             ),
             title: Text(title!, style: displayStyle(hud, 18)),
+            trailing: onShowOnMap == null
+                ? null
+                : TextButton.icon(onPressed: onShowOnMap, icon: const Icon(Icons.map_rounded), label: Text(l.showOnMap)),
           ),
         Expanded(child: content),
       ],
@@ -340,7 +381,14 @@ class _ResultsList extends StatelessWidget {
 }
 
 class _PlaceTile extends StatelessWidget {
-  const _PlaceTile({required this.hud, required this.place, required this.me, required this.unit, required this.onTap, this.leading = Icons.place_rounded});
+  const _PlaceTile({
+    required this.hud,
+    required this.place,
+    required this.me,
+    required this.unit,
+    required this.onTap,
+    this.leading = Icons.place_rounded,
+  });
 
   final Hud hud;
   final Place place;
@@ -354,15 +402,26 @@ class _PlaceTile extends StatelessWidget {
     final d = formatDistance(distanceM(me, place.location), unit);
     return ListTile(
       minTileHeight: 56,
-      leading: CircleAvatar(backgroundColor: hud.accent.withValues(alpha: 0.18), child: Icon(leading, color: hud.accent, size: 20)),
-      title: Text(place.name, style: TextStyle(color: hud.text, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
+      leading: CircleAvatar(
+        backgroundColor: hud.accent.withValues(alpha: 0.18),
+        child: Icon(leading, color: hud.accentText, size: 20),
+      ),
+      title: Text(
+        place.name,
+        style: TextStyle(color: hud.text, fontWeight: FontWeight.w600),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
       subtitle: Text(
         [?place.category, ?place.address].join(' · '),
         style: TextStyle(color: hud.muted),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
-      trailing: Text(d, style: TextStyle(color: hud.muted, fontSize: 13, fontWeight: FontWeight.w600)),
+      trailing: Text(
+        d,
+        style: TextStyle(color: hud.muted, fontSize: 13, fontWeight: FontWeight.w600),
+      ),
       onTap: onTap,
     );
   }
@@ -390,7 +449,11 @@ class _Empty extends StatelessWidget {
             Text(title, style: displayStyle(hud, 18), textAlign: TextAlign.center),
             if (body != null) ...[
               const SizedBox(height: 6),
-              Text(body!, style: TextStyle(color: hud.muted), textAlign: TextAlign.center),
+              Text(
+                body!,
+                style: TextStyle(color: hud.muted),
+                textAlign: TextAlign.center,
+              ),
             ],
             ?action,
           ],

@@ -64,8 +64,7 @@ class LDe extends L {
   String get obGetStartedTitle => 'Mach deine Stadt zur Game-Map';
 
   @override
-  String get obGetStartedBody =>
-      'Wähl eine Welt, spring rein und navigiere stylisch durch echte Straßen.';
+  String get obGetStartedBody => 'Wähl eine Welt, spring rein und navigiere stylisch durch echte Straßen.';
 
   @override
   String get obStart => 'Los geht’s';
@@ -74,8 +73,7 @@ class LDe extends L {
   String get obGenresTitle => 'Was spielst du am liebsten?';
 
   @override
-  String get obGenresBody =>
-      'Wähl ein paar aus und wir schlagen dir passende Welten vor.';
+  String get obGenresBody => 'Wähl ein paar aus und wir schlagen dir passende Welten vor.';
 
   @override
   String get obHeardTitle => 'Wie hast du uns gefunden?';
@@ -108,8 +106,7 @@ class LDe extends L {
   String get obRatingTitle => 'Gefällt dir die Fahrt?';
 
   @override
-  String get obRatingBody =>
-      'Eine kurze Bewertung hilft anderen Spielern, Overworld zu finden.';
+  String get obRatingBody => 'Eine kurze Bewertung hilft anderen Spielern, Overworld zu finden.';
 
   @override
   String get obRateNow => 'Overworld bewerten';
@@ -121,12 +118,10 @@ class LDe extends L {
   String get obCarTitle => 'Ab auf die Straße';
 
   @override
-  String get obCarBodyIos =>
-      'Navigiere mit CarPlay und einer Charakterstimme deiner Wahl.';
+  String get obCarBodyIos => 'Navigiere mit CarPlay und einer Charakterstimme deiner Wahl.';
 
   @override
-  String get obCarBodyAndroid =>
-      'Navigiere mit Android Auto und einer Charakterstimme deiner Wahl.';
+  String get obCarBodyAndroid => 'Navigiere mit Android Auto und einer Charakterstimme deiner Wahl.';
 
   @override
   String get obListenVoice => 'Anhören';
@@ -334,8 +329,7 @@ class LDe extends L {
   String get savedEmptyTitle => 'Noch keine gespeicherten Orte';
 
   @override
-  String get savedEmptyBody =>
-      'Drück lange auf die Karte oder speichere ein Suchergebnis, um es hier zu behalten.';
+  String get savedEmptyBody => 'Drück lange auf die Karte oder speichere ein Suchergebnis, um es hier zu behalten.';
 
   @override
   String get routeTitle => 'Route';
@@ -356,8 +350,7 @@ class LDe extends L {
   String get routeError => 'Keine Route dorthin gefunden.';
 
   @override
-  String get needLocationForRoute =>
-      'Aktiviere den Standort, um eine Route zu erhalten.';
+  String get needLocationForRoute => 'Aktiviere den Standort, um eine Route zu erhalten.';
 
   @override
   String get thenLabel => 'Dann';
@@ -558,8 +551,7 @@ class LDe extends L {
   String get contactSentTitle => 'Danke für deine Nachricht!';
 
   @override
-  String get contactSentBody =>
-      'Deine Nachricht liegt in deiner Mail-App bereit. Wir melden uns bald bei dir.';
+  String get contactSentBody => 'Deine Nachricht liegt in deiner Mail-App bereit. Wir melden uns bald bei dir.';
 
   @override
   String get paywallTitle => 'Schalte alle Welten frei';
@@ -613,12 +605,10 @@ class LDe extends L {
   String get purchaseSuccessTitle => 'Willkommen bei Pro!';
 
   @override
-  String get purchaseSuccessBody =>
-      'Alle Karten und Stimmen sind jetzt freigeschaltet.';
+  String get purchaseSuccessBody => 'Alle Karten und Stimmen sind jetzt freigeschaltet.';
 
   @override
-  String get purchaseFailed =>
-      'Der Kauf hat nicht geklappt. Bitte versuch es erneut.';
+  String get purchaseFailed => 'Der Kauf hat nicht geklappt. Bitte versuch es erneut.';
 
   @override
   String get purchasePending => 'Dein Kauf wartet auf Genehmigung.';
@@ -640,8 +630,7 @@ class LDe extends L {
   String get updateTitle => 'Update erforderlich';
 
   @override
-  String get updateBody =>
-      'Bitte aktualisiere auf die neueste Version, um Overworld weiter zu nutzen.';
+  String get updateBody => 'Bitte aktualisiere auf die neueste Version, um Overworld weiter zu nutzen.';
 
   @override
   String get updateCta => 'Jetzt aktualisieren';
@@ -656,8 +645,7 @@ class LDe extends L {
   String get openSettings => 'Einstellungen öffnen';
 
   @override
-  String get currentLocationNotFound =>
-      'Dein aktueller Standort wurde nicht gefunden.';
+  String get currentLocationNotFound => 'Dein aktueller Standort wurde nicht gefunden.';
 
   @override
   String get addedToSaved => 'Zu gespeicherten Orten hinzugefügt';
@@ -670,4 +658,216 @@ class LDe extends L {
 
   @override
   String get homeSet => 'Zuhause festgelegt';
+
+  @override
+  String get themeTaglinePalmMetro => 'Sonnengebleichtes Radar einer Gangster-Metropole';
+
+  @override
+  String get themeGenrePalmMetro => 'Open-World-Krimi';
+
+  @override
+  String get themeTaglineBattleIsle => 'Knallbunte Insel, spring ab, wo du willst';
+
+  @override
+  String get themeGenreBattleIsle => 'Battle Royale';
+
+  @override
+  String get themeTaglineDesertState => 'Retro-Radar über einem sonnenverbrannten Staat';
+
+  @override
+  String get themeGenreDesertState => 'Retro-Krimi';
+
+  @override
+  String get themeTaglineFrontier => 'Handgezeichnete Pfade auf verwittertem Pergament';
+
+  @override
+  String get themeGenreFrontier => 'Western';
+
+  @override
+  String get themeTaglineNeonSprawl => 'Regennasse Megacity in Elektrogelb';
+
+  @override
+  String get themeGenreNeonSprawl => 'Cyberpunk';
+
+  @override
+  String get themeTaglineBlockland => 'Eine Welt, Würfel für Würfel gebaut';
+
+  @override
+  String get themeGenreBlockland => 'Sandbox';
+
+  @override
+  String get themeTaglineWasteland => 'Feldterminal in grünem Phosphor';
+
+  @override
+  String get themeGenreWasteland => 'Postapokalyptisch';
+
+  @override
+  String get themeTaglineAshenRealm => 'Goldene Runen über einem gefallenen Königreich';
+
+  @override
+  String get themeGenreAshenRealm => 'Dark Fantasy';
+
+  @override
+  String get themeTaglineNorthernSaga => 'Frostige Kartografie des hohen Nordens';
+
+  @override
+  String get themeGenreNorthernSaga => 'Epische Fantasy';
+
+  @override
+  String get themeTaglineHuntersChart => 'Die abgegriffene Reisekarte eines Monsterjägers';
+
+  @override
+  String get themeGenreHuntersChart => 'Fantasy-RPG';
+
+  @override
+  String get themeTaglineTacticalOps => 'Gerasterte Aufklärungskarte für die Landezone';
+
+  @override
+  String get themeGenreTacticalOps => 'Military-Shooter';
+
+  @override
+  String get themeTaglineRuneStone => 'Gemeißelter blaugrüner Stein aus dem Reich der alten Götter';
+
+  @override
+  String get themeGenreRuneStone => 'Mythische Action';
+
+  @override
+  String get themeTaglineShadowParchment => 'Der kommentierte Stadtplan eines Attentäters';
+
+  @override
+  String get themeGenreShadowParchment => 'Stealth-Abenteuer';
+
+  @override
+  String get themeTaglineStreetRacer => 'Mitternachtsstraßen voller Neonspuren';
+
+  @override
+  String get themeGenreStreetRacer => 'Rennspiel';
+
+  @override
+  String get themeTaglineOvergrown => 'Die Natur erobert die stille Stadt zurück';
+
+  @override
+  String get themeGenreOvergrown => 'Survival';
+
+  @override
+  String get voiceTaglineClassic => 'Klare, ruhige Ansagen';
+
+  @override
+  String get voiceTaglineGetaway => 'Bleibt cool, auch unter Druck';
+
+  @override
+  String get voiceTaglineRanger => 'Staubige Pfade, ruhige Hand';
+
+  @override
+  String get voiceTaglineBuilder => 'Jede Straße ist ein Crafting-Rezept';
+
+  @override
+  String get voiceTaglineHerald => 'Kündigt jede Abbiegung mit Fanfaren an';
+
+  @override
+  String get voiceTaglineShipai => 'Präzise. Synthetisch. Leicht selbstgefällig.';
+
+  @override
+  String get voiceTaglineSergeant => 'Kein Trödeln an Kreuzungen';
+
+  @override
+  String get voiceTaglineCaptain => 'Kartiert Meere und Straßen';
+
+  @override
+  String get placeIconStar => 'Stern';
+
+  @override
+  String get placeIconHome => 'Zuhause';
+
+  @override
+  String get placeIconWork => 'Arbeit';
+
+  @override
+  String get placeIconFood => 'Essen';
+
+  @override
+  String get placeIconCoffee => 'Kaffee';
+
+  @override
+  String get placeIconBar => 'Bar';
+
+  @override
+  String get placeIconShop => 'Einkaufen';
+
+  @override
+  String get placeIconGym => 'Fitnessstudio';
+
+  @override
+  String get placeIconHeart => 'Favorit';
+
+  @override
+  String get placeIconFlag => 'Flagge';
+
+  @override
+  String get placeIconCar => 'Auto';
+
+  @override
+  String get placeIconSchool => 'Schule';
+
+  @override
+  String get voiceGuidance => 'Sprachansagen';
+
+  @override
+  String get stateOn => 'An';
+
+  @override
+  String get stateOff => 'Aus';
+
+  @override
+  String get startFreeTrial => 'Gratis-Testphase starten';
+
+  @override
+  String trialTerms(int days, String price) {
+    return '$days Tage gratis testen, dann $price pro Jahr';
+  }
+
+  @override
+  String get railMore => 'Mehr';
+
+  @override
+  String get back => 'Zurück';
+
+  @override
+  String get locationDeniedBody =>
+      'Aktiviere den Standort für Overworld in den Einstellungen, um dich auf der Karte zu sehen und Routen zu erhalten.';
+
+  @override
+  String stepOf(int current, int total) {
+    return 'Schritt $current von $total';
+  }
+
+  @override
+  String get clearText => 'Text löschen';
+
+  @override
+  String get mapAppearance => 'Kartendarstellung';
+
+  @override
+  String resultsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Ergebnisse',
+      one: '1 Ergebnis',
+      zero: 'Keine Ergebnisse',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get homeLocked => 'Zuhause nutzt das Haus-Symbol';
+
+  @override
+  String get proLocked => 'Pro, gesperrt';
+
+  @override
+  String get selectedLabel => 'Ausgewählt';
+
+  @override
+  String get showOnMap => 'Auf der Karte zeigen';
 }

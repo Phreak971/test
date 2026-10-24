@@ -82,8 +82,8 @@ const themeCatalog = <MapTheme>[
   ),
   MapTheme(
     id: 'desert_state',
-    name: 'Desert State \'92',
-    tagline: 'Early-90s radar across a sunburnt state',
+    name: 'Desert State',
+    tagline: 'Retro radar across a sunburnt state',
     genre: 'Retro crime',
     baseVariant: MapVariant.light,
     poiShape: PoiShape.square,
@@ -118,7 +118,7 @@ const themeCatalog = <MapTheme>[
   ),
   MapTheme(
     id: 'frontier',
-    name: 'Frontier 1899',
+    name: 'Frontier',
     tagline: 'Hand-inked trails on weathered parchment',
     genre: 'Western',
     baseVariant: MapVariant.light,
@@ -178,22 +178,22 @@ const themeCatalog = <MapTheme>[
       waterLine: 0xFF19E3FF,
       building: 0xFF141B33,
       buildingLine: 0xFF223060,
-      motorway: 0xFFFCEE0A,
+      motorway: 0xFFFFD60A,
       major: 0xFF19E3FF,
       minor: 0xFF1F5C77,
       path: 0xFF183F55,
       rail: 0xFFFF2A6D,
       casing: 0xFF05070F,
-      label: 0xFFFCEE0A,
+      label: 0xFFFFD60A,
       labelHalo: 0xFF05070F,
       roadLabel: 0xFF9FF6FF,
       poiFill: 0xFF05070F,
-      poiGlyph: 0xFFFCEE0A,
-      poiStroke: 0xFFFCEE0A,
+      poiGlyph: 0xFFFFD60A,
+      poiStroke: 0xFFFFD60A,
       route: 0xFFFF2A6D,
       routeCasing: 0xFF3D0018,
       hudPanel: 0xEB05070F,
-      hudText: 0xFFFCEE0A,
+      hudText: 0xFFFFD60A,
       accent: 0xFF19E3FF,
     ),
   ),
@@ -240,7 +240,7 @@ const themeCatalog = <MapTheme>[
   MapTheme(
     id: 'wasteland',
     name: 'Wasteland Terminal',
-    tagline: 'Green phosphor wrist-computer readout',
+    tagline: 'Green phosphor field terminal',
     genre: 'Post-apocalyptic',
     baseVariant: MapVariant.dark,
     poiShape: PoiShape.square,
@@ -593,5 +593,4 @@ const themeCatalog = <MapTheme>[
   ),
 ];
 
-MapTheme themeById(String? id) =>
-    themeCatalog.firstWhere((t) => t.id == id, orElse: () => themeCatalog.first);
+MapTheme themeById(String? id) => themeCatalog.firstWhere((t) => t.id == id, orElse: () => themeCatalog.first);

@@ -186,8 +186,7 @@ const voicePersonas = <VoicePersona>[
   ),
 ];
 
-VoicePersona personaById(String? id) =>
-    voicePersonas.firstWhere((p) => p.id == id, orElse: () => voicePersonas.first);
+VoicePersona personaById(String? id) => voicePersonas.firstWhere((p) => p.id == id, orElse: () => voicePersonas.first);
 
 /// Plain guidance phrases for each supported language.
 class _Lang {
@@ -214,7 +213,32 @@ class _Lang {
   final Map<String, String> units; // m, km, ft, mi spoken
 }
 
-String _ord(int n) => switch (n) { 1 => 'first', 2 => 'second', 3 => 'third', 4 => 'fourth', 5 => 'fifth', _ => '${n}th' };
+String _ord(int n) {
+  const words = {
+    1: 'first',
+    2: 'second',
+    3: 'third',
+    4: 'fourth',
+    5: 'fifth',
+    6: 'sixth',
+    7: 'seventh',
+    8: 'eighth',
+    9: 'ninth',
+    10: 'tenth',
+  };
+  final w = words[n];
+  if (w != null) return w;
+  final teen = n % 100 >= 11 && n % 100 <= 13;
+  final suffix = teen
+      ? 'th'
+      : switch (n % 10) {
+          1 => 'st',
+          2 => 'nd',
+          3 => 'rd',
+          _ => 'th',
+        };
+  return '$n$suffix';
+}
 
 final _langs = <String, _Lang>{
   'en': _Lang(
@@ -262,7 +286,7 @@ final _langs = <String, _Lang>{
     },
     roundabout: (e) => e == null ? 'in den Kreisverkehr fahren' : 'im Kreisverkehr die $e. Ausfahrt nehmen',
     inDist: 'In {dist} {dir}',
-    continueFor: '{dist} weiterfahren, dann {dir}',
+    continueFor: '{distNom} weiterfahren, dann {dir}',
     now: 'Jetzt {dir}',
     arrive: 'Sie haben Ihr Ziel erreicht',
     reroute: 'Route wird neu berechnet',
@@ -375,6 +399,12 @@ final _langs = <String, _Lang>{
   ),
 };
 
+/// Unit words where a template needs a different grammatical case
+/// (German: "In 300 Metern" but "300 Meter weiterfahren").
+const _nominativeUnits = {
+  'de': {'m': 'Meter', 'km': 'Kilometer', 'ft': 'Fuß', 'mi': 'Meilen'},
+};
+
 String _capitalize(String s) => s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
 
 /// Builds the sentence spoken for [cue].
@@ -385,7 +415,10 @@ String phraseFor(VoiceCue cue, VoicePersona persona, DistanceUnit unit, String l
       ? lang.roundabout(step.roundaboutExit)
       : (lang.dirs[step.kind] ?? lang.dirs[ManeuverKind.straight]!);
   final parts = formatDistanceParts(cue.distanceM, unit);
-  final dist = '${parts.value} ${lang.units[parts.unit] ?? parts.unit}';
+  // Spoken numbers use the language's decimal separator.
+  final value = langCode == 'en' ? parts.value : parts.value.replaceAll('.', ',');
+  final dist = '$value ${lang.units[parts.unit] ?? parts.unit}';
+  final distNom = '$value ${_nominativeUnits[langCode]?[parts.unit] ?? lang.units[parts.unit] ?? parts.unit}';
   final pack = langCode == 'en' ? persona.pack : null;
   final rnd = math.Random(seed + cue.stepIndex * 7 + cue.stage.index);
   String pick(List<String> xs) => xs[rnd.nextInt(xs.length)];
@@ -402,7 +435,7 @@ String phraseFor(VoiceCue cue, VoicePersona persona, DistanceUnit unit, String l
     CueStage.now => pack != null ? pick(pack.now) : lang.now,
     CueStage.arrive => lang.arrive,
   };
-  return _capitalize(template.replaceAll('{dir}', dir).replaceAll('{dist}', dist));
+  return _capitalize(template.replaceAll('{dir}', dir).replaceAll('{distNom}', distNom).replaceAll('{dist}', dist));
 }
 
 String reroutePhrase(VoicePersona persona, String langCode) {
@@ -413,7 +446,5 @@ String reroutePhrase(VoicePersona persona, String langCode) {
 String samplePhrase(VoicePersona persona, String langCode) {
   if (langCode == 'en' && persona.pack != null) return persona.pack!.sample;
   final lang = _langs[langCode] ?? _langs['en']!;
-  return _capitalize(lang.inDist
-      .replaceAll('{dist}', '300 ${lang.units['m']}')
-      .replaceAll('{dir}', lang.dirs[ManeuverKind.left]!));
+  return _capitalize(lang.inDist.replaceAll('{dist}', '300 ${lang.units['m']}').replaceAll('{dir}', lang.dirs[ManeuverKind.left]!));
 }

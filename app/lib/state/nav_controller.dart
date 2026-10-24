@@ -53,6 +53,14 @@ class NavController extends Notifier<NavState> {
   DateTime _lastReroute = DateTime.fromMillisecondsSinceEpoch(0);
   int _previewToken = 0;
 
+  /// Bumped on start/cancel so in-flight reroutes from an old trip are dropped.
+  int _session = 0;
+
+  /// Consecutive failed reroutes; drives exponential backoff (8→16→32→60 s).
+  int _rerouteFailures = 0;
+
+  Duration get _rerouteBackoff => Duration(seconds: (8 * (1 << _rerouteFailures.clamp(0, 3))).clamp(8, 60));
+
   @override
   NavState build() {
     ref.listen(locationProvider, (prev, next) {
@@ -92,6 +100,8 @@ class NavController extends Notifier<NavState> {
     final s = state;
     if (s is! NavPreview || s.route == null) return;
     _engine = NavigationEngine(s.route!);
+    _session++;
+    _rerouteFailures = 0;
     ref.read(locationProvider.notifier).navigating = true;
     state = NavActive(dest: s.dest, route: s.route!, progress: null);
     final fix = ref.read(locationProvider).fix;
@@ -100,6 +110,7 @@ class NavController extends Notifier<NavState> {
 
   void cancel() {
     _previewToken++;
+    _session++;
     _engine = null;
     ref.read(locationProvider.notifier).navigating = false;
     unawaited(ref.read(speakerProvider).stop());
@@ -122,7 +133,7 @@ class NavController extends Notifier<NavState> {
       state = NavArrived(s.dest);
       return;
     }
-    if (p.offRoute && !s.rerouting && DateTime.now().difference(_lastReroute) > const Duration(seconds: 8)) {
+    if (p.offRoute && !s.rerouting && DateTime.now().difference(_lastReroute) > _rerouteBackoff) {
       unawaited(_reroute(s, fix));
       return;
     }
@@ -131,17 +142,21 @@ class NavController extends Notifier<NavState> {
   }
 
   Future<void> _reroute(NavActive s, Fix fix) async {
+    final session = _session;
     _lastReroute = DateTime.now();
     state = NavActive(dest: s.dest, route: s.route, progress: s.progress, rerouting: true);
-    _say(reroutePhrase(_persona, _lang));
+    // Announce once per failure streak, not on every retry.
+    if (_rerouteFailures == 0) _say(reroutePhrase(_persona, _lang));
     try {
       final r = await _routing.route(fix.position, s.dest.location, headingDeg: fix.headingDeg);
-      if (state is! NavActive) return;
+      if (session != _session || state is! NavActive) return;
+      _rerouteFailures = 0;
       _engine = NavigationEngine(r);
       state = NavActive(dest: s.dest, route: r, progress: null);
       _onFix(fix);
     } catch (_) {
-      if (state is! NavActive) return;
+      if (session != _session || state is! NavActive) return;
+      _rerouteFailures++;
       state = NavActive(dest: s.dest, route: s.route, progress: s.progress);
     }
   }
@@ -163,9 +178,9 @@ class NavController extends Notifier<NavState> {
   }
 
   Geo? get destination => switch (state) {
-        NavPreview(:final dest) || NavActive(:final dest) || NavArrived(:final dest) => dest.location,
-        NavIdle() => null,
-      };
+    NavPreview(:final dest) || NavActive(:final dest) || NavArrived(:final dest) => dest.location,
+    NavIdle() => null,
+  };
 }
 
 final navProvider = NotifierProvider<NavController, NavState>(NavController.new);

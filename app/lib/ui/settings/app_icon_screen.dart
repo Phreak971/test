@@ -97,7 +97,10 @@ class AppIconScreen extends ConsumerWidget {
                                     if (icon.premium && !premium)
                                       const Align(
                                         alignment: Alignment.topRight,
-                                        child: Padding(padding: EdgeInsets.all(6), child: Icon(Icons.lock_rounded, color: Colors.white, size: 18)),
+                                        child: Padding(
+                                          padding: EdgeInsets.all(6),
+                                          child: Icon(Icons.lock_rounded, color: Colors.white, size: 18),
+                                        ),
                                       ),
                                   ],
                                 ),
@@ -105,7 +108,10 @@ class AppIconScreen extends ConsumerWidget {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text(icon.name, style: TextStyle(color: icon.id == current ? hud.accent : hud.text, fontWeight: FontWeight.w700)),
+                          Text(
+                            icon.name,
+                            style: TextStyle(color: icon.id == current ? hud.accentText : hud.text, fontWeight: FontWeight.w700),
+                          ),
                         ],
                       ),
                     ),

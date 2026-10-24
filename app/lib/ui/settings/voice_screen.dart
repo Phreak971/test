@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../../l10n/content_l10n.dart';
 import '../../nav/voice.dart';
 import '../../state/nav_controller.dart';
 import '../../state/providers.dart';
@@ -55,35 +56,44 @@ class VoiceScreen extends ConsumerWidget {
             SwitchListTile.adaptive(
               value: !s.voiceMuted,
               activeTrackColor: hud.accent,
-              secondary: Icon(s.voiceMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded, color: hud.accent),
-              title: Text(s.voiceMuted ? l.unmute : l.mute, style: TextStyle(color: hud.text, fontWeight: FontWeight.w600)),
+              secondary: Icon(s.voiceMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded, color: hud.accentText),
+              title: Text(
+                l.voiceGuidance,
+                style: TextStyle(color: hud.text, fontWeight: FontWeight.w600),
+              ),
+              subtitle: Text(s.voiceMuted ? l.stateOff : l.stateOn, style: TextStyle(color: hud.muted)),
               onChanged: (v) => ref.read(settingsProvider.notifier).setVoiceMuted(!v),
             ),
             const Divider(),
             for (final p in voicePersonas)
               ListTile(
                 minTileHeight: 72,
-                leading: PersonaAvatar(persona: p, selected: p.id == s.voiceId),
+                leading: ExcludeSemantics(
+                  child: PersonaAvatar(persona: p, selected: p.id == s.voiceId),
+                ),
                 title: Row(
                   children: [
-                    Flexible(child: Text(p.name, style: displayStyle(hud, 17))),
-                    if (p.isPremium && !premium) ...[
-                      const SizedBox(width: 6),
-                      Icon(Icons.lock_rounded, size: 16, color: hud.muted),
-                    ],
+                    Flexible(
+                      child: Semantics(
+                        label: [p.name, if (p.isPremium && !premium) l.proLocked, if (p.id == s.voiceId) l.selectedLabel].join(', '),
+                        excludeSemantics: true,
+                        child: Text(p.name, style: displayStyle(hud, 17)),
+                      ),
+                    ),
+                    if (p.isPremium && !premium) ...[const SizedBox(width: 6), Icon(Icons.lock_rounded, size: 16, color: hud.muted)],
                   ],
                 ),
-                subtitle: Text(p.tagline, style: TextStyle(color: hud.muted)),
+                subtitle: Text(voiceTagline(l, p.id), style: TextStyle(color: hud.muted)),
                 selected: p.id == s.voiceId,
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
                       tooltip: l.voicePreview,
-                      icon: Icon(Icons.play_circle_rounded, color: hud.accent, size: 32),
+                      icon: Icon(Icons.play_circle_rounded, color: hud.accentText, size: 32),
                       onPressed: () => ref.read(speakerProvider).speak(samplePhrase(p, lang), p, lang),
                     ),
-                    if (p.id == s.voiceId) Icon(Icons.check_rounded, color: hud.accent),
+                    if (p.id == s.voiceId) Icon(Icons.check_rounded, color: hud.accentText),
                   ],
                 ),
                 onTap: () {

@@ -12,7 +12,9 @@ import '../../state/providers.dart';
 import '../hud.dart';
 
 /// Shareable link that opens anywhere (no proprietary map links).
-Uri osmLink(Geo g) => Uri.parse('https://www.openstreetmap.org/?mlat=${g.lat.toStringAsFixed(6)}&mlon=${g.lng.toStringAsFixed(6)}#map=17/${g.lat.toStringAsFixed(6)}/${g.lng.toStringAsFixed(6)}');
+Uri osmLink(Geo g) => Uri.parse(
+  'https://www.openstreetmap.org/?mlat=${g.lat.toStringAsFixed(6)}&mlon=${g.lng.toStringAsFixed(6)}#map=17/${g.lat.toStringAsFixed(6)}/${g.lng.toStringAsFixed(6)}',
+);
 
 /// Finds a saved place at (almost) the same spot.
 SavedPlace? savedMatch(List<SavedPlace> saved, Place p) {
@@ -72,11 +74,19 @@ class PlacePanel extends ConsumerWidget {
                     ),
                     if (subtitle.isNotEmpty) ...[
                       const SizedBox(height: 4),
-                      Text(subtitle, style: TextStyle(color: hud.accent, fontWeight: FontWeight.w600, fontSize: 14)),
+                      Text(
+                        subtitle,
+                        style: TextStyle(color: hud.accentText, fontWeight: FontWeight.w600, fontSize: 14),
+                      ),
                     ],
                     if (place.address != null) ...[
                       const SizedBox(height: 4),
-                      Text(place.address!, style: TextStyle(color: hud.muted, fontSize: 14), maxLines: 2, overflow: TextOverflow.ellipsis),
+                      Text(
+                        place.address!,
+                        style: TextStyle(color: hud.muted, fontSize: 14),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ],
                   ],
                 ),
@@ -106,7 +116,12 @@ class PlacePanel extends ConsumerWidget {
                   onTap: saved != null ? () => onEdit(saved) : onSave,
                 ),
                 if (place.phone != null)
-                  _Action(hud: hud, icon: Icons.call_rounded, label: l.call, onTap: () => launchUrl(Uri(scheme: 'tel', path: place.phone))),
+                  _Action(
+                    hud: hud,
+                    icon: Icons.call_rounded,
+                    label: l.call,
+                    onTap: () => launchUrl(Uri(scheme: 'tel', path: place.phone)),
+                  ),
                 if (place.website != null)
                   _Action(
                     hud: hud,
@@ -117,16 +132,25 @@ class PlacePanel extends ConsumerWidget {
                       launchUrl(Uri.parse(w.startsWith('http') ? w : 'https://$w'), mode: LaunchMode.externalApplication);
                     },
                   ),
+                if (place.social != null)
+                  _Action(
+                    hud: hud,
+                    icon: Icons.camera_alt_rounded,
+                    label: 'Instagram',
+                    onTap: () => launchUrl(Uri.parse(place.social!), mode: LaunchMode.externalApplication),
+                  ),
                 _Action(
                   hud: hud,
-                  icon: Icons.ios_share_rounded,
+                  icon: shareIcon,
                   label: l.share,
                   onTap: () {
                     final box = context.findRenderObject() as RenderBox?;
-                    SharePlus.instance.share(ShareParams(
-                      text: [title, ?place.address, osmLink(place.location).toString()].join('\n'),
-                      sharePositionOrigin: box == null ? null : box.localToGlobal(Offset.zero) & box.size,
-                    ));
+                    SharePlus.instance.share(
+                      ShareParams(
+                        text: [title, ?place.address, osmLink(place.location).toString()].join('\n'),
+                        sharePositionOrigin: box == null ? null : box.localToGlobal(Offset.zero) & box.size,
+                      ),
+                    );
                   },
                 ),
               ],
@@ -169,7 +193,10 @@ class _Action extends StatelessWidget {
                   children: [
                     Icon(icon, color: hud.text, size: 22),
                     const SizedBox(height: 4),
-                    Text(label, style: TextStyle(color: hud.text, fontSize: 12, fontWeight: FontWeight.w600)),
+                    Text(
+                      label,
+                      style: TextStyle(color: hud.text, fontSize: 12, fontWeight: FontWeight.w600),
+                    ),
                   ],
                 ),
               ),

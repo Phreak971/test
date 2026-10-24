@@ -47,7 +47,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             children: [
               const DecoratedBox(
                 decoration: BoxDecoration(
-                  gradient: RadialGradient(colors: [Color(0xFF1E4FD8), Color(0xFF0A1A4A), Color(0xFF050814)], stops: [0, 0.45, 1], radius: 0.9),
+                  gradient: RadialGradient(
+                    colors: [Color(0xFF1E4FD8), Color(0xFF0A1A4A), Color(0xFF050814)],
+                    stops: [0, 0.45, 1],
+                    radius: 0.9,
+                  ),
                 ),
               ),
               LayoutBuilder(
@@ -86,7 +90,13 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                           const SizedBox(height: 18),
                           Text(
                             'OVERWORLD',
-                            style: const TextStyle(fontFamily: displayFont, fontWeight: FontWeight.w700, fontSize: 38, color: Colors.white, letterSpacing: 3),
+                            style: const TextStyle(
+                              fontFamily: displayFont,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 38,
+                              color: Colors.white,
+                              letterSpacing: 3,
+                            ),
                           ),
                         ],
                       ),

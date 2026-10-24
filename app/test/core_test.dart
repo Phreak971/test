@@ -10,6 +10,8 @@ import 'package:overworld/data/routing_service.dart';
 import 'package:overworld/data/search_service.dart';
 import 'package:overworld/ui/settings/contact_screen.dart';
 
+import 'polyline_encoder.dart';
+
 Map<String, dynamic> fixture(String name) => jsonDecode(File('test/fixtures/$name').readAsStringSync()) as Map<String, dynamic>;
 
 void main() {
@@ -35,6 +37,14 @@ void main() {
       expect(pts[0].lng, closeTo(-120.2, 1e-5));
       expect(pts[2].lat, closeTo(43.252, 1e-5));
       expect(pts[2].lng, closeTo(-126.453, 1e-5));
+    });
+
+    test('decodes negative coordinates (precision 6, western hemisphere)', () {
+      // Encoded independently: (40.758, -73.9855) then (40.7612, -73.9776).
+      final pts = decodePolyline(encodePolylineForTest([const Geo(40.758, -73.9855), const Geo(40.7612, -73.9776)], 6), precision: 6);
+      expect(pts[0].lat, closeTo(40.758, 1e-6));
+      expect(pts[0].lng, closeTo(-73.9855, 1e-6));
+      expect(pts[1].lng, closeTo(-73.9776, 1e-6));
     });
 
     test('snapToLine projects onto segment', () {
@@ -121,7 +131,12 @@ void main() {
     });
 
     test('photon feature without coordinates is skipped', () {
-      expect(photonFeatureToPlace({'properties': {'name': 'x'}}), isNull);
+      expect(
+        photonFeatureToPlace({
+          'properties': {'name': 'x'},
+        }),
+        isNull,
+      );
     });
 
     test('nominatim results', () {
@@ -168,7 +183,15 @@ void main() {
 
   group('models json', () {
     test('saved place roundtrip', () {
-      final p = SavedPlace(id: '1', name: 'Gym', location: const Geo(1, 2), icon: PlaceIcon.gym, createdAt: DateTime(2026, 1, 2), isHome: true, address: 'A st');
+      final p = SavedPlace(
+        id: '1',
+        name: 'Gym',
+        location: const Geo(1, 2),
+        icon: PlaceIcon.gym,
+        createdAt: DateTime(2026, 1, 2),
+        isHome: true,
+        address: 'A st',
+      );
       final back = SavedPlace.fromJson(jsonDecode(jsonEncode(p.toJson())) as Map<String, dynamic>);
       expect(back.name, 'Gym');
       expect(back.icon, PlaceIcon.gym);

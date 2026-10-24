@@ -38,19 +38,19 @@ const poiGlyphs = <String, IconData>{
 };
 
 IconData placeIconGlyph(PlaceIcon i) => switch (i) {
-      PlaceIcon.star => Icons.star_rounded,
-      PlaceIcon.home => Icons.home_rounded,
-      PlaceIcon.work => Icons.work_rounded,
-      PlaceIcon.food => Icons.restaurant,
-      PlaceIcon.coffee => Icons.local_cafe,
-      PlaceIcon.bar => Icons.local_bar,
-      PlaceIcon.shop => Icons.shopping_bag,
-      PlaceIcon.gym => Icons.fitness_center,
-      PlaceIcon.heart => Icons.favorite,
-      PlaceIcon.flag => Icons.flag,
-      PlaceIcon.car => Icons.directions_car,
-      PlaceIcon.school => Icons.school,
-    };
+  PlaceIcon.star => Icons.star_rounded,
+  PlaceIcon.home => Icons.home_rounded,
+  PlaceIcon.work => Icons.work_rounded,
+  PlaceIcon.food => Icons.restaurant,
+  PlaceIcon.coffee => Icons.local_cafe,
+  PlaceIcon.bar => Icons.local_bar,
+  PlaceIcon.shop => Icons.shopping_bag,
+  PlaceIcon.gym => Icons.fitness_center,
+  PlaceIcon.heart => Icons.favorite,
+  PlaceIcon.flag => Icons.flag,
+  PlaceIcon.car => Icons.directions_car,
+  PlaceIcon.school => Icons.school,
+};
 
 Path shapePath(PoiShape shape, Rect r) {
   final c = r.center;
@@ -90,22 +90,21 @@ Path shapePath(PoiShape shape, Rect r) {
   }
 }
 
-void _paintGlyph(Canvas canvas, IconData icon, Offset center, double size, Color color,
-    {Color? outline, double outlineWidth = 0}) {
+void _paintGlyph(Canvas canvas, IconData icon, Offset center, double size, Color color, {Color? outline, double outlineWidth = 0}) {
   TextPainter tp(Paint? foreground, Color? c) => TextPainter(
-        text: TextSpan(
-          text: String.fromCharCode(icon.codePoint),
-          style: TextStyle(
-            fontFamily: icon.fontFamily,
-            package: icon.fontPackage,
-            fontSize: size,
-            color: foreground == null ? c : null,
-            foreground: foreground,
-            height: 1,
-          ),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
+    text: TextSpan(
+      text: String.fromCharCode(icon.codePoint),
+      style: TextStyle(
+        fontFamily: icon.fontFamily,
+        package: icon.fontPackage,
+        fontSize: size,
+        color: foreground == null ? c : null,
+        foreground: foreground,
+        height: 1,
+      ),
+    ),
+    textDirection: TextDirection.ltr,
+  )..layout();
   if (outline != null && outlineWidth > 0) {
     final o = tp(
       Paint()
@@ -232,10 +231,14 @@ class ThemeIconPainter {
             ..lineTo(48, 86)
             ..lineTo(38, 48)
             ..close();
-          c.drawCircle(center, 26, Paint()
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 3
-            ..color = dark);
+          c.drawCircle(
+            center,
+            26,
+            Paint()
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 3
+              ..color = dark,
+          );
           body.color = accent;
       }
       c.drawShadow(path, Colors.black, 4, false);

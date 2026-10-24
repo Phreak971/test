@@ -21,17 +21,41 @@ class GameMapController {
 
   bool get ready => _c != null;
 
-  Future<void> flyTo(Geo target, {double? zoom, double? bearing, double? tilt, Duration duration = const Duration(milliseconds: 900)}) async {
+  /// True while a camera move started by the app is running, so it isn't
+  /// mistaken for a user pan (which would switch off follow mode).
+  bool _programmatic = false;
+  Timer? _programmaticReset;
+
+  void _beginProgrammatic(Duration d) {
+    _programmatic = true;
+    _programmaticReset?.cancel();
+    _programmaticReset = Timer(d + const Duration(milliseconds: 400), () => _programmatic = false);
+  }
+
+  /// Set from MediaQuery.disableAnimations; camera jumps instead of flying.
+  bool reduceMotion = false;
+
+  Future<void> flyTo(
+    Geo target, {
+    double? zoom,
+    double? bearing,
+    double? tilt,
+    Duration duration = const Duration(milliseconds: 900),
+  }) async {
     final c = _c;
     if (c == null) return;
+    if (reduceMotion) duration = const Duration(milliseconds: 1);
+    _beginProgrammatic(duration);
     final pos = c.cameraPosition;
     await c.animateCamera(
-      CameraUpdate.newCameraPosition(CameraPosition(
-        target: toLatLng(target),
-        zoom: zoom ?? math.max(pos?.zoom ?? 15, 15),
-        bearing: bearing ?? pos?.bearing ?? 0,
-        tilt: tilt ?? pos?.tilt ?? 0,
-      )),
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: toLatLng(target),
+          zoom: zoom ?? math.max(pos?.zoom ?? 15, 15),
+          bearing: bearing ?? pos?.bearing ?? 0,
+          tilt: tilt ?? pos?.tilt ?? 0,
+        ),
+      ),
       duration: duration,
     );
   }
@@ -40,6 +64,7 @@ class GameMapController {
     final c = _c;
     if (c == null || points.isEmpty) return;
     if (points.length == 1) return flyTo(points.first, zoom: 15);
+    _beginProgrammatic(const Duration(milliseconds: 900));
     final (sw, ne) = bounds(points);
     await c.animateCamera(
       CameraUpdate.newLatLngBounds(
@@ -57,6 +82,7 @@ class GameMapController {
     final c = _c;
     final pos = c?.cameraPosition;
     if (c == null || pos == null) return;
+    _beginProgrammatic(const Duration(milliseconds: 500));
     await c.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: pos.target, zoom: pos.zoom)));
   }
 
@@ -72,7 +98,10 @@ class GameMapController {
     _c = c;
   }
 
-  void _detach() {
+  /// Only the map state that currently owns the controller may detach it
+  /// (a theme switch builds the new map before the old one is disposed).
+  void _detach(_GameMapState s) {
+    if (!identical(_state, s)) return;
     _state = null;
     _c = null;
   }
@@ -91,6 +120,7 @@ class MapOverlayData {
     this.dest,
     this.route,
     this.routeTraveledM = 0,
+    this.results = const [],
   });
 
   final Geo? user;
@@ -100,6 +130,9 @@ class MapOverlayData {
   final Geo? dest;
   final List<Geo>? route;
   final double routeTraveledM;
+
+  /// Nearby search results drawn as themed POI markers: (place, poi icon id).
+  final List<(Place, String)> results;
 }
 
 class GameMap extends StatefulWidget {
@@ -162,6 +195,11 @@ class _GameMapState extends State<GameMap> {
   void didUpdateWidget(GameMap old) {
     super.didUpdateWidget(old);
     if (old.theme.id != widget.theme.id || old.variant != widget.variant) {
+      if (old.theme.id != widget.theme.id) {
+        // A new platform view is created; drop the old controller until it exists.
+        widget.controller._detach(this);
+        _c = null;
+      }
       setState(() {
         _styleReady = false;
         _style = _builder.buildJson(widget.theme, widget.variant);
@@ -173,7 +211,7 @@ class _GameMapState extends State<GameMap> {
 
   @override
   void dispose() {
-    widget.controller._detach();
+    widget.controller._detach(this);
     super.dispose();
   }
 
@@ -214,6 +252,7 @@ class _GameMapState extends State<GameMap> {
       _set(AppLayers.pinSource, _pointFc(o.pin)),
       _set(AppLayers.destSource, _pointFc(o.dest)),
       _set(AppLayers.routeSource, _routeFc(o.route)),
+      _set(AppLayers.resultsSource, _resultsFc(o.results)),
     ]);
   }
 
@@ -224,6 +263,7 @@ class _GameMapState extends State<GameMap> {
     if (a.pin != b.pin) jobs.add(_set(AppLayers.pinSource, _pointFc(b.pin)));
     if (a.dest != b.dest) jobs.add(_set(AppLayers.destSource, _pointFc(b.dest)));
     if (!identical(a.route, b.route)) jobs.add(_set(AppLayers.routeSource, _routeFc(b.route)));
+    if (!identical(a.results, b.results)) jobs.add(_set(AppLayers.resultsSource, _resultsFc(b.results)));
     await Future.wait(jobs);
   }
 
@@ -240,28 +280,36 @@ class _GameMapState extends State<GameMap> {
   static Map<String, dynamic> _fc(List<Map<String, dynamic>> features) => {'type': 'FeatureCollection', 'features': features};
 
   static Map<String, dynamic> _point(Geo g, [Map<String, dynamic> props = const {}]) => {
-        'type': 'Feature',
-        'properties': props,
-        'geometry': {'type': 'Point', 'coordinates': g.lngLat},
-      };
+    'type': 'Feature',
+    'properties': props,
+    'geometry': {'type': 'Point', 'coordinates': g.lngLat},
+  };
 
-  Map<String, dynamic> _userFc(MapOverlayData o) =>
-      _fc([if (o.user != null) _point(o.user!, {'bearing': o.userBearing})]);
+  Map<String, dynamic> _userFc(MapOverlayData o) => _fc([
+    if (o.user != null) _point(o.user!, {'bearing': o.userBearing}),
+  ]);
 
   Map<String, dynamic> _placesFc(List<SavedPlace> places) => _fc([
-        for (final p in places) _point(p.location, {'id': p.id, 'name': p.name, 'icon': p.icon.name}),
-      ]);
+    for (final p in places) _point(p.location, {'id': p.id, 'name': p.name, 'icon': p.icon.name}),
+  ]);
+
+  Map<String, dynamic> _resultsFc(List<(Place, String)> results) => _fc([
+    for (var i = 0; i < results.length; i++) _point(results[i].$1.location, {'rid': i, 'name': results[i].$1.name, 'icon': results[i].$2}),
+  ]);
 
   Map<String, dynamic> _pointFc(Geo? g) => _fc([if (g != null) _point(g)]);
 
   Map<String, dynamic> _routeFc(List<Geo>? line) => _fc([
-        if (line != null && line.length >= 2)
-          {
-            'type': 'Feature',
-            'properties': <String, dynamic>{},
-            'geometry': {'type': 'LineString', 'coordinates': [for (final g in line) g.lngLat]},
-          },
-      ]);
+    if (line != null && line.length >= 2)
+      {
+        'type': 'Feature',
+        'properties': <String, dynamic>{},
+        'geometry': {
+          'type': 'LineString',
+          'coordinates': [for (final g in line) g.lngLat],
+        },
+      },
+  ]);
 
   @override
   Widget build(BuildContext context) {
@@ -300,19 +348,21 @@ class _GameMapState extends State<GameMap> {
     final c = _c;
     if (c != null && _styleReady && widget.onFeatureTap != null) {
       try {
-        final hits = await c.queryRenderedFeaturesInRect(
-          Rect.fromCenter(center: Offset(point.x, point.y), width: 36, height: 36),
-          [AppLayers.places, AppLayers.poi],
-          null,
-        );
+        final hits = await c.queryRenderedFeaturesInRect(Rect.fromCenter(center: Offset(point.x, point.y), width: 36, height: 36), [
+          AppLayers.results,
+          AppLayers.places,
+          AppLayers.poi,
+        ], null);
         for (final h in hits) {
           final f = (h as Map).cast<String, dynamic>();
           final props = (f['properties'] as Map?)?.cast<String, dynamic>() ?? const {};
-          final layer = props.containsKey('icon') && props.containsKey('id') ? AppLayers.places : AppLayers.poi;
+          final layer = props.containsKey('rid')
+              ? AppLayers.results
+              : (props.containsKey('icon') && props.containsKey('id') ? AppLayers.places : AppLayers.poi);
           final geom = (f['geometry'] as Map?)?.cast<String, dynamic>();
           final coords = (geom?['coordinates'] as List?)?.cast<num>();
           final at = coords != null && coords.length >= 2 ? Geo(coords[1].toDouble(), coords[0].toDouble()) : toGeo(ll);
-          if (layer == AppLayers.places || (props['name'] is String && (props['name'] as String).isNotEmpty)) {
+          if (layer != AppLayers.poi || (props['name'] is String && (props['name'] as String).isNotEmpty)) {
             widget.onFeatureTap!(layer, props, at);
             return;
           }
@@ -329,7 +379,7 @@ class _GameMapState extends State<GameMap> {
     if (c == null) return;
     if (c.isCameraMoving && !_cameraMoving) {
       _cameraMoving = true;
-      widget.onUserGesture?.call();
+      if (!widget.controller._programmatic) widget.onUserGesture?.call();
     }
   }
 

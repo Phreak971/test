@@ -27,7 +27,9 @@ void main() {
             child: ElevatedButton(
               onPressed: () async {
                 popped = await Navigator.of(context).push<Object>(
-                  MaterialPageRoute(builder: (_) => const Scaffold(body: SearchSheet(center: Geo(52.52, 13.4)))),
+                  MaterialPageRoute(
+                    builder: (_) => const Scaffold(body: SearchSheet(center: Geo(52.52, 13.4))),
+                  ),
                 );
               },
               child: const Text('open'),
@@ -140,8 +142,10 @@ void main() {
     expect(find.text('Unlock every world'), findsOneWidget);
     expect(find.text('Best value'), findsOneWidget);
     // The CTA is pinned and visible without scrolling.
-    expect(find.text('Continue').hitTestable(), findsOneWidget);
-    await tester.tap(find.text('Continue'));
+    // Yearly (default) has a trial, so the CTA says so.
+    expect(find.text('Start free trial').hitTestable(), findsOneWidget);
+    expect(find.textContaining('3-day free trial, then'), findsOneWidget);
+    await tester.tap(find.text('Start free trial'));
     await tester.pump(const Duration(milliseconds: 500));
     await tester.pumpAndSettle();
     expect(c.read(entitlementProvider).premium, isTrue);

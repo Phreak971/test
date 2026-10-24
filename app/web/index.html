@@ -31,6 +31,13 @@
 
   <title>overworld</title>
   <link rel="manifest" href="manifest.json">
+  <style>
+    /* MapLibre GL JS attribution: the web plugin ignores margins, and DOM
+       platform views draw above Flutter's overlays, so keep it compact and
+       out of the way of bottom panels (native apps use a small "i" button). */
+    .maplibregl-ctrl-bottom-left, .maplibregl-ctrl-bottom-right { top: 96px !important; bottom: auto !important; }
+    .maplibregl-ctrl-attrib { font-size: 9px !important; max-width: 55vw; opacity: 0.8; }
+  </style>
 </head>
 <body>
   <!--

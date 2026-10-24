@@ -6,6 +6,7 @@ import '../../core/geo.dart';
 import '../../core/units.dart';
 import '../../data/models.dart';
 import '../../l10n/app_localizations.dart';
+import '../../l10n/content_l10n.dart';
 import '../../state/location.dart';
 import '../../state/providers.dart';
 import '../../themes/icon_painter.dart';
@@ -21,7 +22,8 @@ class SavedPlacesSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = L.of(context);
     final hud = ref.watch(hudProvider);
-    final places = [...ref.watch(placesProvider)]..sort((a, b) {
+    final places = [...ref.watch(placesProvider)]
+      ..sort((a, b) {
         if (a.isHome != b.isHome) return a.isHome ? -1 : 1;
         return b.createdAt.compareTo(a.createdAt);
       });
@@ -35,7 +37,9 @@ class SavedPlacesSheet extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(20, 8, 8, 4),
           child: Row(
             children: [
-              Expanded(child: Semantics(header: true, child: Text(l.savedTitle, style: displayStyle(hud, 22)))),
+              Expanded(
+                child: Semantics(header: true, child: Text(l.savedTitle, style: displayStyle(hud, 22))),
+              ),
               IconButton(
                 tooltip: l.close,
                 icon: Icon(Icons.close_rounded, color: hud.muted),
@@ -53,7 +57,11 @@ class SavedPlacesSheet extends ConsumerWidget {
                 const SizedBox(height: 12),
                 Text(l.savedEmptyTitle, style: displayStyle(hud, 18), textAlign: TextAlign.center),
                 const SizedBox(height: 6),
-                Text(l.savedEmptyBody, style: TextStyle(color: hud.muted), textAlign: TextAlign.center),
+                Text(
+                  l.savedEmptyBody,
+                  style: TextStyle(color: hud.muted),
+                  textAlign: TextAlign.center,
+                ),
               ],
             ),
           )
@@ -83,9 +91,14 @@ class SavedPlacesSheet extends ConsumerWidget {
                     minTileHeight: 60,
                     leading: CircleAvatar(
                       backgroundColor: (p.isHome ? const Color(0xFF2E7D32) : hud.accent).withValues(alpha: 0.2),
-                      child: Icon(placeIconGlyph(p.icon), color: p.isHome ? const Color(0xFF66BB6A) : hud.accent),
+                      child: Icon(placeIconGlyph(p.icon), color: p.isHome ? const Color(0xFF66BB6A) : hud.accentText),
                     ),
-                    title: Text(p.name, style: TextStyle(color: hud.text, fontWeight: FontWeight.w700), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    title: Text(
+                      p.name,
+                      style: TextStyle(color: hud.text, fontWeight: FontWeight.w700),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     subtitle: Text(
                       [if (me != null) formatDistance(distanceM(me, p.location), unit), ?p.address].join(' · '),
                       style: TextStyle(color: hud.muted),
@@ -124,7 +137,13 @@ Future<bool> confirmDelete(BuildContext context, Hud hud, String name) async {
 }
 
 /// Platform-appropriate dialog button.
-Widget adaptiveAction(BuildContext context, {required String label, required VoidCallback onPressed, bool destructive = false, bool isDefault = false}) {
+Widget adaptiveAction(
+  BuildContext context, {
+  required String label,
+  required VoidCallback onPressed,
+  bool destructive = false,
+  bool isDefault = false,
+}) {
   final platform = Theme.of(context).platform;
   if (platform == TargetPlatform.iOS || platform == TargetPlatform.macOS) {
     return CupertinoDialogActionCompat(label: label, onPressed: onPressed, destructive: destructive, isDefault: isDefault);
@@ -139,7 +158,13 @@ Widget adaptiveAction(BuildContext context, {required String label, required Voi
 /// Minimal Cupertino-style action that avoids importing the whole library in
 /// every screen.
 class CupertinoDialogActionCompat extends StatelessWidget {
-  const CupertinoDialogActionCompat({super.key, required this.label, required this.onPressed, this.destructive = false, this.isDefault = false});
+  const CupertinoDialogActionCompat({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.destructive = false,
+    this.isDefault = false,
+  });
 
   final String label;
   final VoidCallback onPressed;
@@ -197,9 +222,11 @@ class _PlaceEditorSheetState extends ConsumerState<PlaceEditorSheet> {
     final toast = ref.read(toastProvider.notifier);
     final e = widget.existing;
     if (e != null) {
-      notifier.update(e.copyWith(name: _name.text.trim().isEmpty ? e.name : _name.text.trim(), icon: _home ? PlaceIcon.home : _icon));
+      // Build a single edited value so a rename isn't lost when "home" changes.
+      final name = _name.text.trim().isEmpty ? e.name : _name.text.trim();
+      final icon = _home ? PlaceIcon.home : (_icon == PlaceIcon.home ? PlaceIcon.star : _icon);
+      notifier.update(e.copyWith(name: name, icon: icon, isHome: _home && e.isHome));
       if (_home && !e.isHome) notifier.setHome(e.id);
-      if (!_home && e.isHome) notifier.update(e.copyWith(isHome: false, icon: _icon == PlaceIcon.home ? PlaceIcon.star : _icon));
       toast.show(_home && !e.isHome ? l.homeSet : l.placeUpdated);
     } else {
       final n = widget.newPlace!;
@@ -229,12 +256,21 @@ class _PlaceEditorSheetState extends ConsumerState<PlaceEditorSheet> {
         children: [
           Row(
             children: [
-              Expanded(child: Semantics(header: true, child: Text(isEdit ? l.editorEditTitle : l.editorNewTitle, style: displayStyle(hud, 22)))),
-              IconButton(tooltip: l.close, icon: Icon(Icons.close_rounded, color: hud.muted), onPressed: () => Navigator.of(context).pop()),
+              Expanded(
+                child: Semantics(header: true, child: Text(isEdit ? l.editorEditTitle : l.editorNewTitle, style: displayStyle(hud, 22))),
+              ),
+              IconButton(
+                tooltip: l.close,
+                icon: Icon(Icons.close_rounded, color: hud.muted),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
             ],
           ),
           const SizedBox(height: 12),
-          Text(l.nameLabel, style: TextStyle(color: hud.muted, fontWeight: FontWeight.w600)),
+          Text(
+            l.nameLabel,
+            style: TextStyle(color: hud.muted, fontWeight: FontWeight.w600),
+          ),
           const SizedBox(height: 6),
           TextField(
             controller: _name,
@@ -242,11 +278,20 @@ class _PlaceEditorSheetState extends ConsumerState<PlaceEditorSheet> {
             textCapitalization: TextCapitalization.sentences,
             maxLength: 40,
             style: TextStyle(color: hud.text, fontSize: 17),
-            decoration: InputDecoration(hintText: l.namePlaceholder, counterText: ''),
+            decoration: InputDecoration(
+              hintText: l.namePlaceholder,
+              counterText: '',
+              semanticCounterText: '',
+              labelText: l.nameLabel,
+              floatingLabelBehavior: FloatingLabelBehavior.never,
+            ),
             onSubmitted: (_) => _save(),
           ),
           const SizedBox(height: 16),
-          Text(l.iconLabel, style: TextStyle(color: hud.muted, fontWeight: FontWeight.w600)),
+          Text(
+            l.iconLabel,
+            style: TextStyle(color: hud.muted, fontWeight: FontWeight.w600),
+          ),
           const SizedBox(height: 8),
           Wrap(
             spacing: 10,
@@ -256,7 +301,9 @@ class _PlaceEditorSheetState extends ConsumerState<PlaceEditorSheet> {
                 Semantics(
                   button: true,
                   selected: !_home && _icon == i,
-                  label: i.name,
+                  label: placeIconLabel(l, i),
+                  hint: _home ? l.homeLocked : null,
+                  enabled: !_home,
                   child: InkResponse(
                     onTap: _home
                         ? null
@@ -273,7 +320,10 @@ class _PlaceEditorSheetState extends ConsumerState<PlaceEditorSheet> {
                         shape: BoxShape.circle,
                         color: !_home && _icon == i ? hud.accent : hud.text.withValues(alpha: 0.08),
                       ),
-                      child: Icon(placeIconGlyph(i), color: !_home && _icon == i ? hud.onAccent : hud.text.withValues(alpha: _home ? 0.3 : 1)),
+                      child: Icon(
+                        placeIconGlyph(i),
+                        color: !_home && _icon == i ? hud.onAccent : hud.text.withValues(alpha: _home ? 0.3 : 1),
+                      ),
                     ),
                   ),
                 ),
@@ -284,8 +334,11 @@ class _PlaceEditorSheetState extends ConsumerState<PlaceEditorSheet> {
             contentPadding: EdgeInsets.zero,
             value: _home,
             activeTrackColor: hud.accent,
-            title: Text(l.homeToggle, style: TextStyle(color: hud.text, fontWeight: FontWeight.w600)),
-            secondary: Icon(Icons.home_rounded, color: hud.accent),
+            title: Text(
+              l.homeToggle,
+              style: TextStyle(color: hud.text, fontWeight: FontWeight.w600),
+            ),
+            secondary: Icon(Icons.home_rounded, color: hud.accentText),
             onChanged: (v) => setState(() => _home = v),
           ),
           const SizedBox(height: 12),

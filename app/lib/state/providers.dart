@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../core/geo.dart';
+import '../core/http.dart';
 import '../core/units.dart';
 import '../data/models.dart';
 import '../data/repositories.dart';
@@ -59,6 +60,14 @@ class SettingsNotifier extends Notifier<AppSettings> {
   void setCarDark(String id) => _set(state.copyWith(carDarkThemeId: id));
   void setCarAlwaysDark(bool v) => _set(state.copyWith(carAlwaysDark: v));
   void setAppIcon(String id) => _set(state.copyWith(appIcon: id));
+  void dismissLocationPrompt() => _set(state.copyWith(locationPromptDismissed: true));
+
+  /// Returns the new arrival count.
+  int recordArrival() {
+    _set(state.copyWith(arrivals: state.arrivals + 1));
+    return state.arrivals;
+  }
+
   void completeOnboarding({List<String>? genres, String? heardFrom}) =>
       _set(state.copyWith(onboarded: true, favoriteGenres: genres, heardFrom: heardFrom));
 
@@ -72,9 +81,7 @@ final settingsProvider = NotifierProvider<SettingsNotifier, AppSettings>(Setting
 final activeThemeProvider = Provider<({MapTheme theme, MapVariant variant})>((ref) {
   final s = ref.watch(settingsProvider);
   final theme = themeById(s.themeId);
-  final variant = s.preferDark == null
-      ? theme.baseVariant
-      : (s.preferDark! ? MapVariant.dark : MapVariant.light);
+  final variant = s.preferDark == null ? theme.baseVariant : (s.preferDark! ? MapVariant.dark : MapVariant.light);
   return (theme: theme, variant: variant);
 });
 
@@ -132,7 +139,9 @@ class PlacesNotifier extends Notifier<List<SavedPlace>> {
       address: address,
       isHome: isHome,
     );
-    final rest = isHome ? state.map((p) => p.isHome ? p.copyWith(isHome: false, icon: p.icon == PlaceIcon.home ? PlaceIcon.star : p.icon) : p) : state;
+    final rest = isHome
+        ? state.map((p) => p.isHome ? p.copyWith(isHome: false, icon: p.icon == PlaceIcon.home ? PlaceIcon.star : p.icon) : p)
+        : state;
     _set([...rest, place]);
     return place;
   }
@@ -140,11 +149,11 @@ class PlacesNotifier extends Notifier<List<SavedPlace>> {
   void update(SavedPlace p) => _set([for (final x in state) x.id == p.id ? p : x]);
 
   void setHome(String id) => _set([
-        for (final x in state)
-          x.id == id
-              ? x.copyWith(isHome: true, icon: PlaceIcon.home)
-              : (x.isHome ? x.copyWith(isHome: false, icon: x.icon == PlaceIcon.home ? PlaceIcon.star : x.icon) : x),
-      ]);
+    for (final x in state)
+      x.id == id
+          ? x.copyWith(isHome: true, icon: PlaceIcon.home)
+          : (x.isHome ? x.copyWith(isHome: false, icon: x.icon == PlaceIcon.home ? PlaceIcon.star : x.icon) : x),
+  ]);
 
   void remove(String id) => _set(state.where((p) => p.id != id).toList());
 
@@ -212,9 +221,25 @@ class ToastNotifier extends Notifier<ToastMessage?> {
 
 final toastProvider = NotifierProvider<ToastNotifier, ToastMessage?>(ToastNotifier.new);
 
-/// Remote "minimum supported version" for the force-update gate. In this
-/// build it is configured at compile time; wire to a config endpoint later.
-final minSupportedBuildProvider = Provider<int>((ref) => const int.fromEnvironment('MIN_BUILD', defaultValue: 0));
+/// Minimum supported build for the force-update gate: the larger of the
+/// compile-time `MIN_BUILD` and `minBuild` from the optional remote JSON at
+/// `CONFIG_URL` (e.g. `{"minBuild": 42}`), fetched once per launch.
+final remoteConfigProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+  const url = String.fromEnvironment('CONFIG_URL');
+  if (url.isEmpty) return const {};
+  try {
+    final j = await JsonClient(timeout: const Duration(seconds: 6)).getJson(Uri.parse(url));
+    return j is Map<String, dynamic> ? j : const {};
+  } catch (_) {
+    return const {}; // offline: never block the app on config
+  }
+});
+
+final minSupportedBuildProvider = Provider<int>((ref) {
+  const local = int.fromEnvironment('MIN_BUILD', defaultValue: 0);
+  final remote = ref.watch(remoteConfigProvider).asData?.value['minBuild'];
+  return remote is num && remote.toInt() > local ? remote.toInt() : local;
+});
 
 /// Exposed for widget tests that need deterministic time.
 @visibleForTesting

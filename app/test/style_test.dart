@@ -56,6 +56,9 @@ void main() {
         expect(_contrast(p.label, p.labelHalo), greaterThanOrEqualTo(3.0), reason: 'label vs halo');
         expect(_contrast(p.hudText, p.hudPanel), greaterThanOrEqualTo(4.5), reason: 'HUD text vs panel');
         expect(_contrast(p.route, p.land), greaterThanOrEqualTo(1.6), reason: 'route visible on land');
+        if (v == MapVariant.dark) {
+          expect(Color(p.hudPanel | 0xFF000000).computeLuminance(), lessThan(0.2), reason: 'dark variants use dark chrome');
+        }
       });
     }
   }

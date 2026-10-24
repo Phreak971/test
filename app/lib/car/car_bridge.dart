@@ -82,8 +82,7 @@ class CarBridge {
 
 final carBridgeProvider = Provider<CarBridge>((ref) => CarBridge());
 
-Future<Map<String, Uint8List>> _icons(MapTheme t, MapVariant v) =>
-    ThemeIconPainter(t, t.palette(v)).all(poiIds: poiIconIds);
+Future<Map<String, Uint8List>> _icons(MapTheme t, MapVariant v) => ThemeIconPainter(t, t.palette(v)).all(poiIds: poiIconIds);
 
 /// Builds the sync payload from current app state.
 Future<Map<String, Object?>> buildCarPayload(Ref ref) async {

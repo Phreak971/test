@@ -29,6 +29,7 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
   final _email = TextEditingController();
   final _message = TextEditingController();
   String? _error;
+  String? _errorKey;
   bool _sent = false;
 
   @override
@@ -41,15 +42,13 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
   Future<void> _send() async {
     final l = L.of(context);
     final err = validateContact(_email.text, _message.text);
+    _errorKey = err;
     setState(() => _error = err == null ? null : (err == 'empty' ? l.contactErrorEmpty : l.contactErrorEmail));
     if (err != null) return;
     final uri = Uri(
       scheme: 'mailto',
       path: AppConfig.supportEmail,
-      query: _encode({
-        'subject': 'Overworld support ($appVersion)',
-        'body': '${_message.text.trim()}\n\n— ${_email.text.trim()}',
-      }),
+      query: _encode({'subject': 'Overworld support ($appVersion)', 'body': '${_message.text.trim()}\n\n— ${_email.text.trim()}'}),
     );
     final ok = await launchUrl(uri);
     if (!mounted) return;
@@ -78,11 +77,15 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.mark_email_read_rounded, color: hud.accent, size: 64),
+                        Icon(Icons.mark_email_read_rounded, color: hud.accentText, size: 64),
                         const SizedBox(height: 12),
                         Text(l.contactSentTitle, style: displayStyle(hud, 22), textAlign: TextAlign.center),
                         const SizedBox(height: 6),
-                        Text(l.contactSentBody, style: TextStyle(color: hud.muted), textAlign: TextAlign.center),
+                        Text(
+                          l.contactSentBody,
+                          style: TextStyle(color: hud.muted),
+                          textAlign: TextAlign.center,
+                        ),
                         const SizedBox(height: 20),
                         PrimaryButton(hud: hud, label: l.done, onPressed: () => Navigator.of(context).pop()),
                       ],
@@ -92,7 +95,10 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
               : ListView(
                   padding: const EdgeInsets.all(20),
                   children: [
-                    Text(l.contactEmail, style: TextStyle(color: hud.muted, fontWeight: FontWeight.w600)),
+                    Text(
+                      l.contactEmail,
+                      style: TextStyle(color: hud.muted, fontWeight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 6),
                     TextField(
                       controller: _email,
@@ -100,10 +106,18 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
                       autofillHints: const [AutofillHints.email],
                       textInputAction: TextInputAction.next,
                       style: TextStyle(color: hud.text),
-                      decoration: InputDecoration(hintText: l.contactEmailHint),
+                      decoration: InputDecoration(
+                        hintText: l.contactEmailHint,
+                        labelText: l.contactEmail,
+                        floatingLabelBehavior: FloatingLabelBehavior.never,
+                        errorText: _errorKey == 'email' ? l.contactErrorEmail : null,
+                      ),
                     ),
                     const SizedBox(height: 16),
-                    Text(l.contactMessage, style: TextStyle(color: hud.muted, fontWeight: FontWeight.w600)),
+                    Text(
+                      l.contactMessage,
+                      style: TextStyle(color: hud.muted, fontWeight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 6),
                     TextField(
                       controller: _message,
@@ -112,14 +126,22 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
                       maxLength: 2000,
                       textCapitalization: TextCapitalization.sentences,
                       style: TextStyle(color: hud.text),
-                      decoration: InputDecoration(hintText: l.contactMessageHint),
+                      decoration: InputDecoration(
+                        hintText: l.contactMessageHint,
+                        labelText: l.contactMessage,
+                        floatingLabelBehavior: FloatingLabelBehavior.never,
+                      ),
                     ),
-                    if (_error != null)
+                    // Email problems show on the field itself.
+                    if (_error != null && _errorKey != 'email')
                       Semantics(
                         liveRegion: true,
                         child: Padding(
                           padding: const EdgeInsets.only(bottom: 8),
-                          child: Text(_error!, style: const TextStyle(color: Color(0xFFFF6B6B), fontWeight: FontWeight.w600)),
+                          child: Text(
+                            _error!,
+                            style: TextStyle(color: hud.danger, fontWeight: FontWeight.w600),
+                          ),
                         ),
                       ),
                     const SizedBox(height: 8),

@@ -90,12 +90,12 @@ class TestEnv {
   final FakeLocation location;
 
   List<Override> get overrides => [
-        localStoreProvider.overrideWithValue(store),
-        searchServiceProvider.overrideWithValue(search),
-        speakerProvider.overrideWithValue(speaker),
-        purchaseServiceProvider.overrideWithValue(purchases),
-        locationSourceProvider.overrideWithValue(location),
-      ];
+    localStoreProvider.overrideWithValue(store),
+    searchServiceProvider.overrideWithValue(search),
+    speakerProvider.overrideWithValue(speaker),
+    purchaseServiceProvider.overrideWithValue(purchases),
+    locationSourceProvider.overrideWithValue(location),
+  ];
 }
 
 Future<TestEnv> makeEnv({Map<String, Object> prefs = const {}, List<Place> results = const []}) async {
@@ -111,27 +111,46 @@ Future<TestEnv> makeEnv({Map<String, Object> prefs = const {}, List<Place> resul
 }
 
 /// Pumps [child] inside localization + a fresh provider container.
-Future<ProviderContainer> pumpApp(WidgetTester tester, TestEnv env, Widget child, {Size size = const Size(390, 844)}) async {
+Future<ProviderContainer> pumpApp(
+  WidgetTester tester,
+  TestEnv env,
+  Widget child, {
+  Size size = const Size(390, 844),
+  bool settle = true,
+}) async {
   tester.view.physicalSize = size * 3;
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
   final container = ProviderContainer(overrides: env.overrides);
   addTearDown(container.dispose);
-  await tester.pumpWidget(UncontrolledProviderScope(
-    container: container,
-    child: MaterialApp(
-      localizationsDelegates: const [
-        L.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: L.supportedLocales,
-      home: child,
+  await tester.pumpWidget(
+    UncontrolledProviderScope(
+      container: container,
+      child: MaterialApp(
+        localizationsDelegates: const [
+          L.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: L.supportedLocales,
+        home: child,
+      ),
     ),
-  ));
-  await tester.pumpAndSettle();
+  );
+  if (settle) {
+    await tester.pumpAndSettle();
+  } else {
+    await tester.pump(const Duration(milliseconds: 300));
+  }
   return container;
 }
 
-const samplePlace = Place(id: 'osm:N1', name: 'Café Blue', location: Geo(52.521, 13.41), address: 'Main St 1, Berlin', category: 'Cafe', phone: '+49 30 1234');
+const samplePlace = Place(
+  id: 'osm:N1',
+  name: 'Café Blue',
+  location: Geo(52.521, 13.41),
+  address: 'Main St 1, Berlin',
+  category: 'Cafe',
+  phone: '+49 30 1234',
+);

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/geo.dart';
 import '../../l10n/app_localizations.dart';
+import '../../l10n/content_l10n.dart';
 import '../../state/location.dart';
 import '../../state/providers.dart';
 import '../../themes/map_theme.dart';
@@ -71,7 +72,8 @@ class _ThemePickerScreenState extends ConsumerState<ThemePickerScreen> {
     final theme = _theme;
     final hud = Hud.of(theme, _variant);
     final unlocked = !theme.isPremium || premium;
-    final center = ref.watch(locationProvider.select((s) => s.position)) ??
+    final center =
+        ref.watch(locationProvider.select((s) => s.position)) ??
         (() {
           final c = ref.read(localStoreProvider).loadLastCamera();
           return c == null ? const Geo(40.7580, -73.9855) : Geo(c.lat, c.lng);
@@ -102,7 +104,9 @@ class _ThemePickerScreenState extends ConsumerState<ThemePickerScreen> {
                       ),
                     ),
                   ),
-                  Positioned.fill(child: MapOverlayFx(overlay: theme.overlay, palette: theme.palette(_variant))),
+                  Positioned.fill(
+                    child: MapOverlayFx(overlay: theme.overlay, palette: theme.palette(_variant)),
+                  ),
                   Positioned(
                     left: 12,
                     top: mq.padding.top + 4,
@@ -125,11 +129,13 @@ class _ThemePickerScreenState extends ConsumerState<ThemePickerScreen> {
                               Text(
                                 theme.name.toUpperCase(),
                                 style: displayStyle(hud, 28, color: Color(theme.palette(_variant).label)).copyWith(
-                                  shadows: [Shadow(color: Color(theme.palette(_variant).labelHalo), blurRadius: 6, offset: const Offset(2, 2))],
+                                  shadows: [
+                                    Shadow(color: Color(theme.palette(_variant).labelHalo), blurRadius: 6, offset: const Offset(2, 2)),
+                                  ],
                                 ),
                               ),
                               Text(
-                                theme.tagline,
+                                themeTagline(l, theme.id),
                                 style: TextStyle(
                                   color: Color(theme.palette(_variant).label),
                                   fontWeight: FontWeight.w600,
@@ -150,12 +156,18 @@ class _ThemePickerScreenState extends ConsumerState<ThemePickerScreen> {
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
               child: Row(
                 children: [
-                  Expanded(child: Semantics(header: true, child: Text(l.mapSelectTitle, style: displayStyle(hud, 22)))),
+                  Expanded(
+                    child: Semantics(header: true, child: Text(l.mapSelectTitle, style: displayStyle(hud, 22))),
+                  ),
                   if (!premium)
                     TextButton.icon(
-                      onPressed: () => Navigator.of(context).push(MaterialPageRoute(fullscreenDialog: true, builder: (_) => const PaywallScreen())),
-                      icon: Icon(Icons.lock_open_rounded, color: hud.accent, size: 18),
-                      label: Text(l.unlockAllMaps, style: TextStyle(color: hud.accent, fontWeight: FontWeight.w700)),
+                      onPressed: () =>
+                          Navigator.of(context).push(MaterialPageRoute(fullscreenDialog: true, builder: (_) => const PaywallScreen())),
+                      icon: Icon(Icons.lock_open_rounded, color: hud.accentText, size: 18),
+                      label: Text(
+                        l.unlockAllMaps,
+                        style: TextStyle(color: hud.accentText, fontWeight: FontWeight.w700),
+                      ),
                     ),
                 ],
               ),
@@ -271,7 +283,7 @@ class _ThemeCard extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
-      label: '${theme.name}, ${theme.genre}${locked ? ', ${l.proBadge}' : ''}',
+      label: '${theme.name}, ${themeGenre(l, theme.id)}${locked ? ', ${l.proLocked}' : ''}',
       excludeSemantics: true,
       child: GestureDetector(
         onTap: onTap,
@@ -297,13 +309,19 @@ class _ThemeCard extends StatelessWidget {
                         right: 6,
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(color: locked ? Colors.black87 : const Color(0xFF2E7D32), borderRadius: BorderRadius.circular(4)),
+                          decoration: BoxDecoration(
+                            color: locked ? Colors.black87 : const Color(0xFF2E7D32),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               if (locked) const Icon(Icons.lock_rounded, color: Colors.white, size: 12),
                               if (locked) const SizedBox(width: 3),
-                              Text(locked ? l.proBadge : (theme.isPremium ? '✓' : l.freeBadge), style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800)),
+                              Text(
+                                locked ? l.proBadge : (theme.isPremium ? '✓' : l.freeBadge),
+                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800),
+                              ),
                             ],
                           ),
                         ),
@@ -318,7 +336,12 @@ class _ThemeCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(theme.name, style: displayStyle(cardHud, 15), maxLines: 1, overflow: TextOverflow.ellipsis),
-                      Text(theme.genre, style: TextStyle(color: cardHud.muted, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      Text(
+                        themeGenre(l, theme.id),
+                        style: TextStyle(color: cardHud.muted, fontSize: 12),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ],
                   ),
                 ),

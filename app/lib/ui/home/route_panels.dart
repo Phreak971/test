@@ -6,27 +6,29 @@ import 'package:intl/intl.dart';
 import '../../core/units.dart';
 import '../../data/models.dart';
 import '../../l10n/app_localizations.dart';
+import '../../nav/navigation_engine.dart';
+import '../../nav/voice.dart';
 import '../../state/nav_controller.dart';
 import '../../state/providers.dart';
 import '../hud.dart';
 
 IconData maneuverIcon(ManeuverKind k) => switch (k) {
-      ManeuverKind.depart => Icons.navigation_rounded,
-      ManeuverKind.arrive => Icons.flag_rounded,
-      ManeuverKind.straight => Icons.straight_rounded,
-      ManeuverKind.slightLeft => Icons.turn_slight_left_rounded,
-      ManeuverKind.left => Icons.turn_left_rounded,
-      ManeuverKind.sharpLeft => Icons.turn_sharp_left_rounded,
-      ManeuverKind.slightRight => Icons.turn_slight_right_rounded,
-      ManeuverKind.right => Icons.turn_right_rounded,
-      ManeuverKind.sharpRight => Icons.turn_sharp_right_rounded,
-      ManeuverKind.uturn => Icons.u_turn_left_rounded,
-      ManeuverKind.roundabout => Icons.roundabout_right_rounded,
-      ManeuverKind.merge => Icons.merge_rounded,
-      ManeuverKind.fork => Icons.fork_right_rounded,
-      ManeuverKind.rampLeft => Icons.ramp_left_rounded,
-      ManeuverKind.rampRight => Icons.ramp_right_rounded,
-    };
+  ManeuverKind.depart => Icons.navigation_rounded,
+  ManeuverKind.arrive => Icons.flag_rounded,
+  ManeuverKind.straight => Icons.straight_rounded,
+  ManeuverKind.slightLeft => Icons.turn_slight_left_rounded,
+  ManeuverKind.left => Icons.turn_left_rounded,
+  ManeuverKind.sharpLeft => Icons.turn_sharp_left_rounded,
+  ManeuverKind.slightRight => Icons.turn_slight_right_rounded,
+  ManeuverKind.right => Icons.turn_right_rounded,
+  ManeuverKind.sharpRight => Icons.turn_sharp_right_rounded,
+  ManeuverKind.uturn => Icons.u_turn_left_rounded,
+  ManeuverKind.roundabout => Icons.roundabout_right_rounded,
+  ManeuverKind.merge => Icons.merge_rounded,
+  ManeuverKind.fork => Icons.fork_right_rounded,
+  ManeuverKind.rampLeft => Icons.ramp_left_rounded,
+  ManeuverKind.rampRight => Icons.ramp_right_rounded,
+};
 
 String _duration(BuildContext context, double s) {
   final l = L.of(context);
@@ -36,7 +38,8 @@ String _duration(BuildContext context, double s) {
 String _arrivalTime(BuildContext context, double s) {
   final at = DateTime.now().add(Duration(seconds: s.round()));
   final use24 = MediaQuery.alwaysUse24HourFormatOf(context);
-  return (use24 ? DateFormat.Hm() : DateFormat.jm()).format(at);
+  final locale = Localizations.localeOf(context).toLanguageTag();
+  return (use24 ? DateFormat.Hm(locale) : DateFormat.jm(locale)).format(at);
 }
 
 /// Bottom panel shown while previewing a route.
@@ -57,7 +60,7 @@ class RoutePreviewPanel extends ConsumerWidget {
     if (state.loading) {
       body = Padding(
         padding: const EdgeInsets.symmetric(vertical: 18),
-        child: Center(child: CircularProgressIndicator(color: hud.accent)),
+        child: Center(child: CircularProgressIndicator(color: hud.accentText)),
       );
     } else if (state.error != null) {
       body = Padding(
@@ -70,7 +73,12 @@ class RoutePreviewPanel extends ConsumerWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
-            SecondaryButton(hud: hud, label: l.retry, icon: Icons.refresh_rounded, onPressed: () => ref.read(navProvider.notifier).preview(state.dest)),
+            SecondaryButton(
+              hud: hud,
+              label: l.retry,
+              icon: Icons.refresh_rounded,
+              onPressed: () => ref.read(navProvider.notifier).preview(state.dest),
+            ),
           ],
         ),
       );
@@ -78,21 +86,32 @@ class RoutePreviewPanel extends ConsumerWidget {
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(_duration(context, r!.durationS), style: displayStyle(hud, 30, color: hud.accent)),
-              const SizedBox(width: 10),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Text(formatDistance(r.distanceM, unit), style: TextStyle(color: hud.muted, fontSize: 16, fontWeight: FontWeight.w600)),
-              ),
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Text('${l.arrival} ${_arrivalTime(context, r.durationS)}', style: TextStyle(color: hud.text, fontSize: 15, fontWeight: FontWeight.w600)),
-              ),
-            ],
+          Semantics(
+            label:
+                '${_duration(context, r!.durationS)}, ${formatDistance(r.distanceM, unit)}, ${l.arrival} ${_arrivalTime(context, r.durationS)}',
+            excludeSemantics: true,
+            child: Wrap(
+              spacing: 12,
+              runSpacing: 2,
+              crossAxisAlignment: WrapCrossAlignment.end,
+              children: [
+                Text(_duration(context, r.durationS), style: displayStyle(hud, 30, color: hud.accentText)),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    formatDistance(r.distanceM, unit),
+                    style: TextStyle(color: hud.muted, fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    '${l.arrival} ${_arrivalTime(context, r.durationS)}',
+                    style: TextStyle(color: hud.text, fontSize: 15, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 14),
           PrimaryButton(
@@ -122,14 +141,25 @@ class RoutePreviewPanel extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(l.routeTitle.toUpperCase(), style: displayStyle(hud, 12, weight: FontWeight.w600, color: hud.muted).copyWith(letterSpacing: 1.2)),
+                    Text(
+                      upper(context, l.routeTitle),
+                      style: displayStyle(hud, 12, weight: FontWeight.w600, color: hud.muted).copyWith(letterSpacing: 1.2),
+                    ),
                     const SizedBox(height: 2),
                     Text.rich(
-                      TextSpan(children: [
-                        TextSpan(text: l.fromMyLocation, style: TextStyle(color: hud.muted)),
-                        const TextSpan(text: '  →  '),
-                        TextSpan(text: state.dest.name, style: const TextStyle(fontWeight: FontWeight.w700)),
-                      ]),
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: l.fromMyLocation,
+                            style: TextStyle(color: hud.muted),
+                          ),
+                          const TextSpan(text: '  →  '),
+                          TextSpan(
+                            text: state.dest.name,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
                       style: TextStyle(color: hud.text, fontSize: 15),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -169,65 +199,100 @@ class ManeuverBanner extends ConsumerWidget {
     final dist = p?.distanceToNextM ?? state.route.steps.first.distanceM;
     final parts = formatDistanceParts(dist, unit);
     final street = step.streetName.isNotEmpty ? step.streetName : (step.kind == ManeuverKind.arrive ? state.dest.name : '');
+    final lang = Localizations.localeOf(context).languageCode;
+    final stepIndex = (p?.currentStepIndex ?? 0) + 1;
+    final spoken = state.rerouting
+        ? l.rerouting
+        : phraseFor(VoiceCue(step: step, stage: CueStage.approach, distanceM: dist, stepIndex: stepIndex), voicePersonas.first, unit, lang);
 
-    return Semantics(
-      liveRegion: true,
-      label: '${parts.value} ${parts.unit} $street',
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: hud.accent,
-              borderRadius: BorderRadius.circular(hud.radius.clamp(10, 24)),
-              boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 16, offset: Offset(0, 6))],
-            ),
-            padding: const EdgeInsets.fromLTRB(14, 12, 16, 12),
-            child: state.rerouting
-                ? Row(children: [
-                    SizedBox(width: 26, height: 26, child: CircularProgressIndicator(color: hud.onAccent, strokeWidth: 3)),
-                    const SizedBox(width: 14),
-                    Text(l.rerouting, style: displayStyle(hud, 22, color: hud.onAccent)),
-                  ])
-                : Row(
-                    children: [
-                      Icon(maneuverIcon(step.kind), color: hud.onAccent, size: 52),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text.rich(
-                              TextSpan(children: [
-                                TextSpan(text: parts.value, style: displayStyle(hud, 32, color: hud.onAccent)),
-                                TextSpan(text: ' ${parts.unit}', style: displayStyle(hud, 18, color: hud.onAccent)),
-                              ]),
-                            ),
-                            if (street.isNotEmpty)
-                              Text(street, style: TextStyle(color: hud.onAccent, fontSize: 18, fontWeight: FontWeight.w700), maxLines: 1, overflow: TextOverflow.ellipsis),
-                          ],
+    // Announce once per maneuver (keyed by step), not on every distance tick.
+    return KeyedSubtree(
+      key: ValueKey('maneuver-$stepIndex-${state.rerouting}'),
+      child: Semantics(
+        liveRegion: true,
+        label: spoken,
+        excludeSemantics: true,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: hud.accent,
+                borderRadius: BorderRadius.circular(hud.radius.clamp(10, 24)),
+                boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 16, offset: Offset(0, 6))],
+              ),
+              padding: const EdgeInsets.fromLTRB(14, 12, 16, 12),
+              child: state.rerouting
+                  ? Row(
+                      children: [
+                        SizedBox(width: 26, height: 26, child: CircularProgressIndicator(color: hud.onAccent, strokeWidth: 3)),
+                        const SizedBox(width: 14),
+                        Flexible(
+                          child: Text(
+                            l.rerouting,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: displayStyle(hud, 22, color: hud.onAccent),
+                          ),
                         ),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        Icon(maneuverIcon(step.kind), color: hud.onAccent, size: 52),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: parts.value,
+                                      style: displayStyle(hud, 32, color: hud.onAccent),
+                                    ),
+                                    TextSpan(
+                                      text: ' ${parts.unit}',
+                                      style: displayStyle(hud, 18, color: hud.onAccent),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (street.isNotEmpty)
+                                Text(
+                                  street,
+                                  style: TextStyle(color: hud.onAccent, fontSize: 18, fontWeight: FontWeight.w700),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
+            if (p?.followingStep != null && !state.rerouting)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  margin: const EdgeInsets.only(top: 6, left: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(color: hud.panel, borderRadius: BorderRadius.circular(hud.radius.clamp(8, 18))),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${l.thenLabel} ',
+                        style: TextStyle(color: hud.text, fontWeight: FontWeight.w600),
                       ),
+                      Icon(maneuverIcon(p!.followingStep!.kind), color: hud.text, size: 22),
                     ],
                   ),
-          ),
-          if (p?.followingStep != null && !state.rerouting)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Container(
-                margin: const EdgeInsets.only(top: 6, left: 10),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(color: hud.panel, borderRadius: BorderRadius.circular(hud.radius.clamp(8, 18))),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('${l.thenLabel} ', style: TextStyle(color: hud.text, fontWeight: FontWeight.w600)),
-                    Icon(maneuverIcon(p!.followingStep!.kind), color: hud.text, size: 22),
-                  ],
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -262,10 +327,25 @@ class NavBottomBar extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_arrivalTime(context, remS), style: displayStyle(hud, 26, color: hud.accent)),
-                  Text(
-                    '${_duration(context, remS)} · ${formatDistance(remM, settings.unit)}',
-                    style: TextStyle(color: hud.muted, fontSize: 15, fontWeight: FontWeight.w600),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      _arrivalTime(context, remS),
+                      maxLines: 1,
+                      softWrap: false,
+                      style: displayStyle(hud, 26, color: hud.accentText),
+                    ),
+                  ),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '${_duration(context, remS)} · ${formatDistance(remM, settings.unit)}',
+                      maxLines: 1,
+                      softWrap: false,
+                      style: TextStyle(color: hud.muted, fontSize: 15, fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ],
               ),
@@ -283,17 +363,27 @@ class NavBottomBar extends ConsumerWidget {
             },
           ),
           const SizedBox(width: 8),
-          SizedBox(
-            height: 48,
-            child: FilledButton(
-              onPressed: onEnd,
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFFE53935),
+          LayoutBuilder(
+            builder: (context, _) {
+              final compact = MediaQuery.sizeOf(context).width < 360 || MediaQuery.textScalerOf(context).scale(1) > 1.3;
+              final style = FilledButton.styleFrom(
+                backgroundColor: const Color(0xFFD32F2F),
                 foregroundColor: Colors.white,
+                minimumSize: const Size(48, 48),
+                padding: EdgeInsets.symmetric(horizontal: compact ? 0 : 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(hud.radius.clamp(6, 24))),
-              ),
-              child: Text(l.endRoute, style: displayStyle(hud, 16, color: Colors.white)),
-            ),
+              );
+              return Tooltip(
+                message: l.endRoute,
+                child: FilledButton(
+                  onPressed: onEnd,
+                  style: style,
+                  child: compact
+                      ? Semantics(label: l.endRoute, child: const Icon(Icons.close_rounded))
+                      : Text(l.endRoute, maxLines: 1, style: displayStyle(hud, 16, color: Colors.white)),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -319,12 +409,19 @@ class ArrivedPanel extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.emoji_events_rounded, color: hud.accent, size: 44),
+          Icon(Icons.emoji_events_rounded, color: hud.accentText, size: 44),
           const SizedBox(height: 6),
           Semantics(header: true, child: Text(l.arrivedTitle, style: displayStyle(hud, 24))),
           const SizedBox(height: 2),
-          Text(dest.name, style: TextStyle(color: hud.muted, fontSize: 15), textAlign: TextAlign.center),
-          Text(l.arrivedBody, style: TextStyle(color: hud.accent, fontWeight: FontWeight.w700)),
+          Text(
+            dest.name,
+            style: TextStyle(color: hud.muted, fontSize: 15),
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            l.arrivedBody,
+            style: TextStyle(color: hud.accentText, fontWeight: FontWeight.w700),
+          ),
           const SizedBox(height: 14),
           PrimaryButton(hud: hud, label: l.done, onPressed: onDone),
         ],

@@ -72,17 +72,27 @@ class NavProgress {
 /// phone UI and the car screens.
 class NavigationEngine {
   NavigationEngine(this.route)
-      : _cum = cumulativeDistances(route.geometry),
-        _stepStart = _computeStepStarts(route);
+    : _degenerate = route.geometry.length < 2 || route.steps.isEmpty,
+      _cum = route.geometry.length < 2 ? const [0.0] : cumulativeDistances(route.geometry),
+      _stepStart = route.geometry.length < 2 || route.steps.isEmpty ? const [0.0] : _computeStepStarts(route);
 
   final RouteResult route;
+
+  /// Nothing to navigate (OSRM edge cases); every update reports arrival.
+  final bool _degenerate;
   final List<double> _cum;
   final List<double> _stepStart;
 
   int _lastSegment = 0;
   double _lastAlong = 0;
   int _offRouteStreak = 0;
+  int _wrongWayStreak = 0;
   bool _arrived = false;
+  DateTime? _lastFixAt;
+
+  /// Forward jump candidate awaiting confirmation by consecutive fixes.
+  double? _pendingJumpAlong;
+  int _pendingJumpCount = 0;
   final _spokenCues = <String>{};
 
   static const arrivalRadiusM = 30.0;
@@ -108,22 +118,92 @@ class NavigationEngine {
   double get totalM => _cum.last;
   bool get arrived => _arrived;
 
+  static double _finite(double v, double fallback) => v.isFinite ? v : fallback;
+
   NavProgress update(Fix fix) {
-    final window = _windowedSnap(fix.position);
-    final threshold = math.max(40.0, fix.accuracyM * 1.5);
-    if (window.distanceFromLineM > threshold) {
-      _offRouteStreak++;
+    if (_degenerate) {
+      _arrived = true;
+      return NavProgress(
+        snapped: fix.position,
+        bearingDeg: 0,
+        currentStepIndex: 0,
+        nextStep: null,
+        distanceToNextM: 0,
+        remainingM: 0,
+        remainingS: 0,
+        offRoute: false,
+        arrived: true,
+      );
+    }
+    final accuracy = _finite(fix.accuracyM, 30).clamp(3.0, 100.0);
+    final speed = _finite(fix.speedMps, 0).clamp(0.0, 70.0);
+    final heading = fix.headingDeg != null && fix.headingDeg!.isFinite ? fix.headingDeg : null;
+    final at = fix.at;
+    final dt = at != null && _lastFixAt != null ? (at.difference(_lastFixAt!).inMilliseconds / 1000).clamp(0.5, 30.0) : 2.0;
+    if (at != null) _lastFixAt = at;
+
+    final threshold = math.max(40.0, accuracy * 1.5);
+    final backTol = 50 + accuracy;
+    final maxForward = math.max(speed, 15.0) * dt + 2 * accuracy + 50;
+
+    // 1) Match only within plausible progress around where we were.
+    final local = _constrainedSnap(fix.position, _lastAlong - backTol, _lastAlong + maxForward);
+    Snap? accepted;
+    var backwards = false;
+    if (local != null && local.distanceFromLineM <= threshold) {
+      accepted = local;
+      _pendingJumpAlong = null;
+      _pendingJumpCount = 0;
     } else {
-      _offRouteStreak = 0;
-      if (window.alongM >= _lastAlong - 25) {
-        _lastAlong = math.max(_lastAlong, window.alongM);
-        _lastSegment = window.segmentIndex;
+      // 2) Lost the window: look along the whole route.
+      final global = snapToLine(fix.position, route.geometry, cumulative: _cum);
+      if (global.distanceFromLineM <= threshold) {
+        if (global.alongM < _lastAlong - backTol) {
+          backwards = true; // driving back along the route
+        } else {
+          // Forward jump (tunnel exit, outlier): accept after 3 agreeing fixes.
+          final pending = _pendingJumpAlong;
+          if (pending != null && (global.alongM - pending).abs() <= maxForward) {
+            _pendingJumpCount++;
+          } else {
+            _pendingJumpCount = 1;
+          }
+          _pendingJumpAlong = global.alongM;
+          if (_pendingJumpCount >= 3) {
+            accepted = global;
+            _pendingJumpAlong = null;
+            _pendingJumpCount = 0;
+          }
+        }
       }
     }
+
+    if (accepted != null) {
+      _offRouteStreak = 0;
+      if (accepted.alongM >= _lastAlong) {
+        _lastAlong = accepted.alongM;
+        _lastSegment = accepted.segmentIndex;
+      }
+    } else if (!backwards && _pendingJumpAlong == null) {
+      _offRouteStreak++;
+    }
+
+    // Wrong way: moving against the route direction, or matching behind us.
+    final seg = _lastSegment.clamp(0, route.geometry.length - 2);
+    final segBearing = bearingDeg(route.geometry[seg], route.geometry[seg + 1]);
+    final opposing = heading != null && speed > 3 && angleDelta(segBearing, heading).abs() > 135;
+    if (backwards || opposing) {
+      _wrongWayStreak++;
+    } else if (accepted != null) {
+      _wrongWayStreak = 0;
+    }
+
     final along = _lastAlong;
     final remainingM = math.max(0.0, totalM - along);
     final destDist = distanceM(fix.position, route.geometry.last);
-    if (!_arrived && (destDist <= arrivalRadiusM || remainingM <= 15)) {
+    // Arrive only when progress along the route agrees with proximity, so a
+    // loop route or a destination across a median doesn't end early.
+    if (!_arrived && (remainingM <= 15 || (destDist <= arrivalRadiusM && remainingM <= math.max(80.0, 2 * accuracy)))) {
       _arrived = true;
     }
 
@@ -149,45 +229,71 @@ class NavigationEngine {
       }
     }
 
-    final seg = _lastSegment.clamp(0, route.geometry.length - 2);
-    final bearing = bearingDeg(route.geometry[seg], route.geometry[seg + 1]);
-
+    final onLine = accepted != null;
     return NavProgress(
-      snapped: _offRouteStreak > 0 ? fix.position : window.point,
-      bearingDeg: fix.headingDeg != null && fix.speedMps > 3 && _offRouteStreak > 0 ? fix.headingDeg! : bearing,
+      snapped: onLine ? accepted.point : fix.position,
+      bearingDeg: !onLine && heading != null && speed > 3 ? heading : segBearing,
       currentStepIndex: stepIdx,
       nextStep: next,
       followingStep: next != null && distToNext < 250 ? following : null,
       distanceToNextM: distToNext,
       remainingM: _arrived ? 0 : remainingM,
       remainingS: remainingS,
-      offRoute: !_arrived && _offRouteStreak >= 3,
+      offRoute: !_arrived && (_offRouteStreak >= 3 || _wrongWayStreak >= 3),
       arrived: _arrived,
     );
   }
 
-  Snap _windowedSnap(Geo p) {
-    final n = route.geometry.length;
-    final from = math.max(0, math.min(_lastSegment - 3, n - 2));
-    final to = math.min(n, math.max(from + 2, _lastSegment + 60));
-    final s = snapToLine(p, route.geometry.sublist(from, to));
-    // If the window lost track (e.g. GPS jump), fall back to a global snap.
-    if (s.distanceFromLineM > 60) {
-      final global = snapToLine(p, route.geometry, cumulative: _cum);
-      if (global.distanceFromLineM + 5 < s.distanceFromLineM) return global;
+  /// Nearest point on the route restricted to progress in [minAlong, maxAlong].
+  Snap? _constrainedSnap(Geo p, double minAlong, double maxAlong) {
+    // Segments overlapping the allowed range.
+    var from = _lastSegment;
+    while (from > 0 && _cum[from] > minAlong) {
+      from--;
+    }
+    var to = _lastSegment;
+    while (to < route.geometry.length - 2 && _cum[to + 1] < maxAlong) {
+      to++;
+    }
+    final sub = route.geometry.sublist(from, to + 2);
+    final s = snapToLine(p, sub, cumulative: [for (var i = from; i <= to + 1; i++) _cum[i] - _cum[from]]);
+    final along = _cum[from] + s.alongM;
+    if (along < minAlong - 1 || along > maxAlong + 1) {
+      // Closest point is outside the window; clamp to the window edge.
+      final edge = along < minAlong ? minAlong : maxAlong;
+      final i = _segmentAt(edge);
+      final segLen = _cum[i + 1] - _cum[i];
+      final t = segLen <= 0 ? 0.0 : ((edge - _cum[i]) / segLen).clamp(0.0, 1.0);
+      final a = route.geometry[i], b = route.geometry[i + 1];
+      final pt = Geo(a.lat + (b.lat - a.lat) * t, a.lng + (b.lng - a.lng) * t);
+      return Snap(point: pt, segmentIndex: i, fraction: t, distanceFromLineM: distanceM(p, pt), alongM: edge);
     }
     return Snap(
       point: s.point,
       segmentIndex: s.segmentIndex + from,
       fraction: s.fraction,
       distanceFromLineM: s.distanceFromLineM,
-      alongM: _cum[s.segmentIndex + from] + (_cum[s.segmentIndex + from + 1] - _cum[s.segmentIndex + from]) * s.fraction,
+      alongM: along,
     );
+  }
+
+  int _segmentAt(double along) {
+    var lo = 0, hi = route.geometry.length - 2;
+    while (lo < hi) {
+      final mid = (lo + hi + 1) >> 1;
+      if (_cum[mid] <= along) {
+        lo = mid;
+      } else {
+        hi = mid - 1;
+      }
+    }
+    return lo;
   }
 
   /// Voice cues due for [p] at [speedMps]; each cue fires once.
   List<VoiceCue> cuesFor(NavProgress p, {double speedMps = 0}) {
     final out = <VoiceCue>[];
+    if (route.steps.isEmpty) return out;
     if (p.arrived) {
       if (_spokenCues.add('arrive')) {
         out.add(VoiceCue(step: route.steps.last, stage: CueStage.arrive, distanceM: 0, stepIndex: route.steps.length - 1));

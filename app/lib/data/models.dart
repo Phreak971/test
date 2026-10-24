@@ -10,6 +10,7 @@ class Place {
     this.category,
     this.phone,
     this.website,
+    this.social,
     this.osmKey,
     this.osmValue,
     this.isPinned = false,
@@ -24,6 +25,9 @@ class Place {
   final String? category;
   final String? phone;
   final String? website;
+
+  /// Social profile URL (e.g. Instagram) from OSM contact tags.
+  final String? social;
   final String? osmKey;
   final String? osmValue;
 
@@ -31,43 +35,46 @@ class Place {
   final bool isPinned;
 
   Place copyWith({String? name, String? address, bool? isPinned}) => Place(
-        id: id,
-        name: name ?? this.name,
-        location: location,
-        address: address ?? this.address,
-        category: category,
-        phone: phone,
-        website: website,
-        osmKey: osmKey,
-        osmValue: osmValue,
-        isPinned: isPinned ?? this.isPinned,
-      );
+    id: id,
+    name: name ?? this.name,
+    location: location,
+    address: address ?? this.address,
+    category: category,
+    phone: phone,
+    website: website,
+    social: social,
+    osmKey: osmKey,
+    osmValue: osmValue,
+    isPinned: isPinned ?? this.isPinned,
+  );
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'location': location.toJson(),
-        if (address != null) 'address': address,
-        if (category != null) 'category': category,
-        if (phone != null) 'phone': phone,
-        if (website != null) 'website': website,
-        if (osmKey != null) 'osmKey': osmKey,
-        if (osmValue != null) 'osmValue': osmValue,
-        'isPinned': isPinned,
-      };
+    'id': id,
+    'name': name,
+    'location': location.toJson(),
+    if (address != null) 'address': address,
+    if (category != null) 'category': category,
+    if (phone != null) 'phone': phone,
+    if (website != null) 'website': website,
+    if (social != null) 'social': social,
+    if (osmKey != null) 'osmKey': osmKey,
+    if (osmValue != null) 'osmValue': osmValue,
+    'isPinned': isPinned,
+  };
 
   factory Place.fromJson(Map<String, dynamic> j) => Place(
-        id: j['id'] as String,
-        name: j['name'] as String,
-        location: Geo.fromJson((j['location'] as Map).cast<String, dynamic>()),
-        address: j['address'] as String?,
-        category: j['category'] as String?,
-        phone: j['phone'] as String?,
-        website: j['website'] as String?,
-        osmKey: j['osmKey'] as String?,
-        osmValue: j['osmValue'] as String?,
-        isPinned: j['isPinned'] as bool? ?? false,
-      );
+    id: j['id'] as String,
+    name: j['name'] as String,
+    location: Geo.fromJson((j['location'] as Map).cast<String, dynamic>()),
+    address: j['address'] as String?,
+    category: j['category'] as String?,
+    phone: j['phone'] as String?,
+    website: j['website'] as String?,
+    social: j['social'] as String?,
+    osmKey: j['osmKey'] as String?,
+    osmValue: j['osmValue'] as String?,
+    isPinned: j['isPinned'] as bool? ?? false,
+  );
 }
 
 /// Icons a user can pick for a saved place. Ids are stable (persisted).
@@ -85,8 +92,7 @@ enum PlaceIcon {
   car,
   school;
 
-  static PlaceIcon parse(String? s) =>
-      PlaceIcon.values.firstWhere((e) => e.name == s, orElse: () => PlaceIcon.star);
+  static PlaceIcon parse(String? s) => PlaceIcon.values.firstWhere((e) => e.name == s, orElse: () => PlaceIcon.star);
 }
 
 /// A user-saved place (custom marker). The home location is a SavedPlace with
@@ -110,38 +116,37 @@ class SavedPlace {
   final String? address;
   final bool isHome;
 
-  SavedPlace copyWith({String? name, PlaceIcon? icon, bool? isHome, String? address}) =>
-      SavedPlace(
-        id: id,
-        name: name ?? this.name,
-        location: location,
-        icon: icon ?? this.icon,
-        createdAt: createdAt,
-        address: address ?? this.address,
-        isHome: isHome ?? this.isHome,
-      );
+  SavedPlace copyWith({String? name, PlaceIcon? icon, bool? isHome, String? address}) => SavedPlace(
+    id: id,
+    name: name ?? this.name,
+    location: location,
+    icon: icon ?? this.icon,
+    createdAt: createdAt,
+    address: address ?? this.address,
+    isHome: isHome ?? this.isHome,
+  );
 
   Place toPlace() => Place(id: id, name: name, location: location, address: address);
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'location': location.toJson(),
-        'icon': icon.name,
-        'createdAt': createdAt.toIso8601String(),
-        if (address != null) 'address': address,
-        'isHome': isHome,
-      };
+    'id': id,
+    'name': name,
+    'location': location.toJson(),
+    'icon': icon.name,
+    'createdAt': createdAt.toIso8601String(),
+    if (address != null) 'address': address,
+    'isHome': isHome,
+  };
 
   factory SavedPlace.fromJson(Map<String, dynamic> j) => SavedPlace(
-        id: j['id'] as String,
-        name: j['name'] as String,
-        location: Geo.fromJson((j['location'] as Map).cast<String, dynamic>()),
-        icon: PlaceIcon.parse(j['icon'] as String?),
-        createdAt: DateTime.tryParse(j['createdAt'] as String? ?? '') ?? DateTime(2025),
-        address: j['address'] as String?,
-        isHome: j['isHome'] as bool? ?? false,
-      );
+    id: j['id'] as String,
+    name: j['name'] as String,
+    location: Geo.fromJson((j['location'] as Map).cast<String, dynamic>()),
+    icon: PlaceIcon.parse(j['icon'] as String?),
+    createdAt: DateTime.tryParse(j['createdAt'] as String? ?? '') ?? DateTime(2025),
+    address: j['address'] as String?,
+    isHome: j['isHome'] as bool? ?? false,
+  );
 }
 
 /// Nearby search categories (mirrors the reference app's list).
@@ -209,12 +214,7 @@ class RouteStep {
 }
 
 class RouteResult {
-  const RouteResult({
-    required this.geometry,
-    required this.distanceM,
-    required this.durationS,
-    required this.steps,
-  });
+  const RouteResult({required this.geometry, required this.distanceM, required this.durationS, required this.steps});
 
   final List<Geo> geometry;
   final double distanceM;
@@ -231,7 +231,7 @@ class SearchHistoryEntry {
   Map<String, dynamic> toJson() => {'place': place.toJson(), 'at': at.toIso8601String()};
 
   factory SearchHistoryEntry.fromJson(Map<String, dynamic> j) => SearchHistoryEntry(
-        place: Place.fromJson((j['place'] as Map).cast<String, dynamic>()),
-        at: DateTime.tryParse(j['at'] as String? ?? '') ?? DateTime(2025),
-      );
+    place: Place.fromJson((j['place'] as Map).cast<String, dynamic>()),
+    at: DateTime.tryParse(j['at'] as String? ?? '') ?? DateTime(2025),
+  );
 }

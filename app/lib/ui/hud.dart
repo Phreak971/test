@@ -1,6 +1,7 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,9 +11,25 @@ import '../themes/map_theme.dart';
 
 const displayFont = 'ChakraPetch';
 
+/// Locale-aware uppercase (Dart's toUpperCase ignores Turkish dotted İ).
+String upper(BuildContext context, String s) {
+  final lang = Localizations.maybeLocaleOf(context)?.languageCode;
+  if (lang == 'tr' || lang == 'az') s = s.replaceAll('i', 'İ').replaceAll('ı', 'I');
+  return s.toUpperCase();
+}
+
+/// Platform-appropriate share glyph.
+IconData get shareIcon => defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS
+    ? Icons.ios_share_rounded
+    : Icons.share_rounded;
+
 /// Chrome colours for the active map theme, so every panel matches the world.
+///
+/// Every foreground colour is contrast-checked against the opaque panel so
+/// derived light/dark variants stay legible (WCAG AA for text).
 class Hud {
-  const Hud({required this.panel, required this.text, required this.accent, required this.radius, required this.isDark});
+  Hud({required Color panel, required this.text, required this.accent, required this.radius, required this.isDark})
+    : panel = panel.withValues(alpha: panel.a < 0.97 ? 0.97 : panel.a);
 
   factory Hud.of(MapTheme t, MapVariant v) {
     final p = t.palette(v);
@@ -25,16 +42,29 @@ class Hud {
     );
   }
 
+  /// Panel fill (near-opaque: map labels must never show through text).
   final Color panel;
   final Color text;
+
+  /// Brand accent for fills (buttons, banners, selection), paired with
+  /// [onAccent]. Use [accentText] when the accent is foreground on a panel.
   final Color accent;
   final double radius;
   final bool isDark;
 
-  Color get muted => text.withValues(alpha: 0.68);
+  Color get panelOpaque => panel.withValues(alpha: 1);
+  int get _bg => panelOpaque.toARGB32();
+
+  late final Color accentText = Color(ensureContrast(accent.toARGB32(), _bg, 4.5));
+  late final Color muted = Color(ensureContrast(Color.alphaBlend(text.withValues(alpha: 0.7), panelOpaque).toARGB32(), _bg, 4.5));
+  late final Color danger = Color(ensureContrast(0xFFE53935, _bg, 4.5));
   Color get divider => text.withValues(alpha: 0.12);
-  Color get onAccent => accent.computeLuminance() > 0.5 ? Colors.black : Colors.white;
-  Color get surface => Color.alphaBlend(text.withValues(alpha: 0.06), panel.withValues(alpha: 1));
+
+  /// Black or white, whichever reads better on [accent].
+  late final Color onAccent = contrastRatio(accent.toARGB32(), 0xFF000000) >= contrastRatio(accent.toARGB32(), 0xFFFFFFFF)
+      ? Colors.black
+      : Colors.white;
+  Color get surface => Color.alphaBlend(text.withValues(alpha: 0.06), panelOpaque);
 }
 
 final hudProvider = Provider<Hud>((ref) {
@@ -58,11 +88,30 @@ ThemeData buildAppTheme(Hud hud) {
       centerTitle: true,
       titleTextStyle: TextStyle(fontFamily: displayFont, fontWeight: FontWeight.w700, fontSize: 20, color: hud.text),
     ),
-    pageTransitionsTheme: const PageTransitionsTheme(builders: {
-      TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-      TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
-    }),
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {TargetPlatform.iOS: CupertinoPageTransitionsBuilder(), TargetPlatform.android: PredictiveBackPageTransitionsBuilder()},
+    ),
     dividerTheme: DividerThemeData(color: hud.divider, space: 1),
+    dialogTheme: DialogThemeData(
+      backgroundColor: hud.surface,
+      titleTextStyle: TextStyle(fontFamily: displayFont, fontWeight: FontWeight.w700, fontSize: 20, color: hud.text),
+      contentTextStyle: TextStyle(color: hud.text, fontSize: 15, height: 1.35),
+    ),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: SegmentedButton.styleFrom(
+        selectedBackgroundColor: hud.accent,
+        selectedForegroundColor: hud.onAccent,
+        foregroundColor: hud.text,
+        side: BorderSide(color: hud.text.withValues(alpha: 0.25)),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(foregroundColor: hud.accentText, minimumSize: const Size(48, 44)),
+    ),
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? hud.onAccent : null),
+      trackColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? hud.accent : null),
+    ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: hud.text.withValues(alpha: 0.07),
@@ -72,13 +121,8 @@ ThemeData buildAppTheme(Hud hud) {
   );
 }
 
-TextStyle displayStyle(Hud hud, double size, {FontWeight weight = FontWeight.w700, Color? color}) => TextStyle(
-      fontFamily: displayFont,
-      fontWeight: weight,
-      fontSize: size,
-      color: color ?? hud.text,
-      height: 1.15,
-    );
+TextStyle displayStyle(Hud hud, double size, {FontWeight weight = FontWeight.w700, Color? color}) =>
+    TextStyle(fontFamily: displayFont, fontWeight: weight, fontSize: size, color: color ?? hud.text, height: 1.15);
 
 /// Frosted, theme-tinted panel.
 class HudPanel extends StatelessWidget {
@@ -173,7 +217,15 @@ class HudIconButton extends StatelessWidget {
 }
 
 class PrimaryButton extends StatelessWidget {
-  const PrimaryButton({super.key, required this.hud, required this.label, required this.onPressed, this.icon, this.busy = false, this.expand = true});
+  const PrimaryButton({
+    super.key,
+    required this.hud,
+    required this.label,
+    required this.onPressed,
+    this.icon,
+    this.busy = false,
+    this.expand = true,
+  });
 
   final Hud hud;
   final String label;
@@ -190,7 +242,13 @@ class PrimaryButton extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (icon != null) ...[Icon(icon, size: 20), const SizedBox(width: 8)],
-              Flexible(child: Text(label, style: displayStyle(hud, 17, color: hud.onAccent), overflow: TextOverflow.ellipsis)),
+              Flexible(
+                child: Text(
+                  label,
+                  style: displayStyle(hud, 17, color: hud.onAccent),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ],
           );
     final btn = FilledButton(
@@ -237,7 +295,13 @@ class SecondaryButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[Icon(icon, size: 20), const SizedBox(width: 8)],
-          Flexible(child: Text(label, style: displayStyle(hud, 16, weight: FontWeight.w600), overflow: TextOverflow.ellipsis)),
+          Flexible(
+            child: Text(
+              label,
+              style: displayStyle(hud, 16, weight: FontWeight.w600),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );
@@ -284,7 +348,10 @@ Future<T?> showHudSheet<T>(
         ),
       );
       if (!expand) {
-        return Padding(padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(ctx).bottom), child: content);
+        return Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(ctx).bottom),
+          child: content,
+        );
       }
       return Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(ctx).bottom),
@@ -311,7 +378,10 @@ class HudSectionHeader extends StatelessWidget {
           Expanded(
             child: Semantics(
               header: true,
-              child: Text(text.toUpperCase(), style: displayStyle(hud, 13, weight: FontWeight.w600, color: hud.muted).copyWith(letterSpacing: 1.2)),
+              child: Text(
+                upper(context, text),
+                style: displayStyle(hud, 13, weight: FontWeight.w600, color: hud.muted).copyWith(letterSpacing: 1.2),
+              ),
             ),
           ),
           ?trailing,
@@ -358,11 +428,13 @@ class ToastHost extends ConsumerWidget {
                                 ToastKind.error => Icons.error,
                                 ToastKind.info => Icons.info,
                               },
-                              color: toast.kind == ToastKind.error ? const Color(0xFFFF6B6B) : hud.accent,
+                              color: toast.kind == ToastKind.error ? hud.danger : hud.accentText,
                               size: 22,
                             ),
                             const SizedBox(width: 10),
-                            Flexible(child: Text(toast.text, style: displayStyle(hud, 15, weight: FontWeight.w600))),
+                            Flexible(
+                              child: Text(toast.text, style: displayStyle(hud, 15, weight: FontWeight.w600)),
+                            ),
                           ],
                         ),
                       ),

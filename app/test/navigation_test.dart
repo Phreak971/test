@@ -9,8 +9,7 @@ import 'package:overworld/data/routing_service.dart';
 import 'package:overworld/nav/navigation_engine.dart';
 import 'package:overworld/nav/voice.dart';
 
-RouteResult berlinRoute() =>
-    parseOsrmRoute(jsonDecode(File('test/fixtures/osrm_berlin.json').readAsStringSync()) as Map<String, dynamic>);
+RouteResult berlinRoute() => parseOsrmRoute(jsonDecode(File('test/fixtures/osrm_berlin.json').readAsStringSync()) as Map<String, dynamic>);
 
 /// Points every [stepM] metres along [line].
 List<Geo> walk(List<Geo> line, double stepM) {
@@ -57,8 +56,12 @@ void main() {
     final engine = NavigationEngine(route);
     final first = engine.update(Fix(route.geometry.first, speedMps: 10));
     expect(first.remainingS, closeTo(route.durationS, route.durationS * 0.05));
-    final pts = walk(route.geometry, 50);
-    final mid = engine.update(Fix(pts[pts.length ~/ 2], speedMps: 10));
+    // Drive (not teleport) to the midpoint: single jumps are treated as outliers.
+    final pts = walk(route.geometry, 20);
+    late NavProgress mid;
+    for (final p in pts.take(pts.length ~/ 2)) {
+      mid = engine.update(Fix(p, speedMps: 10));
+    }
     expect(mid.remainingS, lessThan(first.remainingS));
     expect(mid.remainingS, greaterThan(0));
   });
@@ -120,25 +123,58 @@ void main() {
     );
 
     test('classic english includes street', () {
-      final s = phraseFor(const VoiceCue(step: step, stage: CueStage.approach, distanceM: 300, stepIndex: 1), personaById('classic'), DistanceUnit.metric, 'en');
+      final s = phraseFor(
+        const VoiceCue(step: step, stage: CueStage.approach, distanceM: 300, stepIndex: 1),
+        personaById('classic'),
+        DistanceUnit.metric,
+        'en',
+      );
       expect(s, 'In 300 meters, turn left onto Main Street');
     });
 
     test('german', () {
-      final s = phraseFor(const VoiceCue(step: step, stage: CueStage.now, distanceM: 50, stepIndex: 1), personaById('classic'), DistanceUnit.metric, 'de');
+      final s = phraseFor(
+        const VoiceCue(step: step, stage: CueStage.now, distanceM: 50, stepIndex: 1),
+        personaById('classic'),
+        DistanceUnit.metric,
+        'de',
+      );
       expect(s, 'Jetzt links abbiegen auf Main Street');
     });
 
     test('persona flavour stays in english only', () {
-      final en = phraseFor(const VoiceCue(step: step, stage: CueStage.approach, distanceM: 300, stepIndex: 1), personaById('ranger'), DistanceUnit.metric, 'en');
+      final en = phraseFor(
+        const VoiceCue(step: step, stage: CueStage.approach, distanceM: 300, stepIndex: 1),
+        personaById('ranger'),
+        DistanceUnit.metric,
+        'en',
+      );
       expect(en.toLowerCase(), contains('turn left'));
-      final fr = phraseFor(const VoiceCue(step: step, stage: CueStage.approach, distanceM: 300, stepIndex: 1), personaById('ranger'), DistanceUnit.metric, 'fr');
+      final fr = phraseFor(
+        const VoiceCue(step: step, stage: CueStage.approach, distanceM: 300, stepIndex: 1),
+        personaById('ranger'),
+        DistanceUnit.metric,
+        'fr',
+      );
       expect(fr, startsWith('Dans 300 mètres'));
     });
 
     test('roundabout exit', () {
-      const r = RouteStep(kind: ManeuverKind.roundabout, location: Geo(0, 0), distanceM: 1, durationS: 1, streetName: '', geometry: [Geo(0, 0), Geo(0, 1)], roundaboutExit: 2);
-      final s = phraseFor(const VoiceCue(step: r, stage: CueStage.now, distanceM: 30, stepIndex: 1), personaById('classic'), DistanceUnit.imperial, 'en');
+      const r = RouteStep(
+        kind: ManeuverKind.roundabout,
+        location: Geo(0, 0),
+        distanceM: 1,
+        durationS: 1,
+        streetName: '',
+        geometry: [Geo(0, 0), Geo(0, 1)],
+        roundaboutExit: 2,
+      );
+      final s = phraseFor(
+        const VoiceCue(step: r, stage: CueStage.now, distanceM: 30, stepIndex: 1),
+        personaById('classic'),
+        DistanceUnit.imperial,
+        'en',
+      );
       expect(s, 'At the roundabout, take the second exit');
     });
 

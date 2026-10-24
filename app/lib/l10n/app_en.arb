@@ -17,10 +17,9 @@
   "loading": "Loading…",
   "unknownLocation": "Unknown location",
   "somethingWrong": "Something went wrong",
-
   "obGetStartedTitle": "Turn your city into a game map",
   "obGetStartedBody": "Pick a world, drop in, and navigate real streets in style.",
-  "obStart": "Get Started",
+  "obStart": "Get started",
   "obGenresTitle": "What do you love to play?",
   "obGenresBody": "Pick a few and we'll suggest worlds you'll like.",
   "obHeardTitle": "How did you find us?",
@@ -45,7 +44,6 @@
   "obLocationBody": "Overworld uses your location to show where you are and to guide you. It stays on your device and is never sold.",
   "obAllowLocation": "Allow location",
   "obSkipLocation": "Continue without location",
-
   "mapSelectTitle": "Choose your world",
   "mapSelectStart": "Start exploring",
   "proBadge": "PRO",
@@ -53,13 +51,17 @@
   "variantLight": "LIGHT",
   "variantDark": "DARK",
   "unlockAllMaps": "Unlock all maps",
-
   "lockedTitle": "This map is locked",
   "lockedBody": "Unlock {name} and every other world with Overworld Pro.",
-  "@lockedBody": {"placeholders": {"name": {"type": "String"}}},
+  "@lockedBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "lockedCta": "Unlock map",
   "lockedUseFree": "Use a free map",
-
   "railSearch": "Search",
   "railChangeMap": "Change map",
   "railNearby": "Find nearby",
@@ -70,7 +72,6 @@
   "railCompass": "Reset to north",
   "railAppearance": "Toggle light or dark",
   "setHomeFirst": "Save a place as Home first",
-
   "searchHint": "Search places or addresses",
   "recent": "Recent",
   "clearHistory": "Clear",
@@ -91,8 +92,7 @@
   "catHospital": "Hospitals",
   "catSubway": "Subway stations",
   "catBank": "Banks",
-
-  "getDirections": "Get Directions",
+  "getDirections": "Get directions",
   "savePlace": "Save",
   "savedLabel": "Saved",
   "call": "Call",
@@ -100,9 +100,14 @@
   "share": "Share",
   "pinnedLocation": "Pinned location",
   "distanceAway": "{distance} away",
-  "@distanceAway": {"placeholders": {"distance": {"type": "String"}}},
+  "@distanceAway": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
   "setAsHome": "Set as home",
-
   "editorNewTitle": "Save location",
   "editorEditTitle": "Edit location",
   "nameLabel": "Name",
@@ -111,16 +116,20 @@
   "homeToggle": "This is my home",
   "deletePlace": "Delete location",
   "deleteConfirm": "Delete “{name}”?",
-  "@deleteConfirm": {"placeholders": {"name": {"type": "String"}}},
-
+  "@deleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "savedTitle": "Saved places",
   "savedEmptyTitle": "No saved places yet",
   "savedEmptyBody": "Long-press the map or save a search result to keep it here.",
-
   "routeTitle": "Route",
   "fromMyLocation": "My location",
-  "startNow": "Start Now",
-  "endRoute": "End Route",
+  "startNow": "Start now",
+  "endRoute": "End route",
   "arrival": "Arrival",
   "routeError": "Couldn't find a route there.",
   "needLocationForRoute": "Turn on location to get directions.",
@@ -132,7 +141,6 @@
   "unmute": "Unmute voice",
   "minShort": "min",
   "hourShort": "h",
-
   "settingsTitle": "Settings",
   "premiumBannerTitle": "Overworld Pro",
   "premiumBannerBody": "Unlock every map and voice.",
@@ -168,24 +176,26 @@
   "dataCleaned": "Your data was deleted",
   "unitChanged": "Distance unit changed",
   "versionLabel": "Version {version}",
-  "@versionLabel": {"placeholders": {"version": {"type": "String"}}},
+  "@versionLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "shareText": "I'm exploring my city as a game map with Overworld!",
-
   "carTitle": "Car display",
   "carLightStyle": "Light map style",
   "carDarkStyle": "Dark map style",
   "carAlwaysDark": "Always prefer dark mode",
   "currentlyActive": "Currently active",
   "carUpdated": "Car map style updated",
-
   "appIconTitle": "App icon",
   "iconChanged": "App icon changed",
   "iconFailed": "Couldn't change the app icon",
   "iconUnsupported": "Your device doesn't support changing the icon",
-
   "voiceTitle": "Navigation voice",
   "voicePreview": "Preview",
-
   "contactTitle": "Contact us",
   "contactEmail": "Your email",
   "contactEmailHint": "you@example.com",
@@ -196,7 +206,6 @@
   "contactErrorEmail": "Please enter a valid email address.",
   "contactSentTitle": "Thanks for reaching out!",
   "contactSentBody": "Your message is ready in your mail app. We'll get back to you soon.",
-
   "paywallTitle": "Unlock every world",
   "paywallFeatureMaps": "All 15 game-styled maps",
   "paywallFeatureVoices": "Every character voice",
@@ -221,18 +230,108 @@
   "restoreDone": "Purchases restored",
   "storeUnavailable": "The store isn't available right now.",
   "autoRenew": "Subscriptions renew automatically unless cancelled at least 24 hours before the end of the period. Manage them in your account settings.",
-
   "updateTitle": "Update required",
   "updateBody": "Please update to the latest version to keep using Overworld.",
   "updateCta": "Update now",
-
   "locationOff": "Location services are off",
   "locationDenied": "Location access is off",
   "openSettings": "Open Settings",
   "currentLocationNotFound": "Couldn't find your current location.",
-
   "addedToSaved": "Added to saved places",
   "placeUpdated": "Location updated",
   "placeDeleted": "Location deleted",
-  "homeSet": "Home location set"
+  "homeSet": "Home location set",
+  "themeTaglinePalmMetro": "Sun-bleached radar of a crime-capital city",
+  "themeGenrePalmMetro": "Open-world crime",
+  "themeTaglineBattleIsle": "Candy-bright island, drop in anywhere",
+  "themeGenreBattleIsle": "Battle royale",
+  "themeTaglineDesertState": "Retro radar across a sunburnt state",
+  "themeGenreDesertState": "Retro crime",
+  "themeTaglineFrontier": "Hand-inked trails on weathered parchment",
+  "themeGenreFrontier": "Western",
+  "themeTaglineNeonSprawl": "Rain-slick megacity in electric yellow",
+  "themeGenreNeonSprawl": "Cyberpunk",
+  "themeTaglineBlockland": "A world built one cube at a time",
+  "themeGenreBlockland": "Sandbox",
+  "themeTaglineWasteland": "Green phosphor field terminal",
+  "themeGenreWasteland": "Post-apocalyptic",
+  "themeTaglineAshenRealm": "Gilded runes over a fallen kingdom",
+  "themeGenreAshenRealm": "Dark fantasy",
+  "themeTaglineNorthernSaga": "Frost-bitten cartography of the far north",
+  "themeGenreNorthernSaga": "Epic fantasy",
+  "themeTaglineHuntersChart": "A monster slayer's worn travel map",
+  "themeGenreHuntersChart": "Fantasy RPG",
+  "themeTaglineTacticalOps": "Gridded recon map for the drop zone",
+  "themeGenreTacticalOps": "Military shooter",
+  "themeTaglineRuneStone": "Carved teal stone of the old gods' realms",
+  "themeGenreRuneStone": "Mythic action",
+  "themeTaglineShadowParchment": "An assassin's annotated city plan",
+  "themeGenreShadowParchment": "Stealth adventure",
+  "themeTaglineStreetRacer": "Midnight streets lit in neon trails",
+  "themeGenreStreetRacer": "Racing",
+  "themeTaglineOvergrown": "Nature reclaims the quiet city",
+  "themeGenreOvergrown": "Survival",
+  "voiceTaglineClassic": "Clear, calm directions",
+  "voiceTaglineGetaway": "Keeps it cool under pressure",
+  "voiceTaglineRanger": "Dusty trails, steady hands",
+  "voiceTaglineBuilder": "Every road is a crafting recipe",
+  "voiceTaglineHerald": "Announces every turn with fanfare",
+  "voiceTaglineShipai": "Precise. Synthetic. Slightly smug.",
+  "voiceTaglineSergeant": "No slacking at intersections",
+  "voiceTaglineCaptain": "Charts the seas and the streets",
+  "placeIconStar": "Star",
+  "placeIconHome": "Home",
+  "placeIconWork": "Work",
+  "placeIconFood": "Food",
+  "placeIconCoffee": "Coffee",
+  "placeIconBar": "Bar",
+  "placeIconShop": "Shop",
+  "placeIconGym": "Gym",
+  "placeIconHeart": "Favorite",
+  "placeIconFlag": "Flag",
+  "placeIconCar": "Car",
+  "placeIconSchool": "School",
+  "voiceGuidance": "Voice guidance",
+  "stateOn": "On",
+  "stateOff": "Off",
+  "startFreeTrial": "Start free trial",
+  "trialTerms": "{days}-day free trial, then {price} per year",
+  "railMore": "More",
+  "back": "Back",
+  "locationDeniedBody": "Turn on location for Overworld in Settings to see yourself on the map and get directions.",
+  "stepOf": "Step {current} of {total}",
+  "clearText": "Clear text",
+  "mapAppearance": "Map appearance",
+  "resultsCount": "{count, plural, =0{No results} =1{1 result} other{{count} results}}",
+  "homeLocked": "Home uses the house icon",
+  "proLocked": "Pro, locked",
+  "selectedLabel": "Selected",
+  "@trialTerms": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "@stepOf": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "@resultsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "showOnMap": "Show on map"
 }

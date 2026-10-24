@@ -28,12 +28,12 @@ class MapPalette {
     int? rail,
     int? roadLabel,
     int? roadLabelHalo,
-  })  : waterLine = waterLine ?? water,
-        buildingLine = buildingLine ?? building,
-        path = path ?? minor,
-        rail = rail ?? casing,
-        roadLabel = roadLabel ?? label,
-        roadLabelHalo = roadLabelHalo ?? labelHalo;
+  }) : waterLine = waterLine ?? water,
+       buildingLine = buildingLine ?? building,
+       path = path ?? minor,
+       rail = rail ?? casing,
+       roadLabel = roadLabel ?? label,
+       roadLabelHalo = roadLabelHalo ?? labelHalo;
 
   final int land;
   final int landAlt;
@@ -83,7 +83,9 @@ class MapPalette {
 
     int soften(int c, double l) => _Hsl.from(c).withLightness(l).toArgb();
     final newLand = ground(land);
-    final newPanel = flip(hudPanel);
+    // Chrome must follow the map: a "dark" variant always gets dark panels.
+    final panelHsl = _Hsl.from(hudPanel);
+    final newPanel = panelHsl.withLightness(toDark ? panelHsl.l.clamp(0.08, 0.16) : (1 - panelHsl.l).clamp(0.9, 0.95)).toArgb();
     final newLabelHalo = flip(labelHalo);
     final newRoadHalo = flip(roadLabelHalo);
     return MapPalette(

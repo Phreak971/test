@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 
 class ApiException implements Exception {
@@ -16,8 +17,7 @@ class ApiException implements Exception {
 /// Small JSON GET helper with a timeout and one retry on transient failures
 /// (network errors, 429, 5xx). Public OSM services ask for an identifying UA.
 class JsonClient {
-  JsonClient({http.Client? client, this.timeout = const Duration(seconds: 12)})
-      : _client = client ?? http.Client();
+  JsonClient({http.Client? client, this.timeout = const Duration(seconds: 12)}) : _client = client ?? http.Client();
 
   final http.Client _client;
   final Duration timeout;
@@ -29,7 +29,9 @@ class JsonClient {
     for (var attempt = 0; attempt < 2; attempt++) {
       try {
         final res = await _client
-            .get(uri, headers: {'User-Agent': userAgent, 'Accept': 'application/json'})
+            // Browsers forbid a custom User-Agent and it would trigger a CORS
+            // preflight that public OSM services reject.
+            .get(uri, headers: {if (!kIsWeb) 'User-Agent': userAgent, 'Accept': 'application/json'})
             .timeout(timeout);
         if (res.statusCode == 200) {
           return jsonDecode(utf8.decode(res.bodyBytes));

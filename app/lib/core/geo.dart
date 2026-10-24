@@ -12,15 +12,13 @@ class Geo {
 
   Map<String, double> toJson() => {'lat': lat, 'lng': lng};
 
-  factory Geo.fromJson(Map<String, dynamic> j) =>
-      Geo((j['lat'] as num).toDouble(), (j['lng'] as num).toDouble());
+  factory Geo.fromJson(Map<String, dynamic> j) => Geo((j['lat'] as num).toDouble(), (j['lng'] as num).toDouble());
 
   /// GeoJSON order.
   List<double> get lngLat => [lng, lat];
 
   @override
-  bool operator ==(Object other) =>
-      other is Geo && other.lat == lat && other.lng == lng;
+  bool operator ==(Object other) => other is Geo && other.lat == lat && other.lng == lng;
 
   @override
   int get hashCode => Object.hash(lat, lng);
@@ -36,16 +34,14 @@ double _deg(double r) => r * 180 / math.pi;
 double distanceM(Geo a, Geo b) {
   final dLat = _rad(b.lat - a.lat);
   final dLng = _rad(b.lng - a.lng);
-  final h = math.pow(math.sin(dLat / 2), 2) +
-      math.cos(_rad(a.lat)) * math.cos(_rad(b.lat)) * math.pow(math.sin(dLng / 2), 2);
+  final h = math.pow(math.sin(dLat / 2), 2) + math.cos(_rad(a.lat)) * math.cos(_rad(b.lat)) * math.pow(math.sin(dLng / 2), 2);
   return 2 * Geo.earthRadiusM * math.asin(math.min(1, math.sqrt(h)));
 }
 
 /// Initial bearing from [a] to [b], degrees clockwise from north in [0, 360).
 double bearingDeg(Geo a, Geo b) {
   final y = math.sin(_rad(b.lng - a.lng)) * math.cos(_rad(b.lat));
-  final x = math.cos(_rad(a.lat)) * math.sin(_rad(b.lat)) -
-      math.sin(_rad(a.lat)) * math.cos(_rad(b.lat)) * math.cos(_rad(b.lng - a.lng));
+  final x = math.cos(_rad(a.lat)) * math.sin(_rad(b.lat)) - math.sin(_rad(a.lat)) * math.cos(_rad(b.lat)) * math.cos(_rad(b.lng - a.lng));
   return (_deg(math.atan2(y, x)) + 360) % 360;
 }
 
@@ -85,32 +81,23 @@ class Snap {
 Snap snapToLine(Geo p, List<Geo> line, {List<double>? cumulative}) {
   assert(line.length >= 2);
   final cum = cumulative ?? cumulativeDistances(line);
-  var best = Snap(
-    point: line.first,
-    segmentIndex: 0,
-    fraction: 0,
-    distanceFromLineM: double.infinity,
-    alongM: 0,
-  );
+  var best = Snap(point: line.first, segmentIndex: 0, fraction: 0, distanceFromLineM: double.infinity, alongM: 0);
   final cosLat = math.cos(_rad(p.lat));
   for (var i = 0; i < line.length - 1; i++) {
     final a = line[i], b = line[i + 1];
-    final ax = (a.lng - p.lng) * cosLat, ay = a.lat - p.lat;
-    final bx = (b.lng - p.lng) * cosLat, by = b.lat - p.lat;
+    // Longitude deltas wrapped to (-180, 180] so segments across the
+    // antimeridian are measured the short way.
+    final segLng = wrapLng(b.lng - a.lng);
+    final ax = wrapLng(a.lng - p.lng) * cosLat, ay = a.lat - p.lat;
+    final bx = ax + segLng * cosLat, by = b.lat - p.lat;
     final dx = bx - ax, dy = by - ay;
     final len2 = dx * dx + dy * dy;
     var t = len2 == 0 ? 0.0 : -(ax * dx + ay * dy) / len2;
     t = t.clamp(0.0, 1.0);
-    final proj = Geo(a.lat + (b.lat - a.lat) * t, a.lng + (b.lng - a.lng) * t);
+    final proj = Geo(a.lat + (b.lat - a.lat) * t, wrapLng(a.lng + segLng * t));
     final d = distanceM(p, proj);
     if (d < best.distanceFromLineM) {
-      best = Snap(
-        point: proj,
-        segmentIndex: i,
-        fraction: t,
-        distanceFromLineM: d,
-        alongM: cum[i] + (cum[i + 1] - cum[i]) * t,
-      );
+      best = Snap(point: proj, segmentIndex: i, fraction: t, distanceFromLineM: d, alongM: cum[i] + (cum[i + 1] - cum[i]) * t);
     }
   }
   return best;
@@ -128,18 +115,23 @@ List<double> cumulativeDistances(List<Geo> line) {
 /// Decodes a Google/OSRM encoded polyline. OSRM uses precision 5 by default,
 /// precision 6 when `geometries=polyline6`.
 List<Geo> decodePolyline(String encoded, {int precision = 5}) {
+  // Plain arithmetic instead of bit operators: on the web, Dart's bitwise
+  // operators work on unsigned 32-bit values, which corrupts negative deltas.
   final factor = math.pow(10, precision).toDouble();
   final out = <Geo>[];
-  var index = 0, lat = 0, lng = 0;
+  var index = 0;
+  var lat = 0, lng = 0;
   while (index < encoded.length) {
     for (var k = 0; k < 2; k++) {
-      var shift = 0, result = 0, b = 0;
+      // Truncated input: stop at the last complete point instead of throwing.
+      if (index >= encoded.length) return out;
+      var result = 0, mult = 1, b = 0;
       do {
         b = encoded.codeUnitAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20 && index < encoded.length);
-      final delta = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+        result += (b % 32) * mult;
+        mult *= 32;
+      } while (b >= 32 && index < encoded.length);
+      final delta = result.isOdd ? -((result + 1) ~/ 2) : result ~/ 2;
       if (k == 0) {
         lat += delta;
       } else {
@@ -152,13 +144,29 @@ List<Geo> decodePolyline(String encoded, {int precision = 5}) {
 }
 
 /// Bounding box [southWest, northEast] of [points].
+/// Wraps a longitude (or longitude delta) into (-180, 180].
+double wrapLng(double x) {
+  final w = (x + 180) % 360 - 180;
+  return w == -180 ? 180 : w;
+}
+
+/// Bounding box [southWest, northEast] of [points]. When the points straddle
+/// the antimeridian the box takes the short way round and `ne.lng` may
+/// exceed 180 (MapLibre accepts unwrapped longitudes).
 (Geo, Geo) bounds(Iterable<Geo> points) {
   var minLat = 90.0, minLng = 180.0, maxLat = -90.0, maxLng = -180.0;
+  var minPos = 360.0, maxPos = 0.0;
   for (final p in points) {
     minLat = math.min(minLat, p.lat);
     maxLat = math.max(maxLat, p.lat);
     minLng = math.min(minLng, p.lng);
     maxLng = math.max(maxLng, p.lng);
+    final shifted = p.lng < 0 ? p.lng + 360 : p.lng;
+    minPos = math.min(minPos, shifted);
+    maxPos = math.max(maxPos, shifted);
+  }
+  if (maxLng - minLng > 180 && maxPos - minPos < maxLng - minLng) {
+    return (Geo(minLat, minPos), Geo(maxLat, maxPos));
   }
   return (Geo(minLat, minLng), Geo(maxLat, maxLng));
 }
