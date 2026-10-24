@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "rea": {
+      "command": "bash",
+      "args": ["scripts/rea-mcp.sh"],
+      "env": { "REA_JADX_OPERATION_TIMEOUT_MS": "300000" }
+    }
+  }
+}
