@@ -31,6 +31,9 @@ import 'search_sheet.dart';
 
 const _fallbackCenter = Geo(40.7580, -73.9855);
 
+/// Keeps map chrome clear of the (required) OSM attribution control.
+const _attributionClearance = 56.0;
+
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -409,7 +412,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               if (bottom == null)
                 Positioned(
                   left: 12,
-                  bottom: mq.padding.bottom + 16,
+                  bottom: mq.padding.bottom + _attributionClearance,
                   right: 140,
                   child: _areaName == null
                       ? const SizedBox.shrink()
@@ -427,7 +430,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               Positioned(
                 right: 12,
-                bottom: mq.padding.bottom + (bottom != null ? 16 + _bottomInset(nav) : 16),
+                bottom: mq.padding.bottom + (bottom != null ? 16 + _bottomInset(nav) : _attributionClearance),
                 child: Column(
                   children: [
                     if (_bearing.abs() > 2)

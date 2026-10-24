@@ -105,6 +105,11 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     final premium = ref.watch(entitlementProvider).premium;
     final mq = MediaQuery.of(context);
 
+    final plans = plansAsync.asData?.value ?? const <Plan>[];
+    final selectedId = plans.isEmpty
+        ? null
+        : (_selectedId ?? plans.firstWhere((p) => p.period == PlanPeriod.yearly, orElse: () => plans.first).id);
+
     return Scaffold(
       backgroundColor: hud.panel.withValues(alpha: 1),
       body: Stack(
@@ -114,14 +119,14 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
             top: 0,
             left: 0,
             right: 0,
-            height: mq.size.height * 0.34,
+            height: mq.size.height * 0.3,
             child: ExcludeSemantics(
               child: ShaderMask(
                 shaderCallback: (r) => const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [Colors.white, Colors.transparent],
-                  stops: [0.55, 1],
+                  stops: [0.5, 1],
                 ).createShader(r),
                 blendMode: BlendMode.dstIn,
                 child: GridView.count(
@@ -144,11 +149,9 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                     child: HudIconButton(hud: hud, icon: Icons.close_rounded, label: l.close, onPressed: _close),
                   ),
                 ),
-                const Spacer(),
                 Expanded(
-                  flex: 6,
                   child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: EdgeInsets.fromLTRB(20, mq.size.height * 0.08, 20, 8),
                     children: [
                       Semantics(header: true, child: Text(l.paywallTitle, style: displayStyle(hud, 32), textAlign: TextAlign.center)),
                       const SizedBox(height: 14),
@@ -176,48 +179,47 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                         plansAsync.when(
                           loading: () => Padding(padding: const EdgeInsets.all(24), child: Center(child: CircularProgressIndicator(color: hud.accent))),
                           error: (_, _) => Text(l.storeUnavailable, style: TextStyle(color: hud.muted), textAlign: TextAlign.center),
-                          data: (plans) {
-                            if (plans.isEmpty) {
-                              return Text(l.storeUnavailable, style: TextStyle(color: hud.muted), textAlign: TextAlign.center);
-                            }
-                            final selectedId = _selectedId ?? plans.firstWhere((p) => p.period == PlanPeriod.yearly, orElse: () => plans.first).id;
-                            return Column(
-                              children: [
-                                for (final p in plans)
-                                  _PlanTile(
-                                    hud: hud,
-                                    title: _periodLabel(l, p.period),
-                                    subtitle: _billing(l, p),
-                                    price: p.price,
-                                    badge: p.period == PlanPeriod.yearly ? l.bestValue : null,
-                                    selected: p.id == selectedId,
-                                    onTap: () => setState(() => _selectedId = p.id),
-                                  ),
-                                const SizedBox(height: 12),
-                                PrimaryButton(
-                                  hud: hud,
-                                  busy: _busy,
-                                  label: l.continueLabel,
-                                  onPressed: () => _buy(plans.firstWhere((p) => p.id == selectedId)),
+                          data: (plans) => plans.isEmpty
+                              ? Text(l.storeUnavailable, style: TextStyle(color: hud.muted), textAlign: TextAlign.center)
+                              : Column(
+                                  children: [
+                                    for (final p in plans)
+                                      _PlanTile(
+                                        hud: hud,
+                                        title: _periodLabel(l, p.period),
+                                        subtitle: _billing(l, p),
+                                        price: p.price,
+                                        badge: p.period == PlanPeriod.yearly ? l.bestValue : null,
+                                        selected: p.id == selectedId,
+                                        onTap: () => setState(() => _selectedId = p.id),
+                                      ),
+                                  ],
                                 ),
-                              ],
-                            );
-                          },
                         ),
-                      const SizedBox(height: 10),
-                      Text(l.autoRenew, style: TextStyle(color: hud.muted, fontSize: 12), textAlign: TextAlign.center),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      const SizedBox(height: 6),
+                      Text(l.autoRenew, style: TextStyle(color: hud.muted, fontSize: 11), textAlign: TextAlign.center),
+                      Wrap(
+                        alignment: WrapAlignment.center,
                         children: [
                           TextButton(onPressed: () => restorePurchases(context, ref), child: Text(l.restore)),
                           TextButton(onPressed: () => launchUrl(AppConfig.termsUrl), child: Text(l.terms)),
                           TextButton(onPressed: () => launchUrl(AppConfig.privacyUrl), child: Text(l.privacy)),
                         ],
                       ),
-                      SizedBox(height: mq.padding.bottom),
                     ],
                   ),
                 ),
+                // Pinned call to action within thumb reach.
+                if (!premium && selectedId != null)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                    child: PrimaryButton(
+                      hud: hud,
+                      busy: _busy,
+                      label: l.continueLabel,
+                      onPressed: () => _buy(plans.firstWhere((p) => p.id == selectedId)),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -270,10 +272,9 @@ class _PlanTile extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(children: [
+                      Wrap(spacing: 8, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
                         Text(title, style: displayStyle(hud, 17)),
                         if (badge != null) ...[
-                          const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(color: hud.accent, borderRadius: BorderRadius.circular(4)),

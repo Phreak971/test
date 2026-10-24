@@ -23,7 +23,7 @@ enum CarPhrases {
     let l = lang(locale)
     if cue.stage == .arrive { return l.arrive }
     var dir = direction(cue.step, l)
-    if !cue.step.street.isEmpty && cue.stage != .prepare {
+    if !cue.step.street.isEmpty && cue.stage != .prepare && cue.step.kind != .arrive {
       dir += l.onto.replacingOccurrences(of: "{street}", with: cue.step.street)
     }
     let parts = CarUnits.parts(cue.distanceM, imperial: imperial)
@@ -48,11 +48,14 @@ enum CarPhrases {
       .replacingOccurrences(of: "{dir}", with: l.dirs[.left] ?? ""))
   }
 
-  /// Turn-card text: [with street, without street].
-  static func instructions(for step: CarStep, locale: String) -> [String] {
+  /// Turn-card text, longest first: [with street / destination, short].
+  static func instructions(for step: CarStep, locale: String, destination: String? = nil) -> [String] {
     let l = lang(locale)
-    if step.kind == .arrive { return [l.arrive] }
     let dir = capitalized(direction(step, l))
+    if step.kind == .arrive {
+      guard let name = destination, !name.isEmpty else { return [dir] }
+      return ["\(dir): \(name)", dir]
+    }
     if step.street.isEmpty { return [dir] }
     return [dir + l.onto.replacingOccurrences(of: "{street}", with: step.street), dir]
   }

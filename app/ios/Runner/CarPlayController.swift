@@ -361,6 +361,9 @@ final class CarPlayController: NSObject {
 
   private func showPreview(_ route: CarRoute, place: CarPlace, origin: CLLocationCoordinate2D) {
     guard mode != .navigating else { return }
+    if ic.topTemplate !== mapTemplate {
+      ic.popToRootTemplate(animated: true, completion: nil)
+    }
     previewRoute = route
     previewPlace = place
     mode = .preview
@@ -427,13 +430,17 @@ final class CarPlayController: NSObject {
     map.setUser(p.snapped, bearing: p.bearingDeg)
     if following { map.follow(p.snapped, bearing: p.bearingDeg, navigating: true) }
 
-    for cue in nav.cues(for: p, speedMps: max(0, fix.speed)) {
-      voice.speak(CarPhrases.phrase(for: cue, imperial: imperial, locale: locale))
+    // While a reroute is in flight the old route's cues/cards are stale.
+    if !rerouting || p.arrived {
+      for cue in nav.cues(for: p, speedMps: max(0, fix.speed)) {
+        voice.speak(CarPhrases.phrase(for: cue, imperial: imperial, locale: locale))
+      }
     }
     if p.arrived {
       arrive()
       return
     }
+    guard !rerouting else { return }
     updateGuidance(p)
     if p.offRoute { reroute(from: fix) }
   }
@@ -442,7 +449,7 @@ final class CarPlayController: NSObject {
     if let m = maneuvers[index] { return m }
     let m = CPManeuver()
     if let step = navigator?.route.steps[safe: index] {
-      m.instructionVariants = CarPhrases.instructions(for: step, locale: locale)
+      m.instructionVariants = CarPhrases.instructions(for: step, locale: locale, destination: navPlace?.name)
       m.symbolImage = CarSymbols.maneuver(step.kind)
       if let prev = navigator?.route.steps[safe: index - 1] {
         m.initialTravelEstimates = estimates(prev.distanceM, prev.durationS)

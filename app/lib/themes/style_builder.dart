@@ -345,11 +345,14 @@ class StyleBuilder {
         'layout': {
           'text-field': ['coalesce', ['get', 'name:latin'], ['get', 'name']],
           'text-font': bold,
+          // One zoom interpolation with per-class sizes at each stop (the
+          // style spec allows only a single zoom curve per expression).
           'text-size': [
-            'match', ['get', 'class'],
-            'city', ['interpolate', ['linear'], ['zoom'], 6, 13, 14, 22],
-            'town', ['interpolate', ['linear'], ['zoom'], 8, 11, 14, 18],
-            ['interpolate', ['linear'], ['zoom'], 11, 10, 16, 14],
+            'interpolate', ['linear'], ['zoom'],
+            6, ['match', ['get', 'class'], 'city', 13, 'town', 10, 9],
+            11, ['match', ['get', 'class'], 'city', 18, 'town', 14, 10],
+            14, ['match', ['get', 'class'], 'city', 22, 'town', 18, 13],
+            16, ['match', ['get', 'class'], 'city', 24, 'town', 20, 14],
           ],
           'text-transform': transform,
           'text-letter-spacing': spacing + 0.04,

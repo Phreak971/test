@@ -88,7 +88,7 @@ final class CarMapViewController: UIViewController {
   func follow(_ coordinate: CLLocationCoordinate2D, bearing: Double, navigating: Bool) {
     #if canImport(MapLibre)
     guard let map = mapView else { return }
-    if !didInitialZoom || map.zoomLevel < 10 {
+    if !didInitialZoom {
       didInitialZoom = true
       map.setCenter(coordinate, zoomLevel: navigating ? 16.5 : 15.5, direction: navigating ? bearing : 0, animated: false)
     }

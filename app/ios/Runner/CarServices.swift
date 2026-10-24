@@ -82,7 +82,6 @@ final class CarServices {
   private init() {
     let cfg = URLSessionConfiguration.default
     cfg.timeoutIntervalForRequest = 15
-    cfg.waitsForConnectivity = false
     session = URLSession(configuration: cfg)
   }
 

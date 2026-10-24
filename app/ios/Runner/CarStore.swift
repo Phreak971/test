@@ -173,22 +173,23 @@ final class CarStore {
     next.darkIconsDir = "icons-dark-\(Self.fnv(icons: p.darkIcons))"
 
     let dir = self.dir
-    io.async { [weak self] in
+    let saved = next
+    io.async {
       let fm = FileManager.default
-      if !p.lightStyle.isEmpty, let f = next.lightStyleFile {
+      if !p.lightStyle.isEmpty, let f = saved.lightStyleFile {
         Self.writeIfMissing(Data(p.lightStyle.utf8), to: dir.appendingPathComponent(f))
       }
-      if !p.darkStyle.isEmpty, let f = next.darkStyleFile {
+      if !p.darkStyle.isEmpty, let f = saved.darkStyleFile {
         Self.writeIfMissing(Data(p.darkStyle.utf8), to: dir.appendingPathComponent(f))
       }
-      Self.writeIcons(p.lightIcons, to: dir.appendingPathComponent(next.lightIconsDir ?? "", isDirectory: true))
-      Self.writeIcons(p.darkIcons, to: dir.appendingPathComponent(next.darkIconsDir ?? "", isDirectory: true))
-      Self.writeState(next, dir: dir)
+      Self.writeIcons(p.lightIcons, to: dir.appendingPathComponent(saved.lightIconsDir ?? "", isDirectory: true))
+      Self.writeIcons(p.darkIcons, to: dir.appendingPathComponent(saved.darkIconsDir ?? "", isDirectory: true))
+      Self.writeState(saved, dir: dir)
 
       // Remove stale styles / icon folders.
       let keep: Set<String> = [
-        "state.json", next.lightStyleFile ?? "", next.darkStyleFile ?? "",
-        next.lightIconsDir ?? "", next.darkIconsDir ?? "",
+        "state.json", saved.lightStyleFile ?? "", saved.darkStyleFile ?? "",
+        saved.lightIconsDir ?? "", saved.darkIconsDir ?? "",
       ]
       for name in (try? fm.contentsOfDirectory(atPath: dir.path)) ?? [] where !keep.contains(name) {
         if name.hasPrefix("style-") || name.hasPrefix("icons-") {
@@ -196,10 +197,10 @@ final class CarStore {
         }
       }
 
-      DispatchQueue.main.async {
+      DispatchQueue.main.async { [weak self] in
         guard let self = self else { return }
-        self.state = next
-        self.iconCache = self.iconCache.filter { $0.key == next.lightIconsDir || $0.key == next.darkIconsDir }
+        self.state = saved
+        self.iconCache = self.iconCache.filter { $0.key == saved.lightIconsDir || $0.key == saved.darkIconsDir }
         NotificationCenter.default.post(name: CarStore.didChange, object: self)
       }
     }
