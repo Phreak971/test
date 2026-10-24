@@ -4,6 +4,7 @@ build/
 
 *.o
 *.so
-*.awork/
+*.a
+work/
 *.apk
 *.xapk
