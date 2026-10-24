@@ -52,6 +52,16 @@ IconData placeIconGlyph(PlaceIcon i) => switch (i) {
   PlaceIcon.school => Icons.school,
 };
 
+/// Puck colours checked against the map land (WCAG ratio ≥ 3 for the body).
+({Color accent, Color light, Color edge}) puckColors(MapPalette p) {
+  final edge = p.isDark ? Colors.black : Color(p.label);
+  return (
+    accent: Color(ensureContrast(p.accent, p.land, 3)),
+    light: Color(ensureContrast(0xFFFFFFFF, p.land, 3)),
+    edge: edge,
+  );
+}
+
 Path shapePath(PoiShape shape, Rect r) {
   final c = r.center;
   final rad = r.width / 2;
@@ -170,10 +180,12 @@ class ThemeIconPainter {
     const s = 96;
     return _toPng(s, s, (c) {
       final center = const Offset(s / 2, s / 2);
-      final accent = Color(palette.accent);
-      final dark = Color(palette.casing);
-      final light = Colors.white;
-      c.drawCircle(center, 40, Paint()..color = accent.withValues(alpha: 0.18));
+      // Guaranteed to stand out from the land in every variant.
+      final colors = puckColors(palette);
+      final accent = colors.accent;
+      final dark = colors.edge;
+      final light = colors.light;
+      c.drawCircle(center, 40, Paint()..color = accent.withValues(alpha: 0.28));
       final body = Paint()..color = light;
       final edge = Paint()
         ..style = PaintingStyle.stroke
@@ -268,7 +280,7 @@ class ThemeIconPainter {
           ..strokeWidth = 4
           ..color = Colors.white,
       );
-      final onFill = fill.computeLuminance() > 0.55 ? Colors.black : Colors.white;
+      final onFill = contrastRatio(fill.toARGB32(), 0xFF000000) >= contrastRatio(fill.toARGB32(), 0xFFFFFFFF) ? Colors.black : Colors.white;
       _paintGlyph(c, glyph, const Offset(w / 2, 34), 32, onFill);
     });
   }

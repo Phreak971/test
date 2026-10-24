@@ -117,7 +117,8 @@ class _ThemePickerScreenState extends ConsumerState<ThemePickerScreen> {
                   Positioned(
                     left: 16,
                     right: 16,
-                    bottom: 12,
+                    // Clear of the map attribution control.
+                    bottom: 48,
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
@@ -127,7 +128,9 @@ class _ThemePickerScreenState extends ConsumerState<ThemePickerScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                theme.name.toUpperCase(),
+                                upper(context, theme.name),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: displayStyle(hud, 28, color: Color(theme.palette(_variant).label)).copyWith(
                                   shadows: [
                                     Shadow(color: Color(theme.palette(_variant).labelHalo), blurRadius: 6, offset: const Offset(2, 2)),
@@ -136,6 +139,8 @@ class _ThemePickerScreenState extends ConsumerState<ThemePickerScreen> {
                               ),
                               Text(
                                 themeTagline(l, theme.id),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   color: Color(theme.palette(_variant).label),
                                   fontWeight: FontWeight.w600,

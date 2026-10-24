@@ -85,14 +85,20 @@ class MapPalette {
     final newLand = ground(land);
     // Chrome must follow the map: a "dark" variant always gets dark panels.
     final panelHsl = _Hsl.from(hudPanel);
-    final newPanel = panelHsl.withLightness(toDark ? panelHsl.l.clamp(0.08, 0.16) : (1 - panelHsl.l).clamp(0.9, 0.95)).toArgb();
+    final panelAlreadyDark = Color(hudPanel | 0xFF000000).computeLuminance() < 0.2;
+    final keepPanel = toDark && panelAlreadyDark;
+    final newPanel = keepPanel
+        ? hudPanel
+        : panelHsl.withLightness(toDark ? panelHsl.l.clamp(0.08, 0.16) : (1 - panelHsl.l).clamp(0.9, 0.95)).toArgb();
+    // Labels that already read well on the new land keep the theme's look.
+    final keepLabels = contrastRatio(label, newLand) >= 4.5 && contrastRatio(label, labelHalo) >= 3;
     final newLabelHalo = flip(labelHalo);
     final newRoadHalo = flip(roadLabelHalo);
     return MapPalette(
       land: newLand,
       landAlt: ground(landAlt),
-      park: toDark ? soften(park, 0.18) : soften(park, 0.72),
-      water: toDark ? soften(water, 0.2) : soften(water, 0.68),
+      park: ensureContrast(toDark ? soften(park, 0.18) : soften(park, 0.72), newLand, 1.3),
+      water: ensureContrast(toDark ? soften(water, 0.2) : soften(water, 0.68), newLand, 1.4),
       waterLine: toDark ? soften(waterLine, 0.32) : soften(waterLine, 0.5),
       building: ground(building),
       buildingLine: flip(buildingLine),
@@ -102,17 +108,17 @@ class MapPalette {
       path: flip(path, minL: 0.3, maxL: 0.85),
       rail: flip(rail, minL: 0.3, maxL: 0.7),
       casing: flip(casing),
-      label: ensureContrast(flip(label), newLabelHalo, 4.5),
-      labelHalo: newLabelHalo,
-      roadLabel: ensureContrast(flip(roadLabel), newRoadHalo, 4.5),
-      roadLabelHalo: newRoadHalo,
+      label: keepLabels ? label : ensureContrast(flip(label), newLabelHalo, 4.5),
+      labelHalo: keepLabels ? labelHalo : newLabelHalo,
+      roadLabel: keepLabels ? roadLabel : ensureContrast(flip(roadLabel), newRoadHalo, 4.5),
+      roadLabelHalo: keepLabels ? roadLabelHalo : newRoadHalo,
       poiFill: poiFill,
       poiGlyph: poiGlyph,
       poiStroke: poiStroke,
       route: ensureContrast(route, newLand, 2.5),
       routeCasing: routeCasing,
       hudPanel: newPanel,
-      hudText: ensureContrast(flip(hudText), newPanel, 7),
+      hudText: keepPanel ? hudText : ensureContrast(flip(hudText), newPanel, 7),
       accent: accent,
     );
   }
@@ -201,6 +207,8 @@ enum MapOverlay { none, scanlines, parchment, vignette, grid, pixelGrid, neon }
 
 enum MapVariant { light, dark }
 
+final _invertedCache = <String, MapPalette>{};
+
 class MapTheme {
   const MapTheme({
     required this.id,
@@ -210,6 +218,7 @@ class MapTheme {
     required this.baseVariant,
     required this.poiShape,
     required this.puck,
+    this.alt,
     this.isPremium = true,
     this.overlay = MapOverlay.none,
     this.uppercaseLabels = false,
@@ -230,6 +239,9 @@ class MapTheme {
 
   /// Hand-tuned palette for [baseVariant]; the other variant is derived.
   final MapPalette base;
+
+  /// Hand-tuned palette for the other variant; derived from [base] if null.
+  final MapPalette? alt;
   final MapVariant baseVariant;
   final PoiShape poiShape;
   final PuckShape puck;
@@ -252,7 +264,7 @@ class MapTheme {
   /// Short genre word used in onboarding chips.
   final String genre;
 
-  MapPalette palette(MapVariant v) => v == baseVariant ? base : base.inverted();
+  MapPalette palette(MapVariant v) => v == baseVariant ? base : (alt ?? (_invertedCache[id] ??= base.inverted()));
 
   String styleKey(MapVariant v) => '$id:${v.name}';
 }

@@ -37,11 +37,11 @@ class _FxPainter extends CustomPainter {
       case MapOverlay.none:
         return;
       case MapOverlay.scanlines:
-        final line = Paint()..color = Colors.black.withValues(alpha: 0.22);
+        final line = Paint()..color = Colors.black.withValues(alpha: palette.isDark ? 0.22 : 0.07);
         for (var y = 0.0; y < size.height; y += 3) {
           canvas.drawRect(Rect.fromLTWH(0, y, size.width, 1), line);
         }
-        _vignette(canvas, rect, Color(palette.accent).withValues(alpha: 0.10), Colors.black.withValues(alpha: 0.55));
+        _vignette(canvas, rect, Color(palette.accent).withValues(alpha: 0.10), Colors.black.withValues(alpha: palette.isDark ? 0.55 : 0.18));
       case MapOverlay.parchment:
         // Warm wash, fibre speckle, burnt edges.
         canvas.drawRect(rect, Paint()..color = const Color(0xFF8B5A2B).withValues(alpha: 0.06));
@@ -53,7 +53,8 @@ class _FxPainter extends CustomPainter {
         }
         _vignette(canvas, rect, Colors.transparent, const Color(0xFF3A2410).withValues(alpha: 0.45));
       case MapOverlay.vignette:
-        _vignette(canvas, rect, Colors.transparent, Colors.black.withValues(alpha: 0.55));
+        // Light maps get a faint vignette; a strong one reads as a grey smudge.
+        _vignette(canvas, rect, Colors.transparent, Colors.black.withValues(alpha: palette.isDark ? 0.55 : 0.16));
       case MapOverlay.grid:
         final p = Paint()
           ..color = Color(palette.label).withValues(alpha: 0.10)
@@ -97,7 +98,7 @@ class _FxPainter extends CustomPainter {
             colors: [Color(palette.accent).withValues(alpha: 0.10), Colors.transparent, Color(palette.route).withValues(alpha: 0.10)],
           ).createShader(rect);
         canvas.drawRect(rect, glow);
-        final line = Paint()..color = Colors.black.withValues(alpha: 0.10);
+        final line = Paint()..color = Colors.black.withValues(alpha: palette.isDark ? 0.10 : 0.04);
         for (var y = 0.0; y < size.height; y += 4) {
           canvas.drawRect(Rect.fromLTWH(0, y, size.width, 1), line);
         }

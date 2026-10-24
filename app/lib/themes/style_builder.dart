@@ -351,12 +351,11 @@ class StyleBuilder {
         'source': 'openmaptiles',
         'source-layer': 'transportation',
         'minzoom': 11,
+        // Surface rail only: subway tunnels would clutter every avenue.
         'filter': [
-          'match',
-          ['get', 'class'],
-          ['rail', 'transit'],
-          true,
-          false,
+          'all',
+          ['match', ['get', 'class'], ['rail', 'transit'], true, false],
+          ['!=', ['get', 'brunnel'], 'tunnel'],
         ],
         'paint': {
           'line-color': hex(p.rail),
@@ -477,7 +476,7 @@ class StyleBuilder {
           'text-size': 13,
           'text-letter-spacing': 0.1,
         },
-        'paint': {'text-color': hex(p.waterLine), 'text-halo-color': hex(p.water), 'text-halo-width': 1},
+        'paint': {'text-color': hex(p.label), 'text-halo-color': hex(p.labelHalo), 'text-halo-width': 1.4, 'text-opacity': 0.85},
       },
       {
         'id': AppLayers.poi,
@@ -485,10 +484,11 @@ class StyleBuilder {
         'source': 'openmaptiles',
         'source-layer': 'poi',
         'minzoom': 14,
+        // Fewer, more meaningful POIs: bus stops only when zoomed right in.
         'filter': [
-          '<=',
-          ['get', 'rank'],
-          8 + t.poiDensity * 8,
+          'all',
+          ['<=', ['get', 'rank'], 6 + t.poiDensity * 6],
+          ['any', ['!=', ['get', 'class'], 'bus'], ['>=', ['zoom'], 17]],
         ],
         'layout': {
           'icon-image': [
