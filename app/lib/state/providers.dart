@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../core/geo.dart';
 import '../core/http.dart';
 import '../core/units.dart';
+import '../data/link_resolver.dart';
 import '../data/models.dart';
 import '../data/repositories.dart';
 import '../data/routing_service.dart';
@@ -21,6 +22,12 @@ final searchServiceProvider = Provider<SearchService>((ref) {
   final s = SearchService();
   ref.onDispose(s.dispose);
   return s;
+});
+
+final linkResolverProvider = Provider<LinkResolver>((ref) {
+  final r = LinkResolver(search: ref.watch(searchServiceProvider));
+  ref.onDispose(r.dispose);
+  return r;
 });
 
 final routingServiceProvider = Provider<RoutingService>((ref) {
@@ -179,6 +186,11 @@ class ToastNotifier extends Notifier<ToastMessage?> {
     _t?.cancel();
     state = ToastMessage(text, kind: kind);
     _t = Timer(const Duration(milliseconds: 2600), () => state = null);
+  }
+
+  void dismiss() {
+    _t?.cancel();
+    state = null;
   }
 }
 

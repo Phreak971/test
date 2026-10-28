@@ -77,6 +77,42 @@
                 <data android:host="maps.apple.com"/>
                 <data android:host="maps.google.com"/>
             </intent-filter>
+            <!-- Navigation intents other apps send to "a maps app"
+                 (google.navigation:q=...), so Overworld can be the default. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="google.navigation"/>
+            </intent-filter>
+            <!-- Short share links from Google Maps / Search and Waze. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https"/>
+                <data android:host="maps.app.goo.gl"/>
+                <data android:host="share.google"/>
+                <data android:host="g.page"/>
+                <data android:host="waze.com"/>
+                <data android:host="www.waze.com"/>
+                <data android:host="ul.waze.com"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https"/>
+                <data android:host="goo.gl"/>
+                <data android:pathPrefix="/maps"/>
+            </intent-filter>
+            <!-- Share target: Google Maps → Share → "Open in Overworld" works
+                 even though Google's own links always open Google Maps. -->
+            <intent-filter android:label="@string/share_open_in">
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="text/plain"/>
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>

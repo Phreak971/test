@@ -1698,18 +1698,6 @@ abstract class L {
   /// **'Stern, brilliant, docks points for wrong turns'**
   String get voiceTaglineArchmage;
 
-  /// No description provided for @openMapLinks.
-  ///
-  /// In en, this message translates to:
-  /// **'Open map links in Overworld'**
-  String get openMapLinks;
-
-  /// No description provided for @openMapLinksHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Allow OpenStreetMap, Google Maps and Apple Maps links'**
-  String get openMapLinksHint;
-
   /// No description provided for @searchHere.
   ///
   /// In en, this message translates to:
@@ -1799,6 +1787,114 @@ abstract class L {
   /// In en, this message translates to:
   /// **'Nothing found nearby. Try moving the map.'**
   String get nothingNearby;
+
+  /// No description provided for @openingLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening shared place…'**
+  String get openingLink;
+
+  /// No description provided for @linkUnresolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t find the place in this link.'**
+  String get linkUnresolved;
+
+  /// No description provided for @shareAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Share as'**
+  String get shareAs;
+
+  /// No description provided for @shareOverworldLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Overworld link'**
+  String get shareOverworldLink;
+
+  /// No description provided for @shareOverworldHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens in Overworld, or on a map page'**
+  String get shareOverworldHint;
+
+  /// No description provided for @shareGoogleLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Maps link'**
+  String get shareGoogleLink;
+
+  /// No description provided for @shareAppleLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple Maps link'**
+  String get shareAppleLink;
+
+  /// No description provided for @shareOsmLink.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenStreetMap link'**
+  String get shareOsmLink;
+
+  /// No description provided for @shareCoordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'Coordinates only'**
+  String get shareCoordinates;
+
+  /// No description provided for @openInGoogleMaps.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in Google Maps'**
+  String get openInGoogleMaps;
+
+  /// No description provided for @openInAppleMaps.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in Apple Maps'**
+  String get openInAppleMaps;
+
+  /// No description provided for @copyGoogleLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Google Maps link'**
+  String get copyGoogleLink;
+
+  /// No description provided for @linkCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied'**
+  String get linkCopied;
+
+  /// No description provided for @pasteMapLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a map link'**
+  String get pasteMapLink;
+
+  /// No description provided for @pasteMapLinkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Maps, Apple Maps, Waze, OpenStreetMap or coordinates'**
+  String get pasteMapLinkHint;
+
+  /// No description provided for @defaultMapsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Default maps app'**
+  String get defaultMapsApp;
+
+  /// No description provided for @defaultMapsAppHintAndroid.
+  ///
+  /// In en, this message translates to:
+  /// **'When a map link or address opens, choose Overworld and “Always”. Tap to also allow Google Maps, Apple Maps, Waze and OSM links.'**
+  String get defaultMapsAppHintAndroid;
+
+  /// No description provided for @defaultMapsAppHintIos.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings → Apps → Default Apps → Navigation (EU and Japan). Elsewhere, share places to Overworld or paste their links.'**
+  String get defaultMapsAppHintIos;
 }
 
 class _LDelegate extends LocalizationsDelegate<L> {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:overworld/core/geo.dart';
+import 'package:overworld/core/map_link.dart';
 import 'package:overworld/ui/hud.dart';
 import 'package:overworld/ui/home/map_chrome.dart';
 import 'package:overworld/ui/home/place_panel.dart';
@@ -90,4 +92,35 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Coordinates'), findsOneWidget);
   });
+
+  testWidgets('share as: every option returns a link that points back to the place', (tester) async {
+    final env = await makeEnv();
+    String? picked;
+    await pumpApp(
+      tester,
+      env,
+      Scaffold(
+        body: Builder(
+          builder: (context) => Center(
+            child: TextButton(
+              onPressed: () async => picked = await Navigator.of(
+                context,
+              ).push<String>(MaterialPageRoute(builder: (_) => Scaffold(body: ShareAsSheet(place: samplePlace)))),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    for (final label in ['Overworld link', 'Google Maps link', 'Apple Maps link', 'OpenStreetMap link', 'Coordinates only']) {
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(label));
+      await tester.pumpAndSettle();
+      final g = MapLinks.findInText(picked!);
+      expect(g?.point, isNotNull, reason: label);
+      expect(distanceM(g!.point!, samplePlace.location), lessThan(2), reason: label);
+    }
+  });
 }
+

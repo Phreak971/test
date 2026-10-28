@@ -823,12 +823,6 @@ class LEn extends L {
   String get voiceTaglineArchmage => 'Stern, brilliant, docks points for wrong turns';
 
   @override
-  String get openMapLinks => 'Open map links in Overworld';
-
-  @override
-  String get openMapLinksHint => 'Allow OpenStreetMap, Google Maps and Apple Maps links';
-
-  @override
   String get searchHere => 'Search here';
 
   @override
@@ -872,4 +866,60 @@ class LEn extends L {
 
   @override
   String get nothingNearby => 'Nothing found nearby. Try moving the map.';
+
+  @override
+  String get openingLink => 'Opening shared place…';
+
+  @override
+  String get linkUnresolved => 'Couldn\'t find the place in this link.';
+
+  @override
+  String get shareAs => 'Share as';
+
+  @override
+  String get shareOverworldLink => 'Overworld link';
+
+  @override
+  String get shareOverworldHint => 'Opens in Overworld, or on a map page';
+
+  @override
+  String get shareGoogleLink => 'Google Maps link';
+
+  @override
+  String get shareAppleLink => 'Apple Maps link';
+
+  @override
+  String get shareOsmLink => 'OpenStreetMap link';
+
+  @override
+  String get shareCoordinates => 'Coordinates only';
+
+  @override
+  String get openInGoogleMaps => 'Open in Google Maps';
+
+  @override
+  String get openInAppleMaps => 'Open in Apple Maps';
+
+  @override
+  String get copyGoogleLink => 'Copy Google Maps link';
+
+  @override
+  String get linkCopied => 'Link copied';
+
+  @override
+  String get pasteMapLink => 'Paste a map link';
+
+  @override
+  String get pasteMapLinkHint => 'Google Maps, Apple Maps, Waze, OpenStreetMap or coordinates';
+
+  @override
+  String get defaultMapsApp => 'Default maps app';
+
+  @override
+  String get defaultMapsAppHintAndroid =>
+      'When a map link or address opens, choose Overworld and “Always”. Tap to also allow Google Maps, Apple Maps, Waze and OSM links.';
+
+  @override
+  String get defaultMapsAppHintIos =>
+      'Settings → Apps → Default Apps → Navigation (EU and Japan). Elsewhere, share places to Overworld or paste their links.';
 }

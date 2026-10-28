@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Share-sheet entry for links shared from other map apps. -->
+    <string name="share_open_in">Overworld\'de aç</string>
+</resources>

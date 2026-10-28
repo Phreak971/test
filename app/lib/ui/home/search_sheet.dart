@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/geo.dart';
@@ -127,7 +128,7 @@ class _SearchSheetState extends ConsumerState<SearchSheet> {
   /// A pasted map link (Overworld, OSM, Google, Apple, geo:) or typed
   /// "lat, lng" goes straight to that spot instead of a text search.
   Place? _linkedPlace(String q) {
-    final link = MapLinks.parse(q) ?? GeoUri.parse('geo:0,0?q=${Uri.encodeQueryComponent(q.trim())}');
+    final link = MapLinks.findInText(q) ?? GeoUri.parse('geo:0,0?q=${Uri.encodeQueryComponent(q.trim())}');
     final at = link?.point;
     if (at == null) return null;
     return Place(
@@ -149,8 +150,24 @@ class _SearchSheetState extends ConsumerState<SearchSheet> {
       });
       return;
     }
-    // A link to a search ("maps.google.com/?q=pizza") searches its text.
-    final text = MapLinks.parse(q)?.query ?? q;
+    // Short links (maps.app.goo.gl/...) and links naming a place: resolve.
+    final link = MapLinks.findInText(q);
+    if (link != null && (link.unresolved != null || q.contains('://'))) {
+      setState(() {
+        _loading = true;
+        _error = false;
+      });
+      final res = await ref
+          .read(linkResolverProvider)
+          .resolve(link, near: widget.center, lang: _lang, pinnedName: L.of(context).pinnedLocation);
+      if (!mounted || token != _token) return;
+      setState(() {
+        _results = res == null ? const [] : [res.place];
+        _loading = false;
+      });
+      return;
+    }
+    final text = q;
     setState(() {
       _loading = true;
       _error = false;
@@ -195,6 +212,16 @@ class _SearchSheetState extends ConsumerState<SearchSheet> {
         _error = true;
       });
     }
+  }
+
+  Future<void> _pasteLink() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    final text = data?.text?.trim() ?? '';
+    if (!mounted || text.length < 2) return;
+    // A map link resolves to its place; any other text (an address) is searched.
+    _ctrl.text = text;
+    _focus.unfocus();
+    await _runQuery(text);
   }
 
   void _pick(Place p) {
@@ -278,6 +305,16 @@ class _SearchSheetState extends ConsumerState<SearchSheet> {
               : ListView(
                   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   children: [
+                    ListTile(
+                      minTileHeight: 56,
+                      leading: Icon(Icons.content_paste_rounded, color: hud.accentText),
+                      title: Text(
+                        l.pasteMapLink,
+                        style: TextStyle(color: hud.text, fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: Text(l.pasteMapLinkHint, style: TextStyle(color: hud.muted, fontSize: 13)),
+                      onTap: _pasteLink,
+                    ),
                     HudSectionHeader(hud: hud, text: l.findNearby),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),

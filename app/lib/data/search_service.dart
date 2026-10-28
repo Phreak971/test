@@ -125,6 +125,18 @@ class SearchService {
     return places;
   }
 
+  /// Free-text geocoding (full addresses, "Name, City"); best match only.
+  Future<Place?> geocode(String query, {String lang = 'en'}) async {
+    final q = query.trim();
+    if (q.length < 2) return null;
+    final uri = Uri.parse('$nominatimBase/search').replace(
+      queryParameters: {'q': q, 'format': 'jsonv2', 'limit': '1', 'addressdetails': '1', 'extratags': '1', 'accept-language': lang},
+    );
+    final json = await _client.getJson(uri);
+    if (json is! List || json.isEmpty) return null;
+    return nominatimToPlace((json.first as Map).cast<String, dynamic>());
+  }
+
   void dispose() => _client.close();
 }
 

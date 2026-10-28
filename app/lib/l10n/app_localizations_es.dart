@@ -829,12 +829,6 @@ class LEs extends L {
   String get voiceTaglineArchmage => 'Estricta, brillante, resta puntos por cada giro equivocado';
 
   @override
-  String get openMapLinks => 'Abrir enlaces de mapas en Overworld';
-
-  @override
-  String get openMapLinksHint => 'Permite enlaces de OpenStreetMap, Google Maps y Mapas de Apple';
-
-  @override
   String get searchHere => 'Buscar aquí';
 
   @override
@@ -878,4 +872,60 @@ class LEs extends L {
 
   @override
   String get nothingNearby => 'No se encontró nada cerca. Prueba a mover el mapa.';
+
+  @override
+  String get openingLink => 'Abriendo el lugar compartido…';
+
+  @override
+  String get linkUnresolved => 'No se encontró el lugar de este enlace.';
+
+  @override
+  String get shareAs => 'Compartir como';
+
+  @override
+  String get shareOverworldLink => 'Enlace de Overworld';
+
+  @override
+  String get shareOverworldHint => 'Se abre en Overworld o en una página con mapa';
+
+  @override
+  String get shareGoogleLink => 'Enlace de Google Maps';
+
+  @override
+  String get shareAppleLink => 'Enlace de Mapas de Apple';
+
+  @override
+  String get shareOsmLink => 'Enlace de OpenStreetMap';
+
+  @override
+  String get shareCoordinates => 'Solo coordenadas';
+
+  @override
+  String get openInGoogleMaps => 'Abrir en Google Maps';
+
+  @override
+  String get openInAppleMaps => 'Abrir en Mapas';
+
+  @override
+  String get copyGoogleLink => 'Copiar enlace de Google Maps';
+
+  @override
+  String get linkCopied => 'Enlace copiado';
+
+  @override
+  String get pasteMapLink => 'Pegar un enlace de mapa';
+
+  @override
+  String get pasteMapLinkHint => 'Google Maps, Mapas de Apple, Waze, OpenStreetMap o coordenadas';
+
+  @override
+  String get defaultMapsApp => 'App de mapas predeterminada';
+
+  @override
+  String get defaultMapsAppHintAndroid =>
+      'Cuando se abra un enlace de mapa, elige Overworld y «Siempre». Toca para permitir también enlaces de Google Maps, Mapas, Waze y OSM.';
+
+  @override
+  String get defaultMapsAppHintIos =>
+      'Ajustes → Apps → Apps predeterminadas → Navegación (UE y Japón). En otros lugares, comparte lugares con Overworld o pega sus enlaces.';
 }

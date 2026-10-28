@@ -823,12 +823,6 @@ class LTr extends L {
   String get voiceTaglineArchmage => 'Sert, parlak, yanlış dönüşlerde puan kırar';
 
   @override
-  String get openMapLinks => 'Harita bağlantılarını Overworld\'de aç';
-
-  @override
-  String get openMapLinksHint => 'OpenStreetMap, Google Haritalar ve Apple Haritalar bağlantılarına izin ver';
-
-  @override
   String get searchHere => 'Burada ara';
 
   @override
@@ -872,4 +866,60 @@ class LTr extends L {
 
   @override
   String get nothingNearby => 'Yakında bir şey bulunamadı. Haritayı kaydırmayı deneyin.';
+
+  @override
+  String get openingLink => 'Paylaşılan yer açılıyor…';
+
+  @override
+  String get linkUnresolved => 'Bu bağlantıdaki yer bulunamadı.';
+
+  @override
+  String get shareAs => 'Farklı paylaş';
+
+  @override
+  String get shareOverworldLink => 'Overworld bağlantısı';
+
+  @override
+  String get shareOverworldHint => 'Overworld\'de ya da bir harita sayfasında açılır';
+
+  @override
+  String get shareGoogleLink => 'Google Haritalar bağlantısı';
+
+  @override
+  String get shareAppleLink => 'Apple Haritalar bağlantısı';
+
+  @override
+  String get shareOsmLink => 'OpenStreetMap bağlantısı';
+
+  @override
+  String get shareCoordinates => 'Yalnızca koordinatlar';
+
+  @override
+  String get openInGoogleMaps => 'Google Haritalar\'da aç';
+
+  @override
+  String get openInAppleMaps => 'Apple Haritalar\'da aç';
+
+  @override
+  String get copyGoogleLink => 'Google Haritalar bağlantısını kopyala';
+
+  @override
+  String get linkCopied => 'Bağlantı kopyalandı';
+
+  @override
+  String get pasteMapLink => 'Harita bağlantısı yapıştır';
+
+  @override
+  String get pasteMapLinkHint => 'Google Haritalar, Apple Haritalar, Waze, OpenStreetMap veya koordinatlar';
+
+  @override
+  String get defaultMapsApp => 'Varsayılan harita uygulaması';
+
+  @override
+  String get defaultMapsAppHintAndroid =>
+      'Bir harita bağlantısı açıldığında Overworld\'ü ve “Her zaman”ı seçin. Google Haritalar, Apple Haritalar, Waze ve OSM bağlantılarına da izin vermek için dokunun.';
+
+  @override
+  String get defaultMapsAppHintIos =>
+      'Ayarlar → Uygulamalar → Varsayılan Uygulamalar → Navigasyon (AB ve Japonya). Diğer yerlerde yerleri Overworld\'e paylaşın veya bağlantılarını yapıştırın.';
 }

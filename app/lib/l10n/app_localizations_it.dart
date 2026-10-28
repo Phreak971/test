@@ -829,12 +829,6 @@ class LIt extends L {
   String get voiceTaglineArchmage => 'Severa, brillante, toglie punti per ogni svolta sbagliata';
 
   @override
-  String get openMapLinks => 'Apri i link delle mappe in Overworld';
-
-  @override
-  String get openMapLinksHint => 'Consenti i link di OpenStreetMap, Google Maps e Mappe di Apple';
-
-  @override
   String get searchHere => 'Cerca qui';
 
   @override
@@ -878,4 +872,60 @@ class LIt extends L {
 
   @override
   String get nothingNearby => 'Nessun risultato vicino. Prova a spostare la mappa.';
+
+  @override
+  String get openingLink => 'Apertura del luogo condiviso…';
+
+  @override
+  String get linkUnresolved => 'Impossibile trovare il luogo in questo link.';
+
+  @override
+  String get shareAs => 'Condividi come';
+
+  @override
+  String get shareOverworldLink => 'Link Overworld';
+
+  @override
+  String get shareOverworldHint => 'Si apre in Overworld o in una pagina con la mappa';
+
+  @override
+  String get shareGoogleLink => 'Link Google Maps';
+
+  @override
+  String get shareAppleLink => 'Link Mappe di Apple';
+
+  @override
+  String get shareOsmLink => 'Link OpenStreetMap';
+
+  @override
+  String get shareCoordinates => 'Solo coordinate';
+
+  @override
+  String get openInGoogleMaps => 'Apri in Google Maps';
+
+  @override
+  String get openInAppleMaps => 'Apri in Mappe';
+
+  @override
+  String get copyGoogleLink => 'Copia link di Google Maps';
+
+  @override
+  String get linkCopied => 'Link copiato';
+
+  @override
+  String get pasteMapLink => 'Incolla un link di mappa';
+
+  @override
+  String get pasteMapLinkHint => 'Google Maps, Mappe di Apple, Waze, OpenStreetMap o coordinate';
+
+  @override
+  String get defaultMapsApp => 'App mappe predefinita';
+
+  @override
+  String get defaultMapsAppHintAndroid =>
+      'Quando si apre un link di mappa, scegli Overworld e «Sempre». Tocca per consentire anche i link di Google Maps, Mappe, Waze e OSM.';
+
+  @override
+  String get defaultMapsAppHintIos =>
+      'Impostazioni → App → App predefinite → Navigazione (UE e Giappone). Altrove, condividi i luoghi con Overworld o incollane i link.';
 }

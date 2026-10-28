@@ -25,7 +25,13 @@ bool get _isIOS => !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
 
 /// Android 12+ "Open by default" screen, where people allow this app to
 /// open links from other map services.
+/// Android: "Open by default" (allow other map services' links). iOS: the
+/// Settings app, where Default Apps → Navigation lives (EU, Japan).
 Future<void> openLinkSettings() async {
+  if (_isIOS) {
+    await launchUrl(Uri.parse('app-settings:'));
+    return;
+  }
   try {
     await const MethodChannel('overworld/system').invokeMethod<bool>('openLinkSettings');
   } on PlatformException catch (_) {
@@ -149,15 +155,15 @@ class SettingsScreen extends ConsumerWidget {
                   _isIOS ? l.carSettingsIos : l.carSettingsAndroid,
                   onTap: () => push(const CarSettingsScreen()),
                 ),
-                if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android)
+                if (!kIsWeb)
                   ListTile(
                     minTileHeight: 56,
-                    leading: Icon(Icons.link_rounded, color: hud.accentText),
+                    leading: Icon(Icons.map_rounded, color: hud.accentText),
                     title: Text(
-                      l.openMapLinks,
+                      l.defaultMapsApp,
                       style: TextStyle(color: hud.text, fontWeight: FontWeight.w600, fontSize: 16),
                     ),
-                    subtitle: Text(l.openMapLinksHint, style: TextStyle(color: hud.muted)),
+                    subtitle: Text(_isIOS ? l.defaultMapsAppHintIos : l.defaultMapsAppHintAndroid, style: TextStyle(color: hud.muted)),
                     trailing: Icon(Icons.open_in_new_rounded, color: hud.muted),
                     onTap: openLinkSettings,
                   ),

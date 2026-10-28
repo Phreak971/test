@@ -113,6 +113,14 @@
 				<string>overworld</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>app.overworld.maps.geo-navigation</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>geo-navigation</string>
+			</array>
+		</dict>
 	</array>
 	<key>FlutterDeepLinkingEnabled</key>
 	<false/>

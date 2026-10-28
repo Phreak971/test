@@ -382,22 +382,44 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   void _openSettings() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
 
-  void _onGeoLink(GeoUri? _, GeoUri? link) {
+  int _linkToken = 0;
+
+  /// Opens an incoming link: shows the place, or previews the route when the
+  /// link asked for directions. Short links and name-only links are resolved
+  /// first (network), with a toast while that happens.
+  Future<void> _onGeoLink(GeoUri? _, GeoUri? link) async {
     if (link == null) return;
     // Never silently end active guidance; keep the link for afterwards.
     if (ref.read(navProvider) is NavActive) return;
     Future.microtask(() => ref.read(pendingGeoLinkProvider.notifier).set(null));
-    if (link.point != null) {
-      _select(
-        Place(
-          id: 'geo:${link.point!.lat},${link.point!.lng}',
-          name: link.label ?? L.of(context).pinnedLocation,
-          location: link.point!,
-          isPinned: link.label == null,
-        ),
-      );
-    } else if (link.query != null) {
-      _openSearch(query: link.query);
+    final l = L.of(context);
+    final lang = Localizations.localeOf(context).languageCode;
+    final token = ++_linkToken;
+    final slow = link.point == null;
+    if (slow) ref.read(toastProvider.notifier).show(l.openingLink, kind: ToastKind.info);
+    final res = await ref.read(linkResolverProvider).resolve(link, near: _searchCenter, lang: lang, pinnedName: l.pinnedLocation);
+    if (!mounted || token != _linkToken) return;
+    if (res == null) {
+      ref.read(toastProvider.notifier).show(l.linkUnresolved, kind: ToastKind.error);
+      final q = link.query ?? link.label;
+      if (q != null) unawaited(_openSearch(query: q));
+      return;
+    }
+    if (slow) ref.read(toastProvider.notifier).dismiss();
+    var place = res.place;
+    if (res.navigate) {
+      await _directions(place);
+      return;
+    }
+    _select(place);
+    if (place.isPinned) {
+      // Name a bare coordinate like a dropped pin.
+      try {
+        final r = await ref.read(searchServiceProvider).reverse(place.location, lang: lang);
+        if (!mounted || _selected?.id != place.id || r == null) return;
+        place = place.copyWith(address: r.address == null ? r.name : '${r.name}, ${r.address}');
+        setState(() => _selected = place);
+      } catch (_) {}
     }
   }
 

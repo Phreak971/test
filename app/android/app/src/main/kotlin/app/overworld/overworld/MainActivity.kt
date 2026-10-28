@@ -10,8 +10,47 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
+    private var shareChannel: MethodChannel? = null
+
+    /// Text shared to the app before Flutter asked for it (cold start).
+    private var pendingShare: String? = null
+
+    override fun onCreate(savedInstanceState: android.os.Bundle?) {
+        pendingShare = sharedText(intent)
+        super.onCreate(savedInstanceState)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        val text = sharedText(intent) ?: return
+        val channel = shareChannel
+        if (channel != null) channel.invokeMethod("shared", text) else pendingShare = text
+    }
+
+    /// "Share" from another app (e.g. Google Maps): subject + text, which
+    /// usually holds the place name and a maps.app.goo.gl link.
+    private fun sharedText(intent: Intent?): String? {
+        if (intent?.action != Intent.ACTION_SEND || intent.type?.startsWith("text/") != true) return null
+        val parts = listOfNotNull(
+            intent.getStringExtra(Intent.EXTRA_SUBJECT),
+            intent.getCharSequenceExtra(Intent.EXTRA_TEXT)?.toString(),
+        ).filter { it.isNotBlank() }
+        return parts.joinToString("\n").ifBlank { null }
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        shareChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "overworld/share").apply {
+            setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "initial" -> {
+                        result.success(pendingShare)
+                        pendingShare = null
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+        }
         // Phone → Android Auto bridge (see lib/car/car_bridge.dart).
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "overworld/car").setMethodCallHandler { call, result ->
             val args = call.arguments as? Map<*, *>

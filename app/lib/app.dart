@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -44,6 +45,15 @@ class _OverworldAppState extends ConsumerState<OverworldApp> {
   late _Stage _stage = widget.skipSplash ? _next() : _Stage.splash;
   StreamSubscription<Uri>? _links;
 
+  static const _share = MethodChannel('overworld/share');
+
+  /// Any incoming link or shared text: a place link, or plain text (an
+  /// address shared from contacts or a message) to search for.
+  void _receive(String text) {
+    final g = MapLinks.findInText(text) ?? (text.trim().length >= 3 && text.length < 300 ? GeoUri(query: text.trim()) : null);
+    if (g != null) ref.read(pendingGeoLinkProvider.notifier).set(g);
+  }
+
   _Stage _next() => ref.read(settingsProvider).onboarded ? _Stage.home : _Stage.onboarding;
 
   @override
@@ -51,13 +61,15 @@ class _OverworldAppState extends ConsumerState<OverworldApp> {
     super.initState();
     if (!kIsWeb) {
       try {
-        _links = AppLinks().uriLinkStream.listen((uri) {
-          final g = MapLinks.parse(uri.toString());
-          if (g != null) ref.read(pendingGeoLinkProvider.notifier).set(g);
-        }, onError: (Object _) {});
+        _links = AppLinks().uriLinkStream.listen((uri) => _receive(uri.toString()), onError: (Object _) {});
       } catch (_) {
         // Plugin unavailable (tests).
       }
+      // Android share sheet ("Share" in Google Maps → Open in Overworld).
+      _share.setMethodCallHandler((call) async {
+        if (call.method == 'shared' && call.arguments is String) _receive(call.arguments as String);
+      });
+      _share.invokeMethod<String>('initial').then((t) => t == null ? null : _receive(t), onError: (Object _) => null);
     }
   }
 

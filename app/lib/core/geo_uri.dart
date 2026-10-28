@@ -2,13 +2,22 @@ import 'geo.dart';
 
 /// Parsed `geo:` URI (RFC 5870 plus the common Android `?q=` extension).
 class GeoUri {
-  const GeoUri({this.point, this.label, this.query});
+  const GeoUri({this.point, this.label, this.query, this.navigate = false, this.unresolved});
 
   final Geo? point;
   final String? label;
 
   /// Free-text search when no coordinates are given (`geo:0,0?q=pizza`).
   final String? query;
+
+  /// The link asks for directions to the place, not just to show it.
+  final bool navigate;
+
+  /// A short or opaque link (e.g. `maps.app.goo.gl/...`) that has to be
+  /// fetched to find the place; see `LinkResolver`.
+  final Uri? unresolved;
+
+  GeoUri withNavigate() => GeoUri(point: point, label: label, query: query, navigate: true, unresolved: unresolved);
 
   static GeoUri? parse(String raw) {
     final uri = Uri.tryParse(raw);

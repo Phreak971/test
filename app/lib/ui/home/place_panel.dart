@@ -62,14 +62,16 @@ class PlacePanel extends ConsumerWidget {
     ].join(' · ');
     final coords = '${place.location.lat.toStringAsFixed(5)}, ${place.location.lng.toStringAsFixed(5)}';
 
-    void share() {
+    Future<void> share() async {
       final box = context.findRenderObject() as RenderBox?;
-      SharePlus.instance.share(
-        ShareParams(
-          text: [title, ?place.address, placeShareLink(place).toString()].join('\n'),
-          sharePositionOrigin: box == null ? null : box.localToGlobal(Offset.zero) & box.size,
-        ),
+      final origin = box == null ? null : box.localToGlobal(Offset.zero) & box.size;
+      final link = await showHudSheet<String>(
+        context,
+        hud: hud,
+        builder: (_) => ShareAsSheet(place: place),
       );
+      if (link == null) return;
+      await SharePlus.instance.share(ShareParams(text: [title, ?place.address, link].join('\n'), sharePositionOrigin: origin));
     }
 
     void openWebsite() {
@@ -183,6 +185,26 @@ class PlacePanel extends ConsumerWidget {
             'Instagram',
             onTap: () => launchUrl(Uri.parse(place.social!), mode: LaunchMode.externalApplication),
           ),
+        Divider(height: 1, color: hud.text.withValues(alpha: 0.1)),
+        row(
+          Icons.open_in_new_rounded,
+          l.openInGoogleMaps,
+          onTap: () => launchUrl(MapLinks.googleMaps(place.location), mode: LaunchMode.externalApplication),
+        ),
+        row(
+          Icons.open_in_new_rounded,
+          l.openInAppleMaps,
+          onTap: () =>
+              launchUrl(MapLinks.appleMaps(place.location, name: place.isPinned ? null : title), mode: LaunchMode.externalApplication),
+        ),
+        row(
+          Icons.link_rounded,
+          l.copyGoogleLink,
+          onTap: () {
+            Clipboard.setData(ClipboardData(text: MapLinks.googleMaps(place.location).toString()));
+            ref.read(toastProvider.notifier).show(l.linkCopied);
+          },
+        ),
         const SizedBox(height: 8),
       ],
     );
@@ -252,6 +274,51 @@ class ActionPill extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// "Share as": which link to send. Returns the text to share.
+class ShareAsSheet extends ConsumerWidget {
+  const ShareAsSheet({super.key, required this.place});
+
+  final Place place;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = L.of(context);
+    final hud = ref.watch(hudProvider);
+    final at = place.location;
+    final name = place.isPinned ? null : place.name;
+    final coords = '${at.lat.toStringAsFixed(6)}, ${at.lng.toStringAsFixed(6)}';
+    final options = <(IconData, String, String?, String)>[
+      (Icons.public_rounded, l.shareOverworldLink, l.shareOverworldHint, placeShareLink(place).toString()),
+      (Icons.map_rounded, l.shareGoogleLink, null, MapLinks.googleMaps(at).toString()),
+      (Icons.map_outlined, l.shareAppleLink, null, MapLinks.appleMaps(at, name: name).toString()),
+      (Icons.layers_rounded, l.shareOsmLink, null, MapLinks.openStreetMap(at).toString()),
+      (Icons.my_location_rounded, l.shareCoordinates, coords, coords),
+    ];
+    return SafeArea(
+      top: false,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          HudSectionHeader(hud: hud, text: l.shareAs),
+          for (final (icon, title, hint, text) in options)
+            ListTile(
+              minTileHeight: 56,
+              leading: Icon(icon, color: hud.accentText),
+              title: Text(
+                title,
+                style: TextStyle(color: hud.text, fontWeight: FontWeight.w600),
+              ),
+              subtitle: hint == null ? null : Text(hint, style: TextStyle(color: hud.muted, fontSize: 13)),
+              onTap: () => Navigator.of(context).pop(text),
+            ),
+          const SizedBox(height: 8),
+        ],
       ),
     );
   }

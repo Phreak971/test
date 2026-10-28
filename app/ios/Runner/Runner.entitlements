@@ -6,6 +6,10 @@
 	<array>
 		<string>applinks:$(SHARE_LINK_HOST)</string>
 	</array>
+	<!-- Lets people pick Overworld as the default navigation app
+	     (iOS 18.4+ in the EU, iOS 26.2+ in Japan); requires geo-navigation://. -->
+	<key>com.apple.developer.navigation-app</key>
+	<true/>
 	<key>com.apple.developer.carplay-maps</key>
 	<true/>
 </dict>

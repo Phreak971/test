@@ -830,12 +830,6 @@ class LDe extends L {
   String get voiceTaglineArchmage => 'Streng, brillant, zieht Punkte für falsches Abbiegen ab';
 
   @override
-  String get openMapLinks => 'Kartenlinks in Overworld öffnen';
-
-  @override
-  String get openMapLinksHint => 'Links von OpenStreetMap, Google Maps und Apple Karten zulassen';
-
-  @override
   String get searchHere => 'Hier suchen';
 
   @override
@@ -879,4 +873,60 @@ class LDe extends L {
 
   @override
   String get nothingNearby => 'Nichts in der Nähe gefunden. Verschiebe die Karte.';
+
+  @override
+  String get openingLink => 'Geteilter Ort wird geöffnet …';
+
+  @override
+  String get linkUnresolved => 'Der Ort in diesem Link wurde nicht gefunden.';
+
+  @override
+  String get shareAs => 'Teilen als';
+
+  @override
+  String get shareOverworldLink => 'Overworld-Link';
+
+  @override
+  String get shareOverworldHint => 'Öffnet sich in Overworld oder auf einer Kartenseite';
+
+  @override
+  String get shareGoogleLink => 'Google-Maps-Link';
+
+  @override
+  String get shareAppleLink => 'Apple-Karten-Link';
+
+  @override
+  String get shareOsmLink => 'OpenStreetMap-Link';
+
+  @override
+  String get shareCoordinates => 'Nur Koordinaten';
+
+  @override
+  String get openInGoogleMaps => 'In Google Maps öffnen';
+
+  @override
+  String get openInAppleMaps => 'In Apple Karten öffnen';
+
+  @override
+  String get copyGoogleLink => 'Google-Maps-Link kopieren';
+
+  @override
+  String get linkCopied => 'Link kopiert';
+
+  @override
+  String get pasteMapLink => 'Kartenlink einfügen';
+
+  @override
+  String get pasteMapLinkHint => 'Google Maps, Apple Karten, Waze, OpenStreetMap oder Koordinaten';
+
+  @override
+  String get defaultMapsApp => 'Standard-Karten-App';
+
+  @override
+  String get defaultMapsAppHintAndroid =>
+      'Wenn sich ein Kartenlink öffnet, Overworld und „Immer“ wählen. Tippen, um auch Links von Google Maps, Apple Karten, Waze und OSM zuzulassen.';
+
+  @override
+  String get defaultMapsAppHintIos =>
+      'Einstellungen → Apps → Standard-Apps → Navigation (EU und Japan). Anderswo Orte an Overworld teilen oder Links einfügen.';
 }

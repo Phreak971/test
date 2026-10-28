@@ -74,6 +74,27 @@ people into the app:
    map links in Overworld). Pasting any of them, or `lat, lng`, into search
    jumps to the spot.
 
+**Default maps app & link porting.**
+
+- *Android:* Overworld handles `geo:`, `google.navigation:` and map links from
+  Google Maps (incl. `maps.app.goo.gl`, `share.google`, `goo.gl/maps`), Apple
+  Maps, Waze and OpenStreetMap. Pick it with "Always" in the chooser to make it
+  the default maps app. Google Maps owns its own links, so on phones with
+  Google Maps installed use its **Share → Open in Overworld** (share target),
+  or allow the domains in Settings → Default maps app.
+- *iOS:* registered as a navigation app (`com.apple.developer.navigation-app`
+  entitlement + `geo-navigation://`), selectable under Settings → Apps →
+  Default Apps → Navigation in the EU (iOS 18.4+) and Japan (iOS 26.2+). The
+  provisioning profile needs that capability. Elsewhere: paste links in search.
+- `LinkResolver` expands short links by following redirects (unwrapping
+  Android `intent://` fallbacks and consent pages) and geocodes Google place
+  URLs that carry only "Name, Address" (full text → name + city → address →
+  nearby name). `LIVE=1 flutter test test/live --run-skipped` checks real links.
+- Export: Share → Overworld / Google Maps (`/maps/search/?api=1&query=lat,lng`,
+  Google's documented cross-platform URL) / Apple Maps / OpenStreetMap link or
+  coordinates; the place sheet also has Open in Google/Apple Maps and Copy
+  Google Maps link.
+
 **Enable the site:** repository Settings → Pages → *Deploy from a branch* →
 pick the branch and the `/docs` folder. It also serves the privacy policy and
 terms the app links to.
