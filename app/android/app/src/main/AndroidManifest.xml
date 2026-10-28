@@ -34,12 +34,57 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+            <!-- Links are handled by app_links, not Flutter's router. -->
+            <meta-data android:name="flutter_deeplinking_enabled" android:value="false"/>
             <!-- Open geo: links (e.g. "Open in maps" from other apps). -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="geo"/>
+            </intent-filter>
+            <!-- overworld://place?lat=..&lng=..&n=.. (from the share landing page). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="overworld" android:host="place"/>
+            </intent-filter>
+            <!-- Our own share links. Verified App Link once the host serves
+                 /.well-known/assetlinks.json with this app's signing key;
+                 until then Android opens the landing page, which hands off
+                 to the app. Host/path come from gradle properties. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https"/>
+                <data android:host="${shareHost}"/>
+                <data android:pathPrefix="${sharePathPrefix}"/>
+            </intent-filter>
+            <!-- Other map services' links: offered in "Open with", and opened
+                 directly once the user allows these links in system settings
+                 (Settings → Open map links in Overworld). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https"/>
+                <data android:scheme="http"/>
+                <data android:host="www.openstreetmap.org"/>
+                <data android:host="openstreetmap.org"/>
+                <data android:host="osm.org"/>
+                <data android:host="maps.apple.com"/>
+                <data android:host="maps.google.com"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https"/>
+                <data android:host="www.google.com"/>
+                <data android:host="google.com"/>
+                <data android:pathPrefix="/maps"/>
             </intent-filter>
         </activity>
         <!-- Launcher entries. Each selectable app icon is an activity-alias;

@@ -821,4 +821,10 @@ class LTr extends L {
 
   @override
   String get voiceTaglineArchmage => 'Sert, parlak, yanlış dönüşlerde puan kırar';
+
+  @override
+  String get openMapLinks => 'Harita bağlantılarını Overworld\'de aç';
+
+  @override
+  String get openMapLinksHint => 'OpenStreetMap, Google Haritalar ve Apple Haritalar bağlantılarına izin ver';
 }

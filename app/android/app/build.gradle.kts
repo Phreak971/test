@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -26,6 +28,29 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // Share-link domain for App Links (see AndroidManifest.xml and docs/).
+        manifestPlaceholders["shareHost"] = (project.findProperty("overworld.shareHost") ?: "phreak971.github.io").toString()
+        manifestPlaceholders["sharePathPrefix"] = (project.findProperty("overworld.sharePathPrefix") ?: "/test/p").toString()
+    }
+
+    // Release signing from android/key.properties or OVERWORLD_* environment
+    // variables (CI). A stable key lets installs update in place and is what
+    // assetlinks.json vouches for. Without one, release builds use the debug key.
+    val keyProps = Properties().apply {
+        val f = rootProject.file("key.properties")
+        if (f.exists()) f.inputStream().use { load(it) }
+    }
+    fun signingValue(prop: String, env: String): String? = keyProps.getProperty(prop) ?: System.getenv(env)
+    val storePath = signingValue("storeFile", "OVERWORLD_KEYSTORE")
+    signingConfigs {
+        if (storePath != null && file(storePath).exists()) {
+            create("release") {
+                storeFile = file(storePath)
+                storePassword = signingValue("storePassword", "OVERWORLD_KEYSTORE_PASSWORD")
+                keyAlias = signingValue("keyAlias", "OVERWORLD_KEY_ALIAS")
+                keyPassword = signingValue("keyPassword", "OVERWORLD_KEY_PASSWORD")
+            }
+        }
     }
 
     testOptions {
@@ -34,9 +59,7 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
         }
     }
 }

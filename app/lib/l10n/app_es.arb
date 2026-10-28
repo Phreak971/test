@@ -266,5 +266,7 @@
   "voiceTaglineElvenqueen": "Habla desde los bosques de plata",
   "voiceTaglineDwarflord": "Gruñón, ruidoso, odia los rodeos",
   "voiceTaglineHalfling": "Alegre, curioso, siempre hambriento",
-  "voiceTaglineArchmage": "Estricta, brillante, resta puntos por cada giro equivocado"
+  "voiceTaglineArchmage": "Estricta, brillante, resta puntos por cada giro equivocado",
+  "openMapLinks": "Abrir enlaces de mapas en Overworld",
+  "openMapLinksHint": "Permite enlaces de OpenStreetMap, Google Maps y Mapas de Apple"
 }

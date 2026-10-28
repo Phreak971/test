@@ -1697,6 +1697,18 @@ abstract class L {
   /// In en, this message translates to:
   /// **'Stern, brilliant, docks points for wrong turns'**
   String get voiceTaglineArchmage;
+
+  /// No description provided for @openMapLinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Open map links in Overworld'**
+  String get openMapLinks;
+
+  /// No description provided for @openMapLinksHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow OpenStreetMap, Google Maps and Apple Maps links'**
+  String get openMapLinksHint;
 }
 
 class _LDelegate extends LocalizationsDelegate<L> {

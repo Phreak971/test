@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'config.dart';
 import 'core/geo_uri.dart';
+import 'core/map_link.dart';
 import 'l10n/app_localizations.dart';
 import 'state/providers.dart';
 import 'ui/home/home_screen.dart';
@@ -51,7 +52,7 @@ class _OverworldAppState extends ConsumerState<OverworldApp> {
     if (!kIsWeb) {
       try {
         _links = AppLinks().uriLinkStream.listen((uri) {
-          final g = GeoUri.parse(uri.toString());
+          final g = MapLinks.parse(uri.toString());
           if (g != null) ref.read(pendingGeoLinkProvider.notifier).set(g);
         }, onError: (Object _) {});
       } catch (_) {

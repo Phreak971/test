@@ -266,5 +266,7 @@
   "voiceTaglineElvenqueen": "Sa voix vient des bois d’argent",
   "voiceTaglineDwarflord": "Bourru, bruyant, déteste les détours",
   "voiceTaglineHalfling": "Joyeux, curieux, toujours affamé",
-  "voiceTaglineArchmage": "Sévère, brillante, retire des points pour chaque erreur"
+  "voiceTaglineArchmage": "Sévère, brillante, retire des points pour chaque erreur",
+  "openMapLinks": "Ouvrir les liens de carte dans Overworld",
+  "openMapLinksHint": "Autorisez les liens OpenStreetMap, Google Maps et Apple Plans"
 }

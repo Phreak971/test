@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.overworld.maps",
+      "sha256_cert_fingerprints": [
+        "39:9F:DD:1A:12:38:07:DF:13:F3:C2:E0:C1:9F:1E:72:D2:DA:60:91:8C:8A:F9:B1:52:FE:09:B6:63:22:74:D1"
+      ]
+    }
+  }
+]

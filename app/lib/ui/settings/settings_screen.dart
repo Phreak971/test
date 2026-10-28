@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:share_plus/share_plus.dart';
@@ -21,6 +22,15 @@ import 'voice_screen.dart';
 const appVersion = String.fromEnvironment('APP_VERSION', defaultValue: '1.0.0');
 
 bool get _isIOS => !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+
+/// Android 12+ "Open by default" screen, where people allow this app to
+/// open links from other map services.
+Future<void> openLinkSettings() async {
+  try {
+    await const MethodChannel('overworld/system').invokeMethod<bool>('openLinkSettings');
+  } on PlatformException catch (_) {
+  } on MissingPluginException catch (_) {}
+}
 
 Future<void> openStoreReview() async {
   final review = InAppReview.instance;
@@ -65,7 +75,11 @@ class SettingsScreen extends ConsumerWidget {
                 if (value != null)
                   ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: mq.size.width * 0.35),
-                    child: Text(value, style: TextStyle(color: hud.muted, fontSize: 15), overflow: TextOverflow.ellipsis),
+                    child: Text(
+                      value,
+                      style: TextStyle(color: hud.muted, fontSize: 15),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 if (onTap != null) Icon(Icons.chevron_right_rounded, color: hud.muted),
               ],
@@ -135,6 +149,18 @@ class SettingsScreen extends ConsumerWidget {
                   _isIOS ? l.carSettingsIos : l.carSettingsAndroid,
                   onTap: () => push(const CarSettingsScreen()),
                 ),
+                if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android)
+                  ListTile(
+                    minTileHeight: 56,
+                    leading: Icon(Icons.link_rounded, color: hud.accentText),
+                    title: Text(
+                      l.openMapLinks,
+                      style: TextStyle(color: hud.text, fontWeight: FontWeight.w600, fontSize: 16),
+                    ),
+                    subtitle: Text(l.openMapLinksHint, style: TextStyle(color: hud.muted)),
+                    trailing: Icon(Icons.open_in_new_rounded, color: hud.muted),
+                    onTap: openLinkSettings,
+                  ),
                 HudSectionHeader(hud: hud, text: l.sectionSupport),
                 tile(Icons.star_rounded, l.rateUs, onTap: openStoreReview),
                 tile(

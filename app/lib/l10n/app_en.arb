@@ -307,5 +307,7 @@
   "voiceTaglineElvenqueen": "Speaks from the silver woods",
   "voiceTaglineDwarflord": "Gruff, loud, hates long detours",
   "voiceTaglineHalfling": "Cheerful, curious, always hungry",
-  "voiceTaglineArchmage": "Stern, brilliant, docks points for wrong turns"
+  "voiceTaglineArchmage": "Stern, brilliant, docks points for wrong turns",
+  "openMapLinks": "Open map links in Overworld",
+  "openMapLinksHint": "Allow OpenStreetMap, Google Maps and Apple Maps links"
 }

@@ -266,5 +266,7 @@
   "voiceTaglineElvenqueen": "Spricht aus den silbernen Wäldern",
   "voiceTaglineDwarflord": "Brummig, laut, hasst Umwege",
   "voiceTaglineHalfling": "Fröhlich, neugierig, immer hungrig",
-  "voiceTaglineArchmage": "Streng, brillant, zieht Punkte für falsches Abbiegen ab"
+  "voiceTaglineArchmage": "Streng, brillant, zieht Punkte für falsches Abbiegen ab",
+  "openMapLinks": "Kartenlinks in Overworld öffnen",
+  "openMapLinksHint": "Links von OpenStreetMap, Google Maps und Apple Karten zulassen"
 }

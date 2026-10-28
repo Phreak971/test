@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../config.dart';
 import '../../core/geo.dart';
+import '../../core/map_link.dart';
 import '../../core/units.dart';
 import '../../data/models.dart';
 import '../../l10n/app_localizations.dart';
@@ -11,10 +13,8 @@ import '../../state/location.dart';
 import '../../state/providers.dart';
 import '../hud.dart';
 
-/// Shareable link that opens anywhere (no proprietary map links).
-Uri osmLink(Geo g) => Uri.parse(
-  'https://www.openstreetmap.org/?mlat=${g.lat.toStringAsFixed(6)}&mlon=${g.lng.toStringAsFixed(6)}#map=17/${g.lat.toStringAsFixed(6)}/${g.lng.toStringAsFixed(6)}',
-);
+/// Shareable link: opens Overworld when installed, a map page otherwise.
+Uri placeShareLink(Place p) => MapLinks(AppConfig.shareBaseUrl).shareLink(p.location, name: p.isPinned ? null : p.name);
 
 /// Finds a saved place at (almost) the same spot.
 SavedPlace? savedMatch(List<SavedPlace> saved, Place p) {
@@ -147,7 +147,7 @@ class PlacePanel extends ConsumerWidget {
                     final box = context.findRenderObject() as RenderBox?;
                     SharePlus.instance.share(
                       ShareParams(
-                        text: [title, ?place.address, osmLink(place.location).toString()].join('\n'),
+                        text: [title, ?place.address, placeShareLink(place).toString()].join('\n'),
                         sharePositionOrigin: box == null ? null : box.localToGlobal(Offset.zero) & box.size,
                       ),
                     );

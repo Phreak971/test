@@ -827,4 +827,10 @@ class LEs extends L {
 
   @override
   String get voiceTaglineArchmage => 'Estricta, brillante, resta puntos por cada giro equivocado';
+
+  @override
+  String get openMapLinks => 'Abrir enlaces de mapas en Overworld';
+
+  @override
+  String get openMapLinksHint => 'Permite enlaces de OpenStreetMap, Google Maps y Mapas de Apple';
 }

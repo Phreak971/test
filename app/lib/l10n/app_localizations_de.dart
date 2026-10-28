@@ -828,4 +828,10 @@ class LDe extends L {
 
   @override
   String get voiceTaglineArchmage => 'Streng, brillant, zieht Punkte für falsches Abbiegen ab';
+
+  @override
+  String get openMapLinks => 'Kartenlinks in Overworld öffnen';
+
+  @override
+  String get openMapLinksHint => 'Links von OpenStreetMap, Google Maps und Apple Karten zulassen';
 }

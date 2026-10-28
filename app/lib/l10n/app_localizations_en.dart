@@ -821,4 +821,10 @@ class LEn extends L {
 
   @override
   String get voiceTaglineArchmage => 'Stern, brilliant, docks points for wrong turns';
+
+  @override
+  String get openMapLinks => 'Open map links in Overworld';
+
+  @override
+  String get openMapLinksHint => 'Allow OpenStreetMap, Google Maps and Apple Maps links';
 }

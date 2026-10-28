@@ -1,0 +1,13 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["TEAMID.app.overworld.maps"],
+        "components": [
+          { "/": "/p/*", "comment": "Shared places (site at the domain root)" },
+          { "/": "/test/p/*", "comment": "Shared places (GitHub project page)" }
+        ]
+      }
+    ]
+  }
+}

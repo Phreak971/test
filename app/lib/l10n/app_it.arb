@@ -266,5 +266,7 @@
   "voiceTaglineElvenqueen": "Parla dai boschi d’argento",
   "voiceTaglineDwarflord": "Burbero, rumoroso, odia le deviazioni",
   "voiceTaglineHalfling": "Allegro, curioso, sempre affamato",
-  "voiceTaglineArchmage": "Severa, brillante, toglie punti per ogni svolta sbagliata"
+  "voiceTaglineArchmage": "Severa, brillante, toglie punti per ogni svolta sbagliata",
+  "openMapLinks": "Apri i link delle mappe in Overworld",
+  "openMapLinksHint": "Consenti i link di OpenStreetMap, Google Maps e Mappe di Apple"
 }

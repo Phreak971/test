@@ -1,1 +1,4 @@
 #include "Generated.xcconfig"
+
+// Share-link domain for Universal Links (Runner.entitlements, docs/).
+SHARE_LINK_HOST = phreak971.github.io

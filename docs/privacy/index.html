@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy · Overworld</title>
+<meta name="description" content="How Overworld handles your data.">
+<style>
+  :root { --bg:#f4f1ea; --card:#fff; --text:#1d1b16; --muted:#6b6457; --line:#e3ddd0; --accent:#2f62d9; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0b0d12; --card:#151922; --text:#e9edf4; --muted:#9aa3b2; --line:#262c38; --accent:#7ed957; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  main { max-width:720px; margin:0 auto; padding:24px 16px 48px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:20px 22px; margin-top:16px; }
+  h1 { font-size:30px; line-height:1.15; margin:8px 0 4px; } h2 { font-size:19px; margin:24px 0 6px; }
+  p, li { color:var(--text); } .muted { color:var(--muted); } a { color:var(--accent); }
+  nav { display:flex; gap:16px; flex-wrap:wrap; font-weight:600; }
+  .brand { font-weight:800; letter-spacing:.04em; text-transform:uppercase; font-size:13px; color:var(--muted); }
+</style>
+</head>
+<body><main>
+<div class="brand">Overworld</div>
+
+<h1>Privacy</h1>
+<p class="muted">Last updated 28 October 2026</p>
+<div class="card">
+<p>Overworld has no accounts, ads, analytics or tracking. Your saved places, search history and settings stay on your device. "Clean my data" in Settings deletes them.</p>
+<h2>Location</h2>
+<p>Your location is used on your device to show where you are and to guide you. It is only sent to a service when it's needed to answer a request, as described below. Overworld never stores or sells it.</p>
+<h2>Services the app talks to</h2>
+<ul>
+<li><b>Map tiles</b> from OpenFreeMap (tiles.openfreemap.org): the map area you are viewing.</li>
+<li><b>Search</b> with Photon (photon.komoot.io) and Nominatim (nominatim.openstreetmap.org): what you type, and an approximate position to rank nearby results.</li>
+<li><b>Routing</b> with OSRM (router.project-osrm.org): the start and end points of a route.</li>
+</ul>
+<p>These services receive your device's IP address like any website does, and each has its own privacy policy. Overworld doesn't send them any identifier.</p>
+<h2>Sharing</h2>
+<p>When you share a place, the link contains its coordinates and name. Opening the link loads a page from this site, which shows an OpenStreetMap map of that place.</p>
+<h2>Car displays</h2>
+<p>With CarPlay or Android Auto, the app passes the same information to your car's display. It stays on your phone and in the car.</p>
+<h2>Contact</h2>
+<p>Questions: open an issue at <a href="https://github.com/Phreak971/test/issues">github.com/Phreak971/test</a>.</p>
+</div>
+<p class="muted" style="margin-top:28px"><nav><a href="../">Home</a><a href="../privacy/">Privacy</a><a href="../terms/">Terms</a><a href="https://github.com/Phreak971/test">Source code</a></nav></p>
+</main></body></html>

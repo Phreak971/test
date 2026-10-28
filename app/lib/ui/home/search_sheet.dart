@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/geo.dart';
+import '../../core/geo_uri.dart';
+import '../../core/map_link.dart';
 import '../../core/units.dart';
 import '../../data/models.dart';
 import '../../l10n/app_localizations.dart';
@@ -122,14 +124,39 @@ class _SearchSheetState extends ConsumerState<SearchSheet> {
     _debounce = Timer(const Duration(milliseconds: 300), () => _runQuery(q));
   }
 
+  /// A pasted map link (Overworld, OSM, Google, Apple, geo:) or typed
+  /// "lat, lng" goes straight to that spot instead of a text search.
+  Place? _linkedPlace(String q) {
+    final link = MapLinks.parse(q) ?? GeoUri.parse('geo:0,0?q=${Uri.encodeQueryComponent(q.trim())}');
+    final at = link?.point;
+    if (at == null) return null;
+    return Place(
+      id: 'link:${at.lat.toStringAsFixed(6)},${at.lng.toStringAsFixed(6)}',
+      name: link!.label ?? L.of(context).pinnedLocation,
+      location: at,
+      isPinned: link.label == null,
+    );
+  }
+
   Future<void> _runQuery(String q) async {
     final token = ++_token;
+    final linked = _linkedPlace(q);
+    if (linked != null) {
+      setState(() {
+        _results = [linked];
+        _loading = false;
+        _error = false;
+      });
+      return;
+    }
+    // A link to a search ("maps.google.com/?q=pizza") searches its text.
+    final text = MapLinks.parse(q)?.query ?? q;
     setState(() {
       _loading = true;
       _error = false;
     });
     try {
-      final r = await ref.read(searchServiceProvider).autocomplete(q, near: widget.center, lang: _lang);
+      final r = await ref.read(searchServiceProvider).autocomplete(text, near: widget.center, lang: _lang);
       if (!mounted || token != _token) return;
       setState(() {
         _results = r;

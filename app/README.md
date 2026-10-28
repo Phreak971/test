@@ -51,6 +51,39 @@ host: OpenFreeMap tiles (self-host or a commercial tile host), Photon /
 Nominatim (self-host or a geocoding provider), OSRM (self-host). Attribution
 to OpenStreetMap contributors is shown on the map and must stay.
 
+**Shared place links.** Sharing a place sends an Overworld link
+(`SHARE_BASE_URL`, default `https://phreak971.github.io/test/p/?lat=..&lng=..&n=..`)
+instead of an OpenStreetMap one, because only a domain we control can send
+people into the app:
+
+1. The landing page (`/docs/p/index.html`, served by GitHub Pages) hands the
+   place to the app: on Android with an `intent://` URL that comes back to the
+   page if the app isn't installed, and on iOS with an "Open in Overworld"
+   button (`overworld://place?...`). Without the app it shows the place on an
+   OpenStreetMap embed with OpenStreetMap / Google / Apple Maps buttons.
+2. **Verified links skip the browser entirely.** Android App Links need
+   `/.well-known/assetlinks.json` at the *domain root*, with the SHA-256 of
+   the key that signs the APK. iOS Universal Links need
+   `/.well-known/apple-app-site-association` (replace `TEAMID`) and the
+   Associated Domains capability. A GitHub *project* page (`/test/`) is not a
+   domain root, so give Pages a custom domain, then set it in
+   `-Poverworld.shareHost=… -Poverworld.sharePathPrefix=/p`,
+   `SHARE_LINK_HOST` (`ios/Flutter/*.xcconfig`) and `--dart-define=SHARE_BASE_URL=…`.
+3. Incoming OpenStreetMap, Google Maps, Apple Maps and `geo:` links open the
+   app too (Android "Open with", or always once allowed under Settings → Open
+   map links in Overworld). Pasting any of them, or `lat, lng`, into search
+   jumps to the spot.
+
+**Enable the site:** repository Settings → Pages → *Deploy from a branch* →
+pick the branch and the `/docs` folder. It also serves the privacy policy and
+terms the app links to.
+
+**Release signing.** Release builds use `android/key.properties`
+(`storeFile`, `storePassword`, `keyAlias`, `keyPassword`) or the
+`OVERWORLD_KEYSTORE*` / `OVERWORLD_KEY_*` environment variables, and fall
+back to the debug key. Use one stable key so installs update in place and so
+`assetlinks.json` can name it (`keytool -list -v -keystore … | grep SHA256`).
+
 **CarPlay** requires Apple's CarPlay *navigation* entitlement
 (`com.apple.developer.carplay-maps`) on your provisioning profile; device
 builds won't sign until it's granted. **Android Auto** navigation apps must

@@ -827,4 +827,10 @@ class LIt extends L {
 
   @override
   String get voiceTaglineArchmage => 'Severa, brillante, toglie punti per ogni svolta sbagliata';
+
+  @override
+  String get openMapLinks => 'Apri i link delle mappe in Overworld';
+
+  @override
+  String get openMapLinksHint => 'Consenti i link di OpenStreetMap, Google Maps e Mappe di Apple';
 }

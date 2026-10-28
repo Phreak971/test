@@ -822,4 +822,10 @@ class LFr extends L {
 
   @override
   String get voiceTaglineArchmage => 'Sévère, brillante, retire des points pour chaque erreur';
+
+  @override
+  String get openMapLinks => 'Ouvrir les liens de carte dans Overworld';
+
+  @override
+  String get openMapLinksHint => 'Autorisez les liens OpenStreetMap, Google Maps et Apple Plans';
 }
