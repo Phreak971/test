@@ -746,4 +746,79 @@ class LTr extends L {
 
   @override
   String get freeBannerBody => 'Tüm haritalar, sesler ve özellikler. Reklam yok, ödeme duvarı yok.';
+
+  @override
+  String get themeGenreStarDominion => 'Uzay imparatorluğu';
+
+  @override
+  String get themeTaglineStarDominion => 'İmparatorluğun kara çeliği ve kızıl ışığı';
+
+  @override
+  String get themeGenreRebelHolo => 'Uzay isyanı';
+
+  @override
+  String get themeTaglineRebelHolo => 'Hedef bölgenin titreyen mavi hologramı';
+
+  @override
+  String get themeGenreTwinSuns => 'Uzay westerni';
+
+  @override
+  String get themeTaglineTwinSuns => 'Uzak bir çöl dünyasında güneşte kavrulmuş karakol';
+
+  @override
+  String get themeGenreMiddleRealm => 'Yüksek fantastik';
+
+  @override
+  String get themeTaglineMiddleRealm => 'Elfler ve krallar diyarının mürekkeple çizilmiş haritası';
+
+  @override
+  String get themeGenreShadowlands => 'Karanlık lordun diyarı';
+
+  @override
+  String get themeTaglineShadowlands => 'Gözetleyen bir kulenin altında kül ovaları ve ateş nehirleri';
+
+  @override
+  String get themeGenreElvenWood => 'Elf diyarı';
+
+  @override
+  String get themeTaglineElvenWood => 'Gizli vadide gümüş huş ağaçları ve altın ışık';
+
+  @override
+  String get themeGenreArcaneAcademy => 'Büyücülük okulu';
+
+  @override
+  String get themeTaglineArcaneAcademy => 'Mum ışığında koridorlar, hareket eden merdivenler ve gizli geçitler';
+
+  @override
+  String get voiceTaglineDarklord => 'İmparatorluğun yollarına hükmeder. Ağır ağır nefes alır.';
+
+  @override
+  String get voiceTaglineStarknight => 'İçgüdülerine güvenen sakin bir akıl hocası';
+
+  @override
+  String get voiceTaglineSwampsage => 'Kadim, minicik, tersten konuşur';
+
+  @override
+  String get voiceTaglineProtodroid => 'Altı milyon trafik işaretini bilir. Endişeli.';
+
+  @override
+  String get voiceTaglineSmuggler => 'Sektörün en hızlı gemisi. Çoğunlukla sağlam.';
+
+  @override
+  String get voiceTaglineBountyhunter => 'Az konuşur. Hiçbir dönüşü kaçırmaz.';
+
+  @override
+  String get voiceTaglineGreywizard => 'Yaşlı, bilge ve uzun yolculukların dostu';
+
+  @override
+  String get voiceTaglineElvenqueen => 'Gümüş ormanlardan seslenir';
+
+  @override
+  String get voiceTaglineDwarflord => 'Huysuz, gürültücü, uzun sapaklardan nefret eder';
+
+  @override
+  String get voiceTaglineHalfling => 'Neşeli, meraklı, hep aç';
+
+  @override
+  String get voiceTaglineArchmage => 'Sert, parlak, yanlış dönüşlerde puan kırar';
 }

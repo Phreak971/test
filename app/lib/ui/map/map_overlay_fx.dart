@@ -41,7 +41,12 @@ class _FxPainter extends CustomPainter {
         for (var y = 0.0; y < size.height; y += 3) {
           canvas.drawRect(Rect.fromLTWH(0, y, size.width, 1), line);
         }
-        _vignette(canvas, rect, Color(palette.accent).withValues(alpha: 0.10), Colors.black.withValues(alpha: palette.isDark ? 0.55 : 0.18));
+        _vignette(
+          canvas,
+          rect,
+          Color(palette.accent).withValues(alpha: 0.10),
+          Colors.black.withValues(alpha: palette.isDark ? 0.55 : 0.18),
+        );
       case MapOverlay.parchment:
         // Warm wash, fibre speckle, burnt edges.
         canvas.drawRect(rect, Paint()..color = const Color(0xFF8B5A2B).withValues(alpha: 0.06));
@@ -102,6 +107,72 @@ class _FxPainter extends CustomPainter {
         for (var y = 0.0; y < size.height; y += 4) {
           canvas.drawRect(Rect.fromLTWH(0, y, size.width, 1), line);
         }
+      case MapOverlay.starfield:
+        // Stars only toward the edges so the map centre stays readable.
+        _vignette(canvas, rect, Colors.transparent, Colors.black.withValues(alpha: palette.isDark ? 0.6 : 0.2));
+        final rnd = math.Random(42);
+        final star = Paint();
+        final c = rect.center;
+        final reach = size.shortestSide * 0.5;
+        for (var i = 0; i < 260; i++) {
+          final p = Offset(rnd.nextDouble() * size.width, rnd.nextDouble() * size.height);
+          final edge = ((p - c).distance / reach - 0.7).clamp(0.0, 1.0);
+          if (edge == 0) continue;
+          star.color = Colors.white.withValues(alpha: edge * (0.25 + rnd.nextDouble() * 0.55));
+          canvas.drawCircle(p, 0.5 + rnd.nextDouble() * 1.1, star);
+        }
+      case MapOverlay.hologram:
+        final tint = Color(palette.accent);
+        final line = Paint()..color = tint.withValues(alpha: 0.06);
+        for (var y = 0.0; y < size.height; y += 3) {
+          canvas.drawRect(Rect.fromLTWH(0, y, size.width, 1), line);
+        }
+        // Projector glow from the bottom edge.
+        canvas.drawRect(
+          rect,
+          Paint()
+            ..shader = LinearGradient(
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              colors: [tint.withValues(alpha: 0.16), Colors.transparent],
+              stops: const [0, 0.45],
+            ).createShader(rect),
+        );
+        _vignette(canvas, rect, Colors.transparent, Colors.black.withValues(alpha: 0.5));
+      case MapOverlay.embers:
+        _vignette(canvas, rect, Colors.transparent, const Color(0xFF3A0A00).withValues(alpha: 0.6));
+        final rnd = math.Random(13);
+        final ember = Paint()..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.5);
+        for (var i = 0; i < 70; i++) {
+          // Denser near the bottom, like rising sparks.
+          final y = size.height * (1 - math.pow(rnd.nextDouble(), 2) * 0.55);
+          final p = Offset(rnd.nextDouble() * size.width, y);
+          ember.color = Color.lerp(
+            const Color(0xFFFF6A1A),
+            const Color(0xFFFFD54F),
+            rnd.nextDouble(),
+          )!.withValues(alpha: 0.25 + rnd.nextDouble() * 0.35);
+          canvas.drawCircle(p, 0.8 + rnd.nextDouble() * 1.6, ember);
+        }
+      case MapOverlay.mist:
+        canvas.drawRect(
+          rect,
+          Paint()
+            ..shader = LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [const Color(0xFFFFF8E1).withValues(alpha: 0.35), Colors.transparent, Colors.white.withValues(alpha: 0.18)],
+              stops: const [0, 0.35, 1],
+            ).createShader(rect),
+        );
+        _vignette(canvas, rect, Colors.transparent, const Color(0xFF2F4A3A).withValues(alpha: palette.isDark ? 0.45 : 0.14));
+      case MapOverlay.candlelight:
+        _vignette(
+          canvas,
+          rect,
+          const Color(0xFFFFB74D).withValues(alpha: palette.isDark ? 0.07 : 0.04),
+          const Color(0xFF0A0510).withValues(alpha: palette.isDark ? 0.6 : 0.2),
+        );
     }
   }
 

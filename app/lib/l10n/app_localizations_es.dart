@@ -752,4 +752,79 @@ class LEs extends L {
 
   @override
   String get freeBannerBody => 'Todos los mapas, voces y funciones. Sin anuncios ni muros de pago.';
+
+  @override
+  String get themeGenreStarDominion => 'Imperio espacial';
+
+  @override
+  String get themeTaglineStarDominion => 'Acero negro y luz carmesí del imperio';
+
+  @override
+  String get themeGenreRebelHolo => 'Rebelión espacial';
+
+  @override
+  String get themeTaglineRebelHolo => 'Un holograma azul parpadeante de la zona objetivo';
+
+  @override
+  String get themeGenreTwinSuns => 'Western espacial';
+
+  @override
+  String get themeTaglineTwinSuns => 'Un puesto avanzado abrasado por el sol en un lejano mundo desértico';
+
+  @override
+  String get themeGenreMiddleRealm => 'Alta fantasía';
+
+  @override
+  String get themeTaglineMiddleRealm => 'Un mapa a tinta de un reino de elfos y reyes';
+
+  @override
+  String get themeGenreShadowlands => 'Reino del señor oscuro';
+
+  @override
+  String get themeTaglineShadowlands => 'Llanuras de ceniza y ríos de fuego bajo una torre vigilante';
+
+  @override
+  String get themeGenreElvenWood => 'Reino élfico';
+
+  @override
+  String get themeTaglineElvenWood => 'Abedules plateados y luz dorada en el valle oculto';
+
+  @override
+  String get themeGenreArcaneAcademy => 'Escuela de magia';
+
+  @override
+  String get themeTaglineArcaneAcademy => 'Pasillos a la luz de las velas, escaleras que se mueven y pasadizos secretos';
+
+  @override
+  String get voiceTaglineDarklord => 'Gobierna las carreteras del imperio. Respira con fuerza.';
+
+  @override
+  String get voiceTaglineStarknight => 'Un mentor sereno que confía en tu instinto';
+
+  @override
+  String get voiceTaglineSwampsage => 'Antiguo, diminuto, habla al revés';
+
+  @override
+  String get voiceTaglineProtodroid => 'Domina seis millones de señales de tráfico. Preocupado.';
+
+  @override
+  String get voiceTaglineSmuggler => 'La nave más rápida del sector. Casi de una pieza.';
+
+  @override
+  String get voiceTaglineBountyhunter => 'Pocas palabras. Nunca se pierde un giro.';
+
+  @override
+  String get voiceTaglineGreywizard => 'Viejo, sabio y amante de los largos viajes';
+
+  @override
+  String get voiceTaglineElvenqueen => 'Habla desde los bosques de plata';
+
+  @override
+  String get voiceTaglineDwarflord => 'Gruñón, ruidoso, odia los rodeos';
+
+  @override
+  String get voiceTaglineHalfling => 'Alegre, curioso, siempre hambriento';
+
+  @override
+  String get voiceTaglineArchmage => 'Estricta, brillante, resta puntos por cada giro equivocado';
 }

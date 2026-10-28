@@ -746,4 +746,79 @@ class LEn extends L {
 
   @override
   String get freeBannerBody => 'Every map, voice and feature. No ads, no paywalls.';
+
+  @override
+  String get themeGenreStarDominion => 'Space empire';
+
+  @override
+  String get themeTaglineStarDominion => 'Black steel and crimson light of the empire';
+
+  @override
+  String get themeGenreRebelHolo => 'Space rebellion';
+
+  @override
+  String get themeTaglineRebelHolo => 'A flickering blue hologram of the target zone';
+
+  @override
+  String get themeGenreTwinSuns => 'Space western';
+
+  @override
+  String get themeTaglineTwinSuns => 'Sun-scorched outpost on a far desert world';
+
+  @override
+  String get themeGenreMiddleRealm => 'High fantasy';
+
+  @override
+  String get themeTaglineMiddleRealm => 'An inked map of a realm of elves and kings';
+
+  @override
+  String get themeGenreShadowlands => 'Dark lord\'s realm';
+
+  @override
+  String get themeTaglineShadowlands => 'Ash plains and rivers of fire under a watching tower';
+
+  @override
+  String get themeGenreElvenWood => 'Elven realm';
+
+  @override
+  String get themeTaglineElvenWood => 'Silver birches and golden light in the hidden valley';
+
+  @override
+  String get themeGenreArcaneAcademy => 'Wizarding school';
+
+  @override
+  String get themeTaglineArcaneAcademy => 'Candlelit corridors, moving stairs and secret passages';
+
+  @override
+  String get voiceTaglineDarklord => 'Commands the empire\'s roads. Breathes heavily.';
+
+  @override
+  String get voiceTaglineStarknight => 'A calm mentor who trusts your instincts';
+
+  @override
+  String get voiceTaglineSwampsage => 'Ancient, tiny, speaks backwards';
+
+  @override
+  String get voiceTaglineProtodroid => 'Fluent in six million road signs. Worried.';
+
+  @override
+  String get voiceTaglineSmuggler => 'Fastest ride in the sector. Mostly in one piece.';
+
+  @override
+  String get voiceTaglineBountyhunter => 'Few words. Never misses a turn.';
+
+  @override
+  String get voiceTaglineGreywizard => 'Old, wise, and fond of long journeys';
+
+  @override
+  String get voiceTaglineElvenqueen => 'Speaks from the silver woods';
+
+  @override
+  String get voiceTaglineDwarflord => 'Gruff, loud, hates long detours';
+
+  @override
+  String get voiceTaglineHalfling => 'Cheerful, curious, always hungry';
+
+  @override
+  String get voiceTaglineArchmage => 'Stern, brilliant, docks points for wrong turns';
 }

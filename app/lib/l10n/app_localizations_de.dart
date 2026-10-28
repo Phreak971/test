@@ -753,4 +753,79 @@ class LDe extends L {
 
   @override
   String get freeBannerBody => 'Alle Karten, Stimmen und Funktionen. Keine Werbung, keine Bezahlschranke.';
+
+  @override
+  String get themeGenreStarDominion => 'Sternenimperium';
+
+  @override
+  String get themeTaglineStarDominion => 'Schwarzer Stahl und purpurnes Licht des Imperiums';
+
+  @override
+  String get themeGenreRebelHolo => 'Weltraumrebellion';
+
+  @override
+  String get themeTaglineRebelHolo => 'Ein flackerndes blaues Hologramm des Zielgebiets';
+
+  @override
+  String get themeGenreTwinSuns => 'Weltraum-Western';
+
+  @override
+  String get themeTaglineTwinSuns => 'Sonnenverbrannter Außenposten auf einer fernen Wüstenwelt';
+
+  @override
+  String get themeGenreMiddleRealm => 'High Fantasy';
+
+  @override
+  String get themeTaglineMiddleRealm => 'Eine Tuschekarte eines Reichs der Elben und Könige';
+
+  @override
+  String get themeGenreShadowlands => 'Reich des dunklen Herrschers';
+
+  @override
+  String get themeTaglineShadowlands => 'Aschebenen und Feuerflüsse unter einem wachenden Turm';
+
+  @override
+  String get themeGenreElvenWood => 'Elbenreich';
+
+  @override
+  String get themeTaglineElvenWood => 'Silberbirken und goldenes Licht im verborgenen Tal';
+
+  @override
+  String get themeGenreArcaneAcademy => 'Zauberschule';
+
+  @override
+  String get themeTaglineArcaneAcademy => 'Kerzenbeleuchtete Gänge, wandernde Treppen und Geheimgänge';
+
+  @override
+  String get voiceTaglineDarklord => 'Befehligt die Straßen des Imperiums. Atmet schwer.';
+
+  @override
+  String get voiceTaglineStarknight => 'Ein ruhiger Mentor, der deinem Instinkt vertraut';
+
+  @override
+  String get voiceTaglineSwampsage => 'Uralt, winzig, spricht verdreht';
+
+  @override
+  String get voiceTaglineProtodroid => 'Beherrscht sechs Millionen Verkehrszeichen. Besorgt.';
+
+  @override
+  String get voiceTaglineSmuggler => 'Das schnellste Schiff im Sektor. Größtenteils in einem Stück.';
+
+  @override
+  String get voiceTaglineBountyhunter => 'Wenig Worte. Verpasst nie eine Abzweigung.';
+
+  @override
+  String get voiceTaglineGreywizard => 'Alt, weise und ein Freund langer Reisen';
+
+  @override
+  String get voiceTaglineElvenqueen => 'Spricht aus den silbernen Wäldern';
+
+  @override
+  String get voiceTaglineDwarflord => 'Brummig, laut, hasst Umwege';
+
+  @override
+  String get voiceTaglineHalfling => 'Fröhlich, neugierig, immer hungrig';
+
+  @override
+  String get voiceTaglineArchmage => 'Streng, brillant, zieht Punkte für falsches Abbiegen ab';
 }

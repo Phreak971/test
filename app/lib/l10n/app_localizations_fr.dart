@@ -747,4 +747,79 @@ class LFr extends L {
 
   @override
   String get freeBannerBody => 'Toutes les cartes, voix et fonctions. Sans pub ni abonnement.';
+
+  @override
+  String get themeGenreStarDominion => 'Empire galactique';
+
+  @override
+  String get themeTaglineStarDominion => 'Acier noir et lueur écarlate de l’empire';
+
+  @override
+  String get themeGenreRebelHolo => 'Rébellion spatiale';
+
+  @override
+  String get themeTaglineRebelHolo => 'L’hologramme bleu vacillant de la zone cible';
+
+  @override
+  String get themeGenreTwinSuns => 'Western spatial';
+
+  @override
+  String get themeTaglineTwinSuns => 'Un avant-poste brûlé par le soleil sur un lointain monde désertique';
+
+  @override
+  String get themeGenreMiddleRealm => 'High fantasy';
+
+  @override
+  String get themeTaglineMiddleRealm => 'Une carte à l’encre d’un royaume d’elfes et de rois';
+
+  @override
+  String get themeGenreShadowlands => 'Royaume du seigneur des ténèbres';
+
+  @override
+  String get themeTaglineShadowlands => 'Plaines de cendre et rivières de feu sous une tour qui veille';
+
+  @override
+  String get themeGenreElvenWood => 'Royaume elfique';
+
+  @override
+  String get themeTaglineElvenWood => 'Bouleaux argentés et lumière dorée dans la vallée cachée';
+
+  @override
+  String get themeGenreArcaneAcademy => 'École de magie';
+
+  @override
+  String get themeTaglineArcaneAcademy => 'Couloirs aux chandelles, escaliers mouvants et passages secrets';
+
+  @override
+  String get voiceTaglineDarklord => 'Commande les routes de l’empire. Respire bruyamment.';
+
+  @override
+  String get voiceTaglineStarknight => 'Un mentor calme qui croit en votre instinct';
+
+  @override
+  String get voiceTaglineSwampsage => 'Ancien, minuscule, parle à l’envers';
+
+  @override
+  String get voiceTaglineProtodroid => 'Parle six millions de panneaux routiers. Inquiet.';
+
+  @override
+  String get voiceTaglineSmuggler => 'Le vaisseau le plus rapide du secteur. Presque intact.';
+
+  @override
+  String get voiceTaglineBountyhunter => 'Peu de mots. Ne rate jamais un virage.';
+
+  @override
+  String get voiceTaglineGreywizard => 'Vieux, sage et amateur de longs voyages';
+
+  @override
+  String get voiceTaglineElvenqueen => 'Sa voix vient des bois d’argent';
+
+  @override
+  String get voiceTaglineDwarflord => 'Bourru, bruyant, déteste les détours';
+
+  @override
+  String get voiceTaglineHalfling => 'Joyeux, curieux, toujours affamé';
+
+  @override
+  String get voiceTaglineArchmage => 'Sévère, brillante, retire des points pour chaque erreur';
 }

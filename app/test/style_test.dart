@@ -39,9 +39,9 @@ double _deltaE(int a, int b) {
 void main() {
   final builder = StyleBuilder();
 
-  test('catalog has 15 unique themes', () {
-    expect(themeCatalog.length, 15);
-    expect(themeCatalog.map((t) => t.id).toSet().length, 15);
+  test('catalog has 22 unique themes', () {
+    expect(themeCatalog.length, 22);
+    expect(themeCatalog.map((t) => t.id).toSet().length, 22);
     expect(themeById('nope').id, themeCatalog.first.id);
   });
 

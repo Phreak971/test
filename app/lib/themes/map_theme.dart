@@ -203,7 +203,7 @@ enum PoiShape { glyph, circle, square, hexagon, diamond, pixel, shield }
 enum PuckShape { arrow, chevron, orb, block, star, compass }
 
 /// Full-screen effect drawn above the map to sell the game look.
-enum MapOverlay { none, scanlines, parchment, vignette, grid, pixelGrid, neon }
+enum MapOverlay { none, scanlines, parchment, vignette, grid, pixelGrid, neon, starfield, hologram, embers, mist, candlelight }
 
 enum MapVariant { light, dark }
 

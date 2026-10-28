@@ -1547,6 +1547,156 @@ abstract class L {
   /// In en, this message translates to:
   /// **'Every map, voice and feature. No ads, no paywalls.'**
   String get freeBannerBody;
+
+  /// No description provided for @themeGenreStarDominion.
+  ///
+  /// In en, this message translates to:
+  /// **'Space empire'**
+  String get themeGenreStarDominion;
+
+  /// No description provided for @themeTaglineStarDominion.
+  ///
+  /// In en, this message translates to:
+  /// **'Black steel and crimson light of the empire'**
+  String get themeTaglineStarDominion;
+
+  /// No description provided for @themeGenreRebelHolo.
+  ///
+  /// In en, this message translates to:
+  /// **'Space rebellion'**
+  String get themeGenreRebelHolo;
+
+  /// No description provided for @themeTaglineRebelHolo.
+  ///
+  /// In en, this message translates to:
+  /// **'A flickering blue hologram of the target zone'**
+  String get themeTaglineRebelHolo;
+
+  /// No description provided for @themeGenreTwinSuns.
+  ///
+  /// In en, this message translates to:
+  /// **'Space western'**
+  String get themeGenreTwinSuns;
+
+  /// No description provided for @themeTaglineTwinSuns.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun-scorched outpost on a far desert world'**
+  String get themeTaglineTwinSuns;
+
+  /// No description provided for @themeGenreMiddleRealm.
+  ///
+  /// In en, this message translates to:
+  /// **'High fantasy'**
+  String get themeGenreMiddleRealm;
+
+  /// No description provided for @themeTaglineMiddleRealm.
+  ///
+  /// In en, this message translates to:
+  /// **'An inked map of a realm of elves and kings'**
+  String get themeTaglineMiddleRealm;
+
+  /// No description provided for @themeGenreShadowlands.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark lord\'s realm'**
+  String get themeGenreShadowlands;
+
+  /// No description provided for @themeTaglineShadowlands.
+  ///
+  /// In en, this message translates to:
+  /// **'Ash plains and rivers of fire under a watching tower'**
+  String get themeTaglineShadowlands;
+
+  /// No description provided for @themeGenreElvenWood.
+  ///
+  /// In en, this message translates to:
+  /// **'Elven realm'**
+  String get themeGenreElvenWood;
+
+  /// No description provided for @themeTaglineElvenWood.
+  ///
+  /// In en, this message translates to:
+  /// **'Silver birches and golden light in the hidden valley'**
+  String get themeTaglineElvenWood;
+
+  /// No description provided for @themeGenreArcaneAcademy.
+  ///
+  /// In en, this message translates to:
+  /// **'Wizarding school'**
+  String get themeGenreArcaneAcademy;
+
+  /// No description provided for @themeTaglineArcaneAcademy.
+  ///
+  /// In en, this message translates to:
+  /// **'Candlelit corridors, moving stairs and secret passages'**
+  String get themeTaglineArcaneAcademy;
+
+  /// No description provided for @voiceTaglineDarklord.
+  ///
+  /// In en, this message translates to:
+  /// **'Commands the empire\'s roads. Breathes heavily.'**
+  String get voiceTaglineDarklord;
+
+  /// No description provided for @voiceTaglineStarknight.
+  ///
+  /// In en, this message translates to:
+  /// **'A calm mentor who trusts your instincts'**
+  String get voiceTaglineStarknight;
+
+  /// No description provided for @voiceTaglineSwampsage.
+  ///
+  /// In en, this message translates to:
+  /// **'Ancient, tiny, speaks backwards'**
+  String get voiceTaglineSwampsage;
+
+  /// No description provided for @voiceTaglineProtodroid.
+  ///
+  /// In en, this message translates to:
+  /// **'Fluent in six million road signs. Worried.'**
+  String get voiceTaglineProtodroid;
+
+  /// No description provided for @voiceTaglineSmuggler.
+  ///
+  /// In en, this message translates to:
+  /// **'Fastest ride in the sector. Mostly in one piece.'**
+  String get voiceTaglineSmuggler;
+
+  /// No description provided for @voiceTaglineBountyhunter.
+  ///
+  /// In en, this message translates to:
+  /// **'Few words. Never misses a turn.'**
+  String get voiceTaglineBountyhunter;
+
+  /// No description provided for @voiceTaglineGreywizard.
+  ///
+  /// In en, this message translates to:
+  /// **'Old, wise, and fond of long journeys'**
+  String get voiceTaglineGreywizard;
+
+  /// No description provided for @voiceTaglineElvenqueen.
+  ///
+  /// In en, this message translates to:
+  /// **'Speaks from the silver woods'**
+  String get voiceTaglineElvenqueen;
+
+  /// No description provided for @voiceTaglineDwarflord.
+  ///
+  /// In en, this message translates to:
+  /// **'Gruff, loud, hates long detours'**
+  String get voiceTaglineDwarflord;
+
+  /// No description provided for @voiceTaglineHalfling.
+  ///
+  /// In en, this message translates to:
+  /// **'Cheerful, curious, always hungry'**
+  String get voiceTaglineHalfling;
+
+  /// No description provided for @voiceTaglineArchmage.
+  ///
+  /// In en, this message translates to:
+  /// **'Stern, brilliant, docks points for wrong turns'**
+  String get voiceTaglineArchmage;
 }
 
 class _LDelegate extends LocalizationsDelegate<L> {

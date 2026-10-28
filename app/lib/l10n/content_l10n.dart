@@ -20,6 +20,13 @@ String themeTagline(L l, String id) => switch (id) {
   'shadow_parchment' => l.themeTaglineShadowParchment,
   'street_racer' => l.themeTaglineStreetRacer,
   'overgrown' => l.themeTaglineOvergrown,
+  'star_dominion' => l.themeTaglineStarDominion,
+  'rebel_holo' => l.themeTaglineRebelHolo,
+  'twin_suns' => l.themeTaglineTwinSuns,
+  'middle_realm' => l.themeTaglineMiddleRealm,
+  'shadowlands' => l.themeTaglineShadowlands,
+  'elven_wood' => l.themeTaglineElvenWood,
+  'arcane_academy' => l.themeTaglineArcaneAcademy,
   _ => '',
 };
 
@@ -39,6 +46,13 @@ String themeGenre(L l, String id) => switch (id) {
   'shadow_parchment' => l.themeGenreShadowParchment,
   'street_racer' => l.themeGenreStreetRacer,
   'overgrown' => l.themeGenreOvergrown,
+  'star_dominion' => l.themeGenreStarDominion,
+  'rebel_holo' => l.themeGenreRebelHolo,
+  'twin_suns' => l.themeGenreTwinSuns,
+  'middle_realm' => l.themeGenreMiddleRealm,
+  'shadowlands' => l.themeGenreShadowlands,
+  'elven_wood' => l.themeGenreElvenWood,
+  'arcane_academy' => l.themeGenreArcaneAcademy,
   _ => '',
 };
 
@@ -51,6 +65,17 @@ String voiceTagline(L l, String id) => switch (id) {
   'shipai' => l.voiceTaglineShipai,
   'sergeant' => l.voiceTaglineSergeant,
   'captain' => l.voiceTaglineCaptain,
+  'darklord' => l.voiceTaglineDarklord,
+  'starknight' => l.voiceTaglineStarknight,
+  'swampsage' => l.voiceTaglineSwampsage,
+  'protodroid' => l.voiceTaglineProtodroid,
+  'smuggler' => l.voiceTaglineSmuggler,
+  'bountyhunter' => l.voiceTaglineBountyhunter,
+  'greywizard' => l.voiceTaglineGreywizard,
+  'elvenqueen' => l.voiceTaglineElvenqueen,
+  'dwarflord' => l.voiceTaglineDwarflord,
+  'halfling' => l.voiceTaglineHalfling,
+  'archmage' => l.voiceTaglineArchmage,
   _ => '',
 };
 
