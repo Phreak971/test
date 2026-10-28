@@ -46,22 +46,8 @@
   "obSkipLocation": "Continue without location",
   "mapSelectTitle": "Choose your world",
   "mapSelectStart": "Start exploring",
-  "proBadge": "PRO",
-  "freeBadge": "FREE",
   "variantLight": "LIGHT",
   "variantDark": "DARK",
-  "unlockAllMaps": "Unlock all maps",
-  "lockedTitle": "This map is locked",
-  "lockedBody": "Unlock {name} and every other world with Overworld Pro.",
-  "@lockedBody": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "lockedCta": "Unlock map",
-  "lockedUseFree": "Use a free map",
   "railSearch": "Search",
   "railChangeMap": "Change map",
   "railNearby": "Find nearby",
@@ -142,10 +128,6 @@
   "minShort": "min",
   "hourShort": "h",
   "settingsTitle": "Settings",
-  "premiumBannerTitle": "Overworld Pro",
-  "premiumBannerBody": "Unlock every map and voice.",
-  "premiumBannerCta": "Go Pro",
-  "proActive": "Pro is active. Thanks for your support!",
   "sectionMap": "Map",
   "sectionNavigation": "Navigation",
   "sectionApp": "App",
@@ -166,12 +148,11 @@
   "shareApp": "Share Overworld",
   "community": "Join the community",
   "contactUs": "Contact us",
-  "restorePurchases": "Restore purchases",
   "privacy": "Privacy policy",
   "terms": "Terms of use",
   "cleanData": "Clean my data",
   "cleanDataTitle": "Clean my data?",
-  "cleanDataBody": "This deletes saved places, search history and preferences on this device. Purchases are not affected.",
+  "cleanDataBody": "This deletes saved places, search history and preferences on this device.",
   "cleanDataConfirm": "Delete data",
   "dataCleaned": "Your data was deleted",
   "unitChanged": "Distance unit changed",
@@ -206,30 +187,6 @@
   "contactErrorEmail": "Please enter a valid email address.",
   "contactSentTitle": "Thanks for reaching out!",
   "contactSentBody": "Your message is ready in your mail app. We'll get back to you soon.",
-  "paywallTitle": "Unlock every world",
-  "paywallFeatureMaps": "All 15 game-styled maps",
-  "paywallFeatureVoices": "Every character voice",
-  "paywallFeatureCar": "CarPlay & Android Auto",
-  "paywallFeatureUpdates": "New worlds as they drop",
-  "planWeekly": "Weekly",
-  "planMonthly": "Monthly",
-  "planYearly": "Yearly",
-  "planLifetime": "Lifetime",
-  "bestValue": "Best value",
-  "freeTrial": "Free trial",
-  "oneTimePurchase": "One-time purchase",
-  "billedWeekly": "Billed weekly",
-  "billedMonthly": "Billed monthly",
-  "billedYearly": "Billed yearly",
-  "restore": "Restore",
-  "purchaseSuccessTitle": "Welcome to Pro!",
-  "purchaseSuccessBody": "Every map and voice is now unlocked.",
-  "purchaseFailed": "The purchase didn't go through. Please try again.",
-  "purchasePending": "Your purchase is pending approval.",
-  "restoreNone": "No previous purchases were found.",
-  "restoreDone": "Purchases restored",
-  "storeUnavailable": "The store isn't available right now.",
-  "autoRenew": "Subscriptions renew automatically unless cancelled at least 24 hours before the end of the period. Manage them in your account settings.",
   "updateTitle": "Update required",
   "updateBody": "Please update to the latest version to keep using Overworld.",
   "updateCta": "Update now",
@@ -294,8 +251,6 @@
   "voiceGuidance": "Voice guidance",
   "stateOn": "On",
   "stateOff": "Off",
-  "startFreeTrial": "Start free trial",
-  "trialTerms": "{days}-day free trial, then {price} per year",
   "railMore": "More",
   "back": "Back",
   "locationDeniedBody": "Turn on location for Overworld in Settings to see yourself on the map and get directions.",
@@ -304,18 +259,7 @@
   "mapAppearance": "Map appearance",
   "resultsCount": "{count, plural, =0{No results} =1{1 result} other{{count} results}}",
   "homeLocked": "Home uses the house icon",
-  "proLocked": "Pro, locked",
   "selectedLabel": "Selected",
-  "@trialTerms": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      },
-      "price": {
-        "type": "String"
-      }
-    }
-  },
   "@stepOf": {
     "placeholders": {
       "current": {
@@ -333,5 +277,10 @@
       }
     }
   },
-  "showOnMap": "Show on map"
+  "showOnMap": "Show on map",
+  "freeBannerTitle": "Free & open source",
+  "freeBannerBody": "Every map, voice and feature. No ads, no paywalls.",
+  "@freeBannerTitle": {
+    "description": "Settings banner: the app is free and open source."
+  }
 }

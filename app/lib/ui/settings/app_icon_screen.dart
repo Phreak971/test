@@ -7,17 +7,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state/providers.dart';
 import '../hud.dart';
-import '../paywall/paywall_screen.dart';
 
 /// Selectable launcher icons. Ids match Android activity-alias names and iOS
 /// CFBundleAlternateIcons keys (`AppIcon-<id>`).
-const appIcons = <({String id, String name, bool premium})>[
-  (id: 'default', name: 'Overworld', premium: false),
-  (id: 'neon', name: 'Neon', premium: true),
-  (id: 'frontier', name: 'Frontier', premium: true),
-  (id: 'blocky', name: 'Voxel', premium: true),
-  (id: 'terminal', name: 'Terminal', premium: true),
-  (id: 'racer', name: 'Racer', premium: true),
+const appIcons = <({String id, String name})>[
+  (id: 'default', name: 'Overworld'),
+  (id: 'neon', name: 'Neon'),
+  (id: 'frontier', name: 'Frontier'),
+  (id: 'blocky', name: 'Voxel'),
+  (id: 'terminal', name: 'Terminal'),
+  (id: 'racer', name: 'Racer'),
 ];
 
 Future<bool> applyAppIcon(String id) async {
@@ -42,7 +41,6 @@ class AppIconScreen extends ConsumerWidget {
     final l = L.of(context);
     final hud = ref.watch(hudProvider);
     final current = ref.watch(settingsProvider.select((s) => s.appIcon));
-    final premium = ref.watch(entitlementProvider).premium;
     return Theme(
       data: buildAppTheme(hud),
       child: Scaffold(
@@ -64,10 +62,6 @@ class AppIconScreen extends ConsumerWidget {
                     excludeSemantics: true,
                     child: GestureDetector(
                       onTap: () async {
-                        if (icon.premium && !premium) {
-                          Navigator.of(context).push(MaterialPageRoute(fullscreenDialog: true, builder: (_) => const PaywallScreen()));
-                          return;
-                        }
                         final toast = ref.read(toastProvider.notifier);
                         final ok = await applyAppIcon(icon.id);
                         if (ok) {
@@ -90,20 +84,7 @@ class AppIconScreen extends ConsumerWidget {
                               padding: const EdgeInsets.all(3),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(20),
-                                child: Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    Image.asset('assets/icons/${icon.id}.png', fit: BoxFit.cover),
-                                    if (icon.premium && !premium)
-                                      const Align(
-                                        alignment: Alignment.topRight,
-                                        child: Padding(
-                                          padding: EdgeInsets.all(6),
-                                          child: Icon(Icons.lock_rounded, color: Colors.white, size: 18),
-                                        ),
-                                      ),
-                                  ],
-                                ),
+                                child: Image.asset('assets/icons/${icon.id}.png', fit: BoxFit.cover),
                               ),
                             ),
                           ),

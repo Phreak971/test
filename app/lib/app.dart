@@ -69,8 +69,6 @@ class _OverworldAppState extends ConsumerState<OverworldApp> {
   @override
   Widget build(BuildContext context) {
     final hud = ref.watch(hudProvider);
-    // Subscribe to store events from launch so no purchase update is missed.
-    ref.watch(entitlementProvider);
     final minBuild = ref.watch(minSupportedBuildProvider);
     final Widget home;
     if (buildNumber < minBuild) {

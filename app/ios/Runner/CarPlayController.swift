@@ -84,8 +84,6 @@ final class CarPlayController: NSObject {
       guard let self = self else { return }
       if !self.store.hasSynced {
         self.showAlert(self.t(.setupTitle))
-      } else if !self.store.state.premium {
-        self.showAlert(self.t(.proTitle))
       } else if let pending = self.store.takePendingPreview() {
         self.preview(pending)
       }
@@ -205,14 +203,10 @@ final class CarPlayController: NSObject {
     }
   }
 
-  /// Navigation features need a synced snapshot and Overworld Pro.
-  private func requirePro() -> Bool {
+  /// Navigation features need a synced snapshot from the phone.
+  private func requireSync() -> Bool {
     if !store.hasSynced {
       showAlert(t(.setupTitle))
-      return false
-    }
-    if !store.state.premium {
-      showAlert(t(.proTitle))
       return false
     }
     return true
@@ -244,7 +238,7 @@ final class CarPlayController: NSObject {
   private var maxItems: Int { max(1, Int(CPListTemplate.maximumItemCount)) }
 
   private func showSaved() {
-    guard requirePro() else { return }
+    guard requireSync() else { return }
     let places = store.state.places
     let ordered = places.filter { $0.isHome } + places.filter { !$0.isHome }
     var sections: [CPListSection] = []
@@ -263,7 +257,7 @@ final class CarPlayController: NSObject {
   }
 
   private func showCategories() {
-    guard requirePro() else { return }
+    guard requireSync() else { return }
     let items: [CPListItem] = CarCategory.all.map { cat in
       let item = CPListItem(text: t(cat.title), detailText: nil, image: CarSymbols.image(cat.symbol, "mappin"))
       item.accessoryType = .disclosureIndicator
@@ -299,7 +293,7 @@ final class CarPlayController: NSObject {
   }
 
   private func showSearch() {
-    guard requirePro() else { return }
+    guard requireSync() else { return }
     lastSearchItems = historyItems(selectable: false)
     pendingSearch = nil
     let tpl = CPSearchTemplate()
@@ -338,7 +332,7 @@ final class CarPlayController: NSObject {
   // MARK: Trip preview
 
   private func preview(_ place: CarPlace) {
-    guard requirePro() else { return }
+    guard requireSync() else { return }
     if mode == .navigating { endNavigation() }
     if mode == .preview { cancelPreview() }
     guard let origin = lastLocation?.coordinate else {

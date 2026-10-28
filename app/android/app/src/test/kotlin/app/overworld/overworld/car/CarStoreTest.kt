@@ -11,7 +11,7 @@ class CarStoreTest {
     fun parsesPersistedState() {
         val o = JSONObject(
             """
-            {"lightStyle":"{\"version\":8}","darkStyle":null,"alwaysDark":true,"premium":true,"unit":"imperial","locale":"de",
+            {"lightStyle":"{\"version\":8}","darkStyle":null,"alwaysDark":true,"unit":"imperial","locale":"de",
              "muted":false,"voice":{"id":"ranger","name":"Frontier Ranger","pitch":0.75,"rate":0.42},
              "places":[{"id":"h","name":"Home","lat":1.5,"lng":2.5,"address":null,"isHome":true}],
              "history":[{"id":null,"name":"Shop","lat":3.0,"lng":4.0,"address":"Main 1","isHome":false},{"name":"no coords"}]}
@@ -21,7 +21,7 @@ class CarStoreTest {
         assertTrue(s.synced)
         assertEquals("{\"version\":8}", s.lightStyle)
         assertNull(s.darkStyle)
-        assertTrue(s.alwaysDark && s.premium && s.imperial)
+        assertTrue(s.alwaysDark && s.imperial)
         assertEquals("de", s.locale)
         assertEquals(0.42, s.voice.rate, 1e-9)
         assertEquals("Frontier Ranger", s.voice.name)

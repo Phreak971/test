@@ -12,7 +12,6 @@ import '../../themes/theme_catalog.dart';
 import '../hud.dart';
 import '../map/game_map.dart';
 import '../map/map_overlay_fx.dart';
-import '../paywall/paywall_screen.dart';
 import 'theme_swatch.dart';
 
 /// "Choose your world": live preview on top, grid of themes below.
@@ -51,11 +50,6 @@ class _ThemePickerScreenState extends ConsumerState<ThemePickerScreen> {
   }
 
   void _confirm() {
-    final unlocked = ref.read(themeUnlockedProvider(_themeId));
-    if (!unlocked) {
-      Navigator.of(context).push(MaterialPageRoute(fullscreenDialog: true, builder: (_) => const PaywallScreen()));
-      return;
-    }
     HapticFeedback.mediumImpact();
     _apply();
     if (widget.onDone != null) {
@@ -68,10 +62,8 @@ class _ThemePickerScreenState extends ConsumerState<ThemePickerScreen> {
   @override
   Widget build(BuildContext context) {
     final l = L.of(context);
-    final premium = ref.watch(entitlementProvider).premium;
     final theme = _theme;
     final hud = Hud.of(theme, _variant);
-    final unlocked = !theme.isPremium || premium;
     final center =
         ref.watch(locationProvider.select((s) => s.position)) ??
         (() {
@@ -159,22 +151,9 @@ class _ThemePickerScreenState extends ConsumerState<ThemePickerScreen> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Semantics(header: true, child: Text(l.mapSelectTitle, style: displayStyle(hud, 22))),
-                  ),
-                  if (!premium)
-                    TextButton.icon(
-                      onPressed: () =>
-                          Navigator.of(context).push(MaterialPageRoute(fullscreenDialog: true, builder: (_) => const PaywallScreen())),
-                      icon: Icon(Icons.lock_open_rounded, color: hud.accentText, size: 18),
-                      label: Text(
-                        l.unlockAllMaps,
-                        style: TextStyle(color: hud.accentText, fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                ],
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Semantics(header: true, child: Text(l.mapSelectTitle, style: displayStyle(hud, 22))),
               ),
             ),
             Expanded(
@@ -190,12 +169,10 @@ class _ThemePickerScreenState extends ConsumerState<ThemePickerScreen> {
                 itemBuilder: (_, i) {
                   final t = themeCatalog[i];
                   final selected = t.id == _themeId;
-                  final locked = t.isPremium && !premium;
                   return _ThemeCard(
                     hud: hud,
                     theme: t,
                     selected: selected,
-                    locked: locked,
                     onTap: () {
                       HapticFeedback.selectionClick();
                       setState(() {
@@ -210,12 +187,7 @@ class _ThemePickerScreenState extends ConsumerState<ThemePickerScreen> {
             SafeArea(
               top: false,
               minimum: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-              child: PrimaryButton(
-                hud: hud,
-                icon: unlocked ? null : Icons.lock_rounded,
-                label: unlocked ? (widget.onboarding ? l.mapSelectStart : l.done) : l.lockedCta,
-                onPressed: _confirm,
-              ),
+              child: PrimaryButton(hud: hud, label: widget.onboarding ? l.mapSelectStart : l.done, onPressed: _confirm),
             ),
           ],
         ),
@@ -272,12 +244,11 @@ class _VariantToggle extends StatelessWidget {
 }
 
 class _ThemeCard extends StatelessWidget {
-  const _ThemeCard({required this.hud, required this.theme, required this.selected, required this.locked, required this.onTap});
+  const _ThemeCard({required this.hud, required this.theme, required this.selected, required this.onTap});
 
   final Hud hud;
   final MapTheme theme;
   final bool selected;
-  final bool locked;
   final VoidCallback onTap;
 
   @override
@@ -288,7 +259,7 @@ class _ThemeCard extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
-      label: '${theme.name}, ${themeGenre(l, theme.id)}${locked ? ', ${l.proLocked}' : ''}',
+      label: '${theme.name}, ${themeGenre(l, theme.id)}',
       excludeSemantics: true,
       child: GestureDetector(
         onTap: onTap,
@@ -305,34 +276,7 @@ class _ThemeCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      ThemeSwatch(theme: theme, variant: theme.baseVariant),
-                      Positioned(
-                        top: 6,
-                        right: 6,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: locked ? Colors.black87 : const Color(0xFF2E7D32),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (locked) const Icon(Icons.lock_rounded, color: Colors.white, size: 12),
-                              if (locked) const SizedBox(width: 3),
-                              Text(
-                                locked ? l.proBadge : (theme.isPremium ? '✓' : l.freeBadge),
-                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  child: ThemeSwatch(theme: theme, variant: theme.baseVariant),
                 ),
                 Container(
                   color: cardHud.panel.withValues(alpha: 1),

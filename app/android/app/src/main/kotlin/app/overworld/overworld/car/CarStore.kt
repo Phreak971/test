@@ -19,7 +19,6 @@ data class CarSnapshot(
     val lightStyle: String? = null,
     val darkStyle: String? = null,
     val alwaysDark: Boolean = false,
-    val premium: Boolean = false,
     val unit: String = "metric",
     val locale: String = "en",
     val voice: CarVoiceSettings = CarVoiceSettings(),
@@ -201,7 +200,6 @@ object CarStore {
         o.put("lightStyle", a["lightStyle"] as? String ?: JSONObject.NULL)
         o.put("darkStyle", a["darkStyle"] as? String ?: JSONObject.NULL)
         o.put("alwaysDark", a["alwaysDark"] as? Boolean ?: false)
-        o.put("premium", a["premium"] as? Boolean ?: false)
         o.put("unit", a["unit"] as? String ?: "metric")
         o.put("locale", a["locale"] as? String ?: "en")
         o.put("muted", a["muted"] as? Boolean ?: false)
@@ -271,7 +269,6 @@ object CarStore {
             lightStyle = if (o.isNull("lightStyle")) null else o.optString("lightStyle").ifBlank { null },
             darkStyle = if (o.isNull("darkStyle")) null else o.optString("darkStyle").ifBlank { null },
             alwaysDark = o.optBoolean("alwaysDark"),
-            premium = o.optBoolean("premium"),
             unit = o.optString("unit", "metric"),
             locale = o.optString("locale", "en"),
             voice = CarVoiceSettings(

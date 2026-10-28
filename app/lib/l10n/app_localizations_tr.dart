@@ -149,33 +149,10 @@ class LTr extends L {
   String get mapSelectStart => 'Keşfe başla';
 
   @override
-  String get proBadge => 'PRO';
-
-  @override
-  String get freeBadge => 'ÜCRETSİZ';
-
-  @override
   String get variantLight => 'AÇIK';
 
   @override
   String get variantDark => 'KOYU';
-
-  @override
-  String get unlockAllMaps => 'Tüm haritaları aç';
-
-  @override
-  String get lockedTitle => 'Bu harita kilitli';
-
-  @override
-  String lockedBody(String name) {
-    return 'Overworld Pro ile $name ve diğer tüm dünyaların kilidini aç.';
-  }
-
-  @override
-  String get lockedCta => 'Kilidi aç';
-
-  @override
-  String get lockedUseFree => 'Ücretsiz harita kullan';
 
   @override
   String get railSearch => 'Ara';
@@ -380,18 +357,6 @@ class LTr extends L {
   String get settingsTitle => 'Ayarlar';
 
   @override
-  String get premiumBannerTitle => 'Overworld Pro';
-
-  @override
-  String get premiumBannerBody => 'Tüm haritaların ve seslerin kilidini aç.';
-
-  @override
-  String get premiumBannerCta => 'Pro\'ya geç';
-
-  @override
-  String get proActive => 'Pro etkin. Desteğin için teşekkürler!';
-
-  @override
   String get sectionMap => 'Harita';
 
   @override
@@ -452,9 +417,6 @@ class LTr extends L {
   String get contactUs => 'Bize ulaş';
 
   @override
-  String get restorePurchases => 'Satın alımları geri yükle';
-
-  @override
   String get privacy => 'Gizlilik politikası';
 
   @override
@@ -467,7 +429,7 @@ class LTr extends L {
   String get cleanDataTitle => 'Verilerin temizlensin mi?';
 
   @override
-  String get cleanDataBody => 'Bu işlem, bu cihazdaki kayıtlı yerleri, arama geçmişini ve tercihleri siler. Satın alımlar etkilenmez.';
+  String get cleanDataBody => 'Bu işlem, bu cihazdaki kayıtlı yerleri, arama geçmişini ve tercihleri siler.';
 
   @override
   String get cleanDataConfirm => 'Verileri sil';
@@ -551,79 +513,6 @@ class LTr extends L {
 
   @override
   String get contactSentBody => 'Mesajın e-posta uygulamanda hazır. En kısa sürede sana dönüş yapacağız.';
-
-  @override
-  String get paywallTitle => 'Tüm dünyaların kilidini aç';
-
-  @override
-  String get paywallFeatureMaps => 'Oyun tarzında 15 haritanın tamamı';
-
-  @override
-  String get paywallFeatureVoices => 'Tüm karakter sesleri';
-
-  @override
-  String get paywallFeatureCar => 'CarPlay ve Android Auto';
-
-  @override
-  String get paywallFeatureUpdates => 'Yeni dünyalar çıktıkça';
-
-  @override
-  String get planWeekly => 'Haftalık';
-
-  @override
-  String get planMonthly => 'Aylık';
-
-  @override
-  String get planYearly => 'Yıllık';
-
-  @override
-  String get planLifetime => 'Ömür boyu';
-
-  @override
-  String get bestValue => 'En avantajlı';
-
-  @override
-  String get freeTrial => 'Ücretsiz deneme';
-
-  @override
-  String get oneTimePurchase => 'Tek seferlik ödeme';
-
-  @override
-  String get billedWeekly => 'Haftalık faturalandırılır';
-
-  @override
-  String get billedMonthly => 'Aylık faturalandırılır';
-
-  @override
-  String get billedYearly => 'Yıllık faturalandırılır';
-
-  @override
-  String get restore => 'Geri yükle';
-
-  @override
-  String get purchaseSuccessTitle => 'Pro\'ya hoş geldin!';
-
-  @override
-  String get purchaseSuccessBody => 'Tüm haritaların ve seslerin kilidi artık açık.';
-
-  @override
-  String get purchaseFailed => 'Satın alma tamamlanamadı. Lütfen tekrar dene.';
-
-  @override
-  String get purchasePending => 'Satın alman onay bekliyor.';
-
-  @override
-  String get restoreNone => 'Önceki satın alım bulunamadı.';
-
-  @override
-  String get restoreDone => 'Satın alımlar geri yüklendi';
-
-  @override
-  String get storeUnavailable => 'Mağaza şu anda kullanılamıyor.';
-
-  @override
-  String get autoRenew =>
-      'Abonelikler, dönem bitiminden en az 24 saat önce iptal edilmedikçe otomatik olarak yenilenir. Aboneliklerini hesap ayarlarından yönetebilirsin.';
 
   @override
   String get updateTitle => 'Güncelleme gerekli';
@@ -818,14 +707,6 @@ class LTr extends L {
   String get stateOff => 'Kapalı';
 
   @override
-  String get startFreeTrial => 'Ücretsiz denemeyi başlat';
-
-  @override
-  String trialTerms(int days, String price) {
-    return '$days gün ücretsiz deneme, ardından yıllık $price';
-  }
-
-  @override
   String get railMore => 'Daha fazla';
 
   @override
@@ -855,11 +736,14 @@ class LTr extends L {
   String get homeLocked => 'Ev, ev simgesini kullanır';
 
   @override
-  String get proLocked => 'Pro, kilitli';
-
-  @override
   String get selectedLabel => 'Seçili';
 
   @override
   String get showOnMap => 'Haritada göster';
+
+  @override
+  String get freeBannerTitle => 'Ücretsiz ve açık kaynak';
+
+  @override
+  String get freeBannerBody => 'Tüm haritalar, sesler ve özellikler. Reklam yok, ödeme duvarı yok.';
 }

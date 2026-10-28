@@ -31,8 +31,6 @@
     <string name="car_route_error">Rota hesaplanamadı. Bağlantınızı kontrol edin.</string>
     <string name="car_navigate">Git</string>
     <string name="car_retry">Tekrar dene</string>
-    <string name="car_pro_title">Overworld Pro</string>
-    <string name="car_pro_message">Araç navigasyonu için Overworld Pro gerekir. Telefonunuzdaki Overworld uygulamasından kilidini açın.</string>
     <string name="car_ok">Tamam</string>
     <string name="car_location_needed">Navigasyon için telefonunuzda konum erişimine izin verin.</string>
     <string name="car_grant">İzin ver</string>

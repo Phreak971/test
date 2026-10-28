@@ -63,7 +63,6 @@ final class CarBridgePlugin: NSObject, FlutterPlugin {
       lightIcons: icons(a["lightIcons"]),
       darkIcons: icons(a["darkIcons"]),
       alwaysDark: (a["alwaysDark"] as? Bool) ?? false,
-      premium: (a["premium"] as? Bool) ?? false,
       unit: (a["unit"] as? String) ?? "metric",
       locale: (a["locale"] as? String) ?? "en",
       voice: voice,

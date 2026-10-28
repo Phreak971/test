@@ -18,7 +18,7 @@ we deliberately do not).
 
 | Reference | Fields | Ours |
 |---|---|---|
-| `MapStyle` | id, name, styleURL, puckURL, isPremium, assetKey | `MapTheme` (id, name, light/dark style generated locally, puck painter, isPremium, iconSet) |
+| `MapStyle` | id, name, styleURL, puckURL, isPremium, assetKey | `MapTheme` (id, name, light/dark style generated locally, puck painter, iconSet; every theme is free) |
 | `TTSVoice` | id, name, photo, sortOrder | `VoicePersona` (id, name, avatar painter, pitch, rate, phrase pack) |
 | `CustomMarker` | id, name, icon, lat, lng | `SavedPlace` (id, name, iconId, lat, lng, address, createdAt) |
 | search history | query/place | `SearchHistoryEntry` |
@@ -30,7 +30,7 @@ we deliberately do not).
 |---|---|---|
 | `BootstrapScreen` | Splash: logo on floating glowing POI icons, blue radial glow | `SplashScreen` |
 | Onboarding (`OnboardingStore`) | get_started → favorite_game(s) (multi-select of 15) → hear_about_us (7 sources) → rating (store review prompt) → carplay / android_auto intro with **Listen Voice** sample → location_permission ("Ready to Go") → map select → paywall | `OnboardingFlow` |
-| `MapSelectScreen` | Grid of map styles with preview, lock badge for premium, Continue/Start, premium button | `ThemePickerScreen` |
+| `MapSelectScreen` | Grid of map styles with preview, lock badge for premium, Continue/Start, premium button | `ThemePickerScreen` (no locks) |
 | `HomeScreen` + `HomeOverlay` | Full-screen styled map; title badge (style name + [DARK]/[LIGHT]); right rail: search, style picker, nearby, saved places, home, recenter/follow, settings; compass; current-area label bottom-left; locked overlay "This Map is Locked" when premium style w/o entitlement | `HomeScreen` |
 | `HomeMarkerLayer`, `MarkerStore`, `PreviewIconLayer`, `MinecraftTreeModelLayer` | Home pin, custom markers, preview pin, themed POI icons, 3D decoration | map layers |
 | Search (`SearchStore`, `SearchService`) | Autocomplete (location-biased), search history (+ clear), **Find Nearby** categories, "no results" state | `SearchSheet` |
@@ -40,18 +40,18 @@ we deliberately do not).
 | `RoutePreviewSheet` | Route line + My Location → destination, duration (h/min), ETA/arrival, distance, Start Now, End Route | `RoutePreviewSheet` |
 | Navigation (Mapbox Nav SDK) | Turn-by-turn: maneuver banner, remaining time/distance/arrival, follow camera, reroute, arrival, **custom character voice** guidance w/ mute | `NavigationScreen` |
 | `LocationPermissionSheet` | Explain + allow, or continue without location | `LocationPermissionSheet` |
-| `SettingsScreen` | Premium banner; App Icon; Distance Units (km/mi, toast); Android Auto settings; Rate us; Share; Join community; Contact us; Restore purchases; Privacy; Terms; Clean My Data | `SettingsScreen` |
+| `SettingsScreen` | Premium banner; App Icon; Distance Units (km/mi, toast); Android Auto settings; Rate us; Share; Join community; Contact us; Restore purchases; Privacy; Terms; Clean My Data | `SettingsScreen` (free & open-source banner in place of Premium; no Restore purchases) |
 | `AndroidAutoSettingsScreen` | Light map style, dark map style, Always prefer dark mode, "currently active", updated toast | `CarSettingsScreen` |
 | `IconChangeScreen` | Alternate app icons (6 in reference) | `AppIconScreen` |
 | `ContactUsScreen` | Email + message, validation (empty / invalid email), success state (Freshdesk ticket in ref) | `ContactScreen` |
 | Update gate | "Update Required" with Update / close (remote min version) | `UpdateGate` |
-| Paywall (Superwall/RevenueCat) | Weekly / Monthly / Yearly (+offers) / Lifetime "Unlock All Maps"; free trial; restore; purchase success "congrats" | `PaywallScreen` (store IAP) |
+| Paywall (Superwall/RevenueCat) | Weekly / Monthly / Yearly (+offers) / Lifetime "Unlock All Maps"; free trial; restore; purchase success "congrats" | **Intentionally not recreated**: Overworld is free and open source, with every feature unlocked |
 | Toasts | Added to Saved Places, distance unit changed, errors | `Toast` |
 | Errors | coordinates not found, current location not found, something went wrong, purchase/restore errors | shared |
 
 ## 3. Car (Android Auto `MainCarSession` / CarPlay)
 - Map surface rendered with selected style; light/dark style per car settings; always-prefer-dark.
-- Screens: search (suggestions, history, categories), favorites (saved places, "add favorites from phone"), find nearby, choose a voice, Pro upgrade gate (`androidAutoRequiresPro`).
+- Screens: search (suggestions, history, categories), favorites (saved places, "add favorites from phone"), find nearby, choose a voice, Pro upgrade gate (`androidAutoRequiresPro`; not recreated, car navigation is free).
 - Free-drive + active navigation with maneuvers, route preview from phone ("pending phone route preview"), custom TTS with audio focus (duck, pause on transient loss), mute toggle.
 - Locale/unit change applies to car session.
 
@@ -63,7 +63,7 @@ we deliberately do not).
 | Nearby | Mapbox category search | Photon `osm_tag` category search around center |
 | Routing / nav | Mapbox Directions + Navigator | OSRM (driving, steps, voice-ready maneuvers); on-device progress/reroute |
 | Voice | server TTS per character | on-device TTS (`flutter_tts`) + persona pitch/rate + phrase packs |
-| Purchases | RevenueCat + Superwall | `in_app_purchase` (StoreKit / Play Billing) + own paywall |
+| Purchases | RevenueCat + Superwall | None: no purchases, paywall or ads |
 | Analytics | Mixpanel, Adjust, Firebase | none (intentionally) |
 
 ## 5. Nearby categories

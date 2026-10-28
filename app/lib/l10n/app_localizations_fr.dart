@@ -149,33 +149,10 @@ class LFr extends L {
   String get mapSelectStart => 'Partir explorer';
 
   @override
-  String get proBadge => 'PRO';
-
-  @override
-  String get freeBadge => 'GRATUIT';
-
-  @override
   String get variantLight => 'CLAIR';
 
   @override
   String get variantDark => 'SOMBRE';
-
-  @override
-  String get unlockAllMaps => 'Débloquer toutes les cartes';
-
-  @override
-  String get lockedTitle => 'Cette carte est verrouillée';
-
-  @override
-  String lockedBody(String name) {
-    return 'Débloquez $name et tous les autres mondes avec Overworld Pro.';
-  }
-
-  @override
-  String get lockedCta => 'Débloquer la carte';
-
-  @override
-  String get lockedUseFree => 'Carte gratuite';
 
   @override
   String get railSearch => 'Rechercher';
@@ -380,18 +357,6 @@ class LFr extends L {
   String get settingsTitle => 'Paramètres';
 
   @override
-  String get premiumBannerTitle => 'Overworld Pro';
-
-  @override
-  String get premiumBannerBody => 'Débloquez toutes les cartes et voix.';
-
-  @override
-  String get premiumBannerCta => 'Passer à Pro';
-
-  @override
-  String get proActive => 'Pro est activé. Merci pour votre soutien !';
-
-  @override
   String get sectionMap => 'Carte';
 
   @override
@@ -452,9 +417,6 @@ class LFr extends L {
   String get contactUs => 'Nous contacter';
 
   @override
-  String get restorePurchases => 'Restaurer les achats';
-
-  @override
   String get privacy => 'Politique de confidentialité';
 
   @override
@@ -467,8 +429,7 @@ class LFr extends L {
   String get cleanDataTitle => 'Effacer vos données ?';
 
   @override
-  String get cleanDataBody =>
-      'Les lieux enregistrés, l’historique de recherche et les préférences seront supprimés de cet appareil. Vos achats ne sont pas concernés.';
+  String get cleanDataBody => 'Les lieux enregistrés, l’historique de recherche et les préférences seront supprimés de cet appareil.';
 
   @override
   String get cleanDataConfirm => 'Supprimer';
@@ -552,79 +513,6 @@ class LFr extends L {
 
   @override
   String get contactSentBody => 'Votre message est prêt dans votre app de messagerie. Nous vous répondrons très vite.';
-
-  @override
-  String get paywallTitle => 'Débloquez tous les mondes';
-
-  @override
-  String get paywallFeatureMaps => 'Les 15 cartes façon jeu vidéo';
-
-  @override
-  String get paywallFeatureVoices => 'Toutes les voix de personnages';
-
-  @override
-  String get paywallFeatureCar => 'CarPlay et Android Auto';
-
-  @override
-  String get paywallFeatureUpdates => 'Les nouveaux mondes dès leur sortie';
-
-  @override
-  String get planWeekly => 'Hebdomadaire';
-
-  @override
-  String get planMonthly => 'Mensuel';
-
-  @override
-  String get planYearly => 'Annuel';
-
-  @override
-  String get planLifetime => 'À vie';
-
-  @override
-  String get bestValue => 'Meilleure offre';
-
-  @override
-  String get freeTrial => 'Essai gratuit';
-
-  @override
-  String get oneTimePurchase => 'Achat unique';
-
-  @override
-  String get billedWeekly => 'Facturé chaque semaine';
-
-  @override
-  String get billedMonthly => 'Facturé chaque mois';
-
-  @override
-  String get billedYearly => 'Facturé chaque année';
-
-  @override
-  String get restore => 'Restaurer';
-
-  @override
-  String get purchaseSuccessTitle => 'Bienvenue dans Pro !';
-
-  @override
-  String get purchaseSuccessBody => 'Toutes les cartes et voix sont désormais débloquées.';
-
-  @override
-  String get purchaseFailed => 'L’achat n’a pas abouti. Veuillez réessayer.';
-
-  @override
-  String get purchasePending => 'Votre achat est en attente de validation.';
-
-  @override
-  String get restoreNone => 'Aucun achat précédent trouvé.';
-
-  @override
-  String get restoreDone => 'Achats restaurés';
-
-  @override
-  String get storeUnavailable => 'La boutique est indisponible pour le moment.';
-
-  @override
-  String get autoRenew =>
-      'Les abonnements sont renouvelés automatiquement, sauf résiliation au moins 24 heures avant la fin de la période en cours. Gérez-les dans les paramètres de votre compte.';
 
   @override
   String get updateTitle => 'Mise à jour requise';
@@ -819,14 +707,6 @@ class LFr extends L {
   String get stateOff => 'Désactivé';
 
   @override
-  String get startFreeTrial => 'Commencer l’essai gratuit';
-
-  @override
-  String trialTerms(int days, String price) {
-    return 'Essai gratuit de $days jours, puis $price par an';
-  }
-
-  @override
   String get railMore => 'Plus';
 
   @override
@@ -857,11 +737,14 @@ class LFr extends L {
   String get homeLocked => 'Le domicile utilise l’icône maison';
 
   @override
-  String get proLocked => 'Pro, verrouillé';
-
-  @override
   String get selectedLabel => 'Sélectionné';
 
   @override
   String get showOnMap => 'Voir sur la carte';
+
+  @override
+  String get freeBannerTitle => 'Libre et gratuit';
+
+  @override
+  String get freeBannerBody => 'Toutes les cartes, voix et fonctions. Sans pub ni abonnement.';
 }

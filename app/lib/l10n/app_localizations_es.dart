@@ -149,33 +149,10 @@ class LEs extends L {
   String get mapSelectStart => 'Empezar a explorar';
 
   @override
-  String get proBadge => 'PRO';
-
-  @override
-  String get freeBadge => 'GRATIS';
-
-  @override
   String get variantLight => 'CLARO';
 
   @override
   String get variantDark => 'OSCURO';
-
-  @override
-  String get unlockAllMaps => 'Desbloquear todos los mapas';
-
-  @override
-  String get lockedTitle => 'Este mapa está bloqueado';
-
-  @override
-  String lockedBody(String name) {
-    return 'Desbloquea $name y todos los demás mundos con Overworld Pro.';
-  }
-
-  @override
-  String get lockedCta => 'Desbloquear mapa';
-
-  @override
-  String get lockedUseFree => 'Usar un mapa gratis';
 
   @override
   String get railSearch => 'Buscar';
@@ -380,18 +357,6 @@ class LEs extends L {
   String get settingsTitle => 'Ajustes';
 
   @override
-  String get premiumBannerTitle => 'Overworld Pro';
-
-  @override
-  String get premiumBannerBody => 'Desbloquea todos los mapas y voces.';
-
-  @override
-  String get premiumBannerCta => 'Hazte Pro';
-
-  @override
-  String get proActive => 'Pro está activo. ¡Gracias por tu apoyo!';
-
-  @override
   String get sectionMap => 'Mapa';
 
   @override
@@ -452,9 +417,6 @@ class LEs extends L {
   String get contactUs => 'Contáctanos';
 
   @override
-  String get restorePurchases => 'Restaurar compras';
-
-  @override
   String get privacy => 'Política de privacidad';
 
   @override
@@ -467,8 +429,7 @@ class LEs extends L {
   String get cleanDataTitle => '¿Borrar tus datos?';
 
   @override
-  String get cleanDataBody =>
-      'Se eliminarán los lugares guardados, el historial de búsqueda y las preferencias de este dispositivo. Las compras no se verán afectadas.';
+  String get cleanDataBody => 'Se eliminarán los lugares guardados, el historial de búsqueda y las preferencias de este dispositivo.';
 
   @override
   String get cleanDataConfirm => 'Borrar datos';
@@ -552,79 +513,6 @@ class LEs extends L {
 
   @override
   String get contactSentBody => 'Tu mensaje está listo en tu app de correo. Te responderemos pronto.';
-
-  @override
-  String get paywallTitle => 'Desbloquea todos los mundos';
-
-  @override
-  String get paywallFeatureMaps => 'Los 15 mapas al estilo videojuego';
-
-  @override
-  String get paywallFeatureVoices => 'Todas las voces de personajes';
-
-  @override
-  String get paywallFeatureCar => 'CarPlay y Android Auto';
-
-  @override
-  String get paywallFeatureUpdates => 'Nuevos mundos en cuanto salgan';
-
-  @override
-  String get planWeekly => 'Semanal';
-
-  @override
-  String get planMonthly => 'Mensual';
-
-  @override
-  String get planYearly => 'Anual';
-
-  @override
-  String get planLifetime => 'De por vida';
-
-  @override
-  String get bestValue => 'Mejor precio';
-
-  @override
-  String get freeTrial => 'Prueba gratis';
-
-  @override
-  String get oneTimePurchase => 'Pago único';
-
-  @override
-  String get billedWeekly => 'Facturación semanal';
-
-  @override
-  String get billedMonthly => 'Facturación mensual';
-
-  @override
-  String get billedYearly => 'Facturación anual';
-
-  @override
-  String get restore => 'Restaurar';
-
-  @override
-  String get purchaseSuccessTitle => '¡Te damos la bienvenida a Pro!';
-
-  @override
-  String get purchaseSuccessBody => 'Ya tienes todos los mapas y voces desbloqueados.';
-
-  @override
-  String get purchaseFailed => 'No se pudo completar la compra. Inténtalo de nuevo.';
-
-  @override
-  String get purchasePending => 'Tu compra está pendiente de aprobación.';
-
-  @override
-  String get restoreNone => 'No se encontraron compras anteriores.';
-
-  @override
-  String get restoreDone => 'Compras restauradas';
-
-  @override
-  String get storeUnavailable => 'La tienda no está disponible ahora mismo.';
-
-  @override
-  String get autoRenew =>
-      'Las suscripciones se renuevan automáticamente salvo que se cancelen al menos 24 horas antes del final del periodo. Gestiónalas en los ajustes de tu cuenta.';
 
   @override
   String get updateTitle => 'Actualización necesaria';
@@ -819,14 +707,6 @@ class LEs extends L {
   String get stateOff => 'Desactivado';
 
   @override
-  String get startFreeTrial => 'Empezar prueba gratis';
-
-  @override
-  String trialTerms(int days, String price) {
-    return '$days días de prueba gratis y luego $price al año';
-  }
-
-  @override
   String get railMore => 'Más';
 
   @override
@@ -862,11 +742,14 @@ class LEs extends L {
   String get homeLocked => 'Casa usa el icono de la casita';
 
   @override
-  String get proLocked => 'Pro, bloqueado';
-
-  @override
   String get selectedLabel => 'Seleccionado';
 
   @override
   String get showOnMap => 'Ver en el mapa';
+
+  @override
+  String get freeBannerTitle => 'Gratis y de código abierto';
+
+  @override
+  String get freeBannerBody => 'Todos los mapas, voces y funciones. Sin anuncios ni muros de pago.';
 }

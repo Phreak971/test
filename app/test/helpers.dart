@@ -13,7 +13,6 @@ import 'package:overworld/l10n/app_localizations.dart';
 import 'package:overworld/nav/navigation_engine.dart';
 import 'package:overworld/nav/tts.dart';
 import 'package:overworld/nav/voice.dart';
-import 'package:overworld/purchases/purchases.dart';
 import 'package:overworld/state/location.dart';
 import 'package:overworld/state/nav_controller.dart';
 import 'package:overworld/state/providers.dart';
@@ -81,19 +80,17 @@ class FakeLocation implements LocationSource {
 }
 
 class TestEnv {
-  TestEnv({required this.store, required this.search, required this.speaker, required this.purchases, required this.location});
+  TestEnv({required this.store, required this.search, required this.speaker, required this.location});
 
   final LocalStore store;
   final FakeSearch search;
   final SilentSpeaker speaker;
-  final FakePurchaseService purchases;
   final FakeLocation location;
 
   List<Override> get overrides => [
     localStoreProvider.overrideWithValue(store),
     searchServiceProvider.overrideWithValue(search),
     speakerProvider.overrideWithValue(speaker),
-    purchaseServiceProvider.overrideWithValue(purchases),
     locationSourceProvider.overrideWithValue(location),
   ];
 }
@@ -105,7 +102,6 @@ Future<TestEnv> makeEnv({Map<String, Object> prefs = const {}, List<Place> resul
     store: LocalStore(sp),
     search: FakeSearch(results: results),
     speaker: SilentSpeaker(),
-    purchases: FakePurchaseService(),
     location: FakeLocation(),
   );
 }

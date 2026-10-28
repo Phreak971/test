@@ -29,7 +29,7 @@ class GatedSearch extends FakeSearch {
 Future<GatedSearch> _pumpSearch(WidgetTester tester) async {
   final env = await makeEnv();
   final gated = GatedSearch();
-  final patched = TestEnv(store: env.store, search: gated, speaker: env.speaker, purchases: env.purchases, location: env.location);
+  final patched = TestEnv(store: env.store, search: gated, speaker: env.speaker, location: env.location);
   await pumpApp(tester, patched, const Scaffold(body: SearchSheet(center: Geo(52.52, 13.4))));
   return gated;
 }
@@ -83,7 +83,7 @@ void main() {
   testWidgets('search: closing the sheet while a request is in flight does not throw', (tester) async {
     final env = await makeEnv();
     final gated = GatedSearch();
-    final patched = TestEnv(store: env.store, search: gated, speaker: env.speaker, purchases: env.purchases, location: env.location);
+    final patched = TestEnv(store: env.store, search: gated, speaker: env.speaker, location: env.location);
     await pumpApp(
       tester,
       patched,

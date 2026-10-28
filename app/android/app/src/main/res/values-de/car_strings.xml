@@ -31,8 +31,6 @@
     <string name="car_route_error">Route konnte nicht berechnet werden. Prüfe deine Verbindung.</string>
     <string name="car_navigate">Los</string>
     <string name="car_retry">Erneut versuchen</string>
-    <string name="car_pro_title">Overworld Pro</string>
-    <string name="car_pro_message">Die Navigation im Auto erfordert Overworld Pro. Schalte es in der Overworld-App auf deinem Handy frei.</string>
     <string name="car_ok">OK</string>
     <string name="car_location_needed">Erlaube den Standortzugriff auf deinem Handy, um zu navigieren.</string>
     <string name="car_grant">Zugriff erlauben</string>

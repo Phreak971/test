@@ -31,8 +31,6 @@
     <string name="car_route_error">No se pudo calcular la ruta. Comprueba tu conexión.</string>
     <string name="car_navigate">Ir</string>
     <string name="car_retry">Reintentar</string>
-    <string name="car_pro_title">Overworld Pro</string>
-    <string name="car_pro_message">La navegación en el coche requiere Overworld Pro. Desbloquéalo en la app Overworld de tu teléfono.</string>
     <string name="car_ok">Aceptar</string>
     <string name="car_location_needed">Permite el acceso a la ubicación en tu teléfono para navegar.</string>
     <string name="car_grant">Permitir acceso</string>

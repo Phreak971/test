@@ -24,7 +24,6 @@ import '../themes/theme_catalog.dart';
 ///   lightIcons, darkIcons : `Map<String, Uint8List>` image name → PNG for the
 ///                           style (poi-*, puck, pin, dest, place-*)
 ///   alwaysDark            : bool
-///   premium               : bool    car navigation requires Pro
 ///   unit                  : 'metric' | 'imperial'
 ///   locale                : 'en' | 'fr' | 'de' | 'it' | 'es' | 'tr'
 ///   voice                 : {id, name, pitch, rate}
@@ -89,7 +88,6 @@ Future<Map<String, Object?>> buildCarPayload(Ref ref) async {
   final s = ref.read(settingsProvider);
   final places = ref.read(placesProvider);
   final history = ref.read(historyProvider);
-  final premium = ref.read(entitlementProvider).premium;
   final light = themeById(s.carLightThemeId);
   final dark = themeById(s.carDarkThemeId);
   final builder = StyleBuilder();
@@ -100,7 +98,6 @@ Future<Map<String, Object?>> buildCarPayload(Ref ref) async {
     'lightIcons': await _icons(light, MapVariant.light),
     'darkIcons': await _icons(dark, MapVariant.dark),
     'alwaysDark': s.carAlwaysDark,
-    'premium': premium,
     'unit': s.unit.name,
     'locale': PlatformDispatcher.instance.locale.languageCode,
     'voice': {'id': voice.id, 'name': voice.name, 'pitch': voice.pitch, 'rate': voice.rate},
@@ -121,7 +118,6 @@ final carSyncProvider = Provider<void>((ref) {
   ref.watch(settingsProvider);
   ref.watch(placesProvider);
   ref.watch(historyProvider);
-  ref.watch(entitlementProvider);
   if (!CarBridge.supported) return;
   final bridge = ref.read(carBridgeProvider);
   Timer? debounce;

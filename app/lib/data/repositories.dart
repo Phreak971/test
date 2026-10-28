@@ -121,7 +121,6 @@ class LocalStore {
   static const _kSettings = 'settings.v1';
   static const _kPlaces = 'saved_places.v1';
   static const _kHistory = 'search_history.v1';
-  static const _kEntitlement = 'entitlement.v1';
   static const _kLastCamera = 'last_camera.v1';
 
   static const maxHistory = 20;
@@ -153,20 +152,6 @@ class LocalStore {
   Future<void> saveHistory(List<SearchHistoryEntry> h) =>
       _prefs.setString(_kHistory, jsonEncode(h.take(maxHistory).map((e) => e.toJson()).toList()));
 
-  /// Cached entitlement so premium works offline; refreshed from the store.
-  ({bool premium, bool lifetime}) loadEntitlement() {
-    try {
-      final j = jsonDecode(_str(_kEntitlement) ?? '{}');
-      if (j is! Map) return (premium: false, lifetime: false);
-      return (premium: j['premium'] == true, lifetime: j['lifetime'] == true);
-    } catch (_) {
-      return (premium: false, lifetime: false);
-    }
-  }
-
-  Future<void> saveEntitlement({required bool premium, required bool lifetime}) =>
-      _prefs.setString(_kEntitlement, jsonEncode({'premium': premium, 'lifetime': lifetime}));
-
   ({double lat, double lng, double zoom})? loadLastCamera() {
     try {
       final j = jsonDecode(_str(_kLastCamera) ?? 'null');
@@ -183,13 +168,8 @@ class LocalStore {
   Future<void> saveLastCamera(double lat, double lng, double zoom) =>
       _prefs.setString(_kLastCamera, jsonEncode({'lat': lat, 'lng': lng, 'zoom': zoom}));
 
-  /// "Clean My Data": wipes places, history and preferences but keeps the
-  /// cached entitlement so a paying user isn't locked out offline.
-  Future<void> clearUserData() async {
-    final ent = loadEntitlement();
-    await _prefs.clear();
-    await saveEntitlement(premium: ent.premium, lifetime: ent.lifetime);
-  }
+  /// "Clean My Data": wipes places, history and preferences.
+  Future<void> clearUserData() => _prefs.clear();
 
   /// Decodes each record independently so one corrupt entry can't wipe the
   /// rest (they would be lost on the next save).

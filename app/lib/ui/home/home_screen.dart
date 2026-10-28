@@ -17,11 +17,9 @@ import '../../state/nav_controller.dart';
 import '../../state/providers.dart';
 import '../../themes/map_theme.dart';
 import '../../themes/style_builder.dart';
-import '../../themes/theme_catalog.dart';
 import '../hud.dart';
 import '../map/game_map.dart';
 import '../map/map_overlay_fx.dart';
-import '../paywall/paywall_screen.dart';
 import '../settings/settings_screen.dart';
 import '../themes/theme_picker_screen.dart';
 import 'location_permission_sheet.dart';
@@ -396,7 +394,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final variant = active.variant;
     final palette = theme.palette(variant);
     final hud = ref.watch(hudProvider);
-    final unlocked = ref.watch(themeUnlockedProvider(theme.id));
     final loc = ref.watch(locationProvider);
     final nav = ref.watch(navProvider);
     final places = ref.watch(placesProvider);
@@ -624,12 +621,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                 ),
               ),
-
-              // Modal: hide everything behind it from assistive tech.
-              if (!unlocked)
-                Positioned.fill(
-                  child: BlockSemantics(child: _LockedOverlay(theme: theme)),
-                ),
               const ToastHost(),
             ],
           ),
@@ -688,63 +679,6 @@ class _TitleBadge extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _LockedOverlay extends ConsumerWidget {
-  const _LockedOverlay({required this.theme});
-
-  final MapTheme theme;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = L.of(context);
-    final hud = ref.watch(hudProvider);
-    return ColoredBox(
-      color: Colors.black.withValues(alpha: 0.55),
-      child: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: HudPanel(
-              hud: hud,
-              padding: const EdgeInsets.all(22),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.lock_rounded, color: hud.accentText, size: 48),
-                  const SizedBox(height: 10),
-                  Semantics(
-                    header: true,
-                    child: Text(l.lockedTitle, style: displayStyle(hud, 24), textAlign: TextAlign.center),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    l.lockedBody(theme.name),
-                    style: TextStyle(color: hud.muted, fontSize: 15),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 18),
-                  PrimaryButton(
-                    hud: hud,
-                    label: l.lockedCta,
-                    icon: Icons.lock_open_rounded,
-                    onPressed: () =>
-                        Navigator.of(context).push(MaterialPageRoute(fullscreenDialog: true, builder: (_) => const PaywallScreen())),
-                  ),
-                  const SizedBox(height: 8),
-                  SecondaryButton(
-                    hud: hud,
-                    label: l.lockedUseFree,
-                    onPressed: () => ref.read(settingsProvider.notifier).selectTheme(themeCatalog.firstWhere((t) => !t.isPremium).id),
-                  ),
-                ],
-              ),
-            ),
-          ),
         ),
       ),
     );

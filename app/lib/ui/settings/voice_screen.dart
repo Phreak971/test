@@ -8,7 +8,6 @@ import '../../nav/voice.dart';
 import '../../state/nav_controller.dart';
 import '../../state/providers.dart';
 import '../hud.dart';
-import '../paywall/paywall_screen.dart';
 
 /// Circular persona avatar: glyph on the persona colour (no likenesses).
 class PersonaAvatar extends StatelessWidget {
@@ -43,7 +42,6 @@ class VoiceScreen extends ConsumerWidget {
     final l = L.of(context);
     final hud = ref.watch(hudProvider);
     final s = ref.watch(settingsProvider);
-    final premium = ref.watch(entitlementProvider).premium;
     final lang = Localizations.localeOf(context).languageCode;
 
     return Theme(
@@ -71,17 +69,10 @@ class VoiceScreen extends ConsumerWidget {
                 leading: ExcludeSemantics(
                   child: PersonaAvatar(persona: p, selected: p.id == s.voiceId),
                 ),
-                title: Row(
-                  children: [
-                    Flexible(
-                      child: Semantics(
-                        label: [p.name, if (p.isPremium && !premium) l.proLocked, if (p.id == s.voiceId) l.selectedLabel].join(', '),
-                        excludeSemantics: true,
-                        child: Text(p.name, style: displayStyle(hud, 17)),
-                      ),
-                    ),
-                    if (p.isPremium && !premium) ...[const SizedBox(width: 6), Icon(Icons.lock_rounded, size: 16, color: hud.muted)],
-                  ],
+                title: Semantics(
+                  label: [p.name, if (p.id == s.voiceId) l.selectedLabel].join(', '),
+                  excludeSemantics: true,
+                  child: Text(p.name, style: displayStyle(hud, 17)),
                 ),
                 subtitle: Text(voiceTagline(l, p.id), style: TextStyle(color: hud.muted)),
                 selected: p.id == s.voiceId,
@@ -97,10 +88,6 @@ class VoiceScreen extends ConsumerWidget {
                   ],
                 ),
                 onTap: () {
-                  if (p.isPremium && !premium) {
-                    Navigator.of(context).push(MaterialPageRoute(fullscreenDialog: true, builder: (_) => const PaywallScreen()));
-                    return;
-                  }
                   HapticFeedback.selectionClick();
                   ref.read(settingsProvider.notifier).setVoice(p.id);
                   ref.read(speakerProvider).speak(samplePhrase(p, lang), p, lang);

@@ -44,22 +44,6 @@ void main() {
       expect(env.store.loadSettings().unit, DistanceUnit.metric);
     });
 
-    // BUG (crash): loadEntitlement() has no try/catch. A corrupted
-    // 'entitlement.v1' throws FormatException from EntitlementNotifier.build,
-    // which OverworldApp.build watches on every launch -> app can't start,
-    // and "Clean My Data" (clearUserData) throws too.
-    test('corrupted entitlement blob does not throw', () async {
-      final (env, c) = await _container({'entitlement.v1': '{"premium": tru'});
-      expect(() => c.read(entitlementProvider), returnsNormally);
-      expect(() => env.store.loadEntitlement(), returnsNormally);
-      await expectLater(env.store.clearUserData(), completes);
-    });
-
-    test('entitlement blob with wrong value types does not throw', () async {
-      final (env, _) = await _container({'entitlement.v1': '{"premium": "yes", "lifetime": 1}'});
-      expect(() => env.store.loadEntitlement(), returnsNormally);
-    });
-
     // BUG (crash): loadLastCamera() has no try/catch and force-casts every
     // field; HomeScreen.initState calls it, so a bad blob (or one missing
     // 'zoom') crashes the home screen on every launch.

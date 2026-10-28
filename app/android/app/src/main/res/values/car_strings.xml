@@ -32,8 +32,6 @@
     <string name="car_route_error">Couldn\'t calculate a route. Check your connection.</string>
     <string name="car_navigate">Go</string>
     <string name="car_retry">Retry</string>
-    <string name="car_pro_title">Overworld Pro</string>
-    <string name="car_pro_message">Car navigation needs Overworld Pro. Unlock it in the Overworld app on your phone.</string>
     <string name="car_ok">OK</string>
     <string name="car_location_needed">Allow location access on your phone to navigate.</string>
     <string name="car_grant">Grant access</string>

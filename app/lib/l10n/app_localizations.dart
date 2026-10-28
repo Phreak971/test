@@ -372,18 +372,6 @@ abstract class L {
   /// **'Start exploring'**
   String get mapSelectStart;
 
-  /// No description provided for @proBadge.
-  ///
-  /// In en, this message translates to:
-  /// **'PRO'**
-  String get proBadge;
-
-  /// No description provided for @freeBadge.
-  ///
-  /// In en, this message translates to:
-  /// **'FREE'**
-  String get freeBadge;
-
   /// No description provided for @variantLight.
   ///
   /// In en, this message translates to:
@@ -395,36 +383,6 @@ abstract class L {
   /// In en, this message translates to:
   /// **'DARK'**
   String get variantDark;
-
-  /// No description provided for @unlockAllMaps.
-  ///
-  /// In en, this message translates to:
-  /// **'Unlock all maps'**
-  String get unlockAllMaps;
-
-  /// No description provided for @lockedTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'This map is locked'**
-  String get lockedTitle;
-
-  /// No description provided for @lockedBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Unlock {name} and every other world with Overworld Pro.'**
-  String lockedBody(String name);
-
-  /// No description provided for @lockedCta.
-  ///
-  /// In en, this message translates to:
-  /// **'Unlock map'**
-  String get lockedCta;
-
-  /// No description provided for @lockedUseFree.
-  ///
-  /// In en, this message translates to:
-  /// **'Use a free map'**
-  String get lockedUseFree;
 
   /// No description provided for @railSearch.
   ///
@@ -822,30 +780,6 @@ abstract class L {
   /// **'Settings'**
   String get settingsTitle;
 
-  /// No description provided for @premiumBannerTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Overworld Pro'**
-  String get premiumBannerTitle;
-
-  /// No description provided for @premiumBannerBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Unlock every map and voice.'**
-  String get premiumBannerBody;
-
-  /// No description provided for @premiumBannerCta.
-  ///
-  /// In en, this message translates to:
-  /// **'Go Pro'**
-  String get premiumBannerCta;
-
-  /// No description provided for @proActive.
-  ///
-  /// In en, this message translates to:
-  /// **'Pro is active. Thanks for your support!'**
-  String get proActive;
-
   /// No description provided for @sectionMap.
   ///
   /// In en, this message translates to:
@@ -966,12 +900,6 @@ abstract class L {
   /// **'Contact us'**
   String get contactUs;
 
-  /// No description provided for @restorePurchases.
-  ///
-  /// In en, this message translates to:
-  /// **'Restore purchases'**
-  String get restorePurchases;
-
   /// No description provided for @privacy.
   ///
   /// In en, this message translates to:
@@ -999,7 +927,7 @@ abstract class L {
   /// No description provided for @cleanDataBody.
   ///
   /// In en, this message translates to:
-  /// **'This deletes saved places, search history and preferences on this device. Purchases are not affected.'**
+  /// **'This deletes saved places, search history and preferences on this device.'**
   String get cleanDataBody;
 
   /// No description provided for @cleanDataConfirm.
@@ -1163,150 +1091,6 @@ abstract class L {
   /// In en, this message translates to:
   /// **'Your message is ready in your mail app. We\'ll get back to you soon.'**
   String get contactSentBody;
-
-  /// No description provided for @paywallTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Unlock every world'**
-  String get paywallTitle;
-
-  /// No description provided for @paywallFeatureMaps.
-  ///
-  /// In en, this message translates to:
-  /// **'All 15 game-styled maps'**
-  String get paywallFeatureMaps;
-
-  /// No description provided for @paywallFeatureVoices.
-  ///
-  /// In en, this message translates to:
-  /// **'Every character voice'**
-  String get paywallFeatureVoices;
-
-  /// No description provided for @paywallFeatureCar.
-  ///
-  /// In en, this message translates to:
-  /// **'CarPlay & Android Auto'**
-  String get paywallFeatureCar;
-
-  /// No description provided for @paywallFeatureUpdates.
-  ///
-  /// In en, this message translates to:
-  /// **'New worlds as they drop'**
-  String get paywallFeatureUpdates;
-
-  /// No description provided for @planWeekly.
-  ///
-  /// In en, this message translates to:
-  /// **'Weekly'**
-  String get planWeekly;
-
-  /// No description provided for @planMonthly.
-  ///
-  /// In en, this message translates to:
-  /// **'Monthly'**
-  String get planMonthly;
-
-  /// No description provided for @planYearly.
-  ///
-  /// In en, this message translates to:
-  /// **'Yearly'**
-  String get planYearly;
-
-  /// No description provided for @planLifetime.
-  ///
-  /// In en, this message translates to:
-  /// **'Lifetime'**
-  String get planLifetime;
-
-  /// No description provided for @bestValue.
-  ///
-  /// In en, this message translates to:
-  /// **'Best value'**
-  String get bestValue;
-
-  /// No description provided for @freeTrial.
-  ///
-  /// In en, this message translates to:
-  /// **'Free trial'**
-  String get freeTrial;
-
-  /// No description provided for @oneTimePurchase.
-  ///
-  /// In en, this message translates to:
-  /// **'One-time purchase'**
-  String get oneTimePurchase;
-
-  /// No description provided for @billedWeekly.
-  ///
-  /// In en, this message translates to:
-  /// **'Billed weekly'**
-  String get billedWeekly;
-
-  /// No description provided for @billedMonthly.
-  ///
-  /// In en, this message translates to:
-  /// **'Billed monthly'**
-  String get billedMonthly;
-
-  /// No description provided for @billedYearly.
-  ///
-  /// In en, this message translates to:
-  /// **'Billed yearly'**
-  String get billedYearly;
-
-  /// No description provided for @restore.
-  ///
-  /// In en, this message translates to:
-  /// **'Restore'**
-  String get restore;
-
-  /// No description provided for @purchaseSuccessTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome to Pro!'**
-  String get purchaseSuccessTitle;
-
-  /// No description provided for @purchaseSuccessBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Every map and voice is now unlocked.'**
-  String get purchaseSuccessBody;
-
-  /// No description provided for @purchaseFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'The purchase didn\'t go through. Please try again.'**
-  String get purchaseFailed;
-
-  /// No description provided for @purchasePending.
-  ///
-  /// In en, this message translates to:
-  /// **'Your purchase is pending approval.'**
-  String get purchasePending;
-
-  /// No description provided for @restoreNone.
-  ///
-  /// In en, this message translates to:
-  /// **'No previous purchases were found.'**
-  String get restoreNone;
-
-  /// No description provided for @restoreDone.
-  ///
-  /// In en, this message translates to:
-  /// **'Purchases restored'**
-  String get restoreDone;
-
-  /// No description provided for @storeUnavailable.
-  ///
-  /// In en, this message translates to:
-  /// **'The store isn\'t available right now.'**
-  String get storeUnavailable;
-
-  /// No description provided for @autoRenew.
-  ///
-  /// In en, this message translates to:
-  /// **'Subscriptions renew automatically unless cancelled at least 24 hours before the end of the period. Manage them in your account settings.'**
-  String get autoRenew;
 
   /// No description provided for @updateTitle.
   ///
@@ -1692,18 +1476,6 @@ abstract class L {
   /// **'Off'**
   String get stateOff;
 
-  /// No description provided for @startFreeTrial.
-  ///
-  /// In en, this message translates to:
-  /// **'Start free trial'**
-  String get startFreeTrial;
-
-  /// No description provided for @trialTerms.
-  ///
-  /// In en, this message translates to:
-  /// **'{days}-day free trial, then {price} per year'**
-  String trialTerms(int days, String price);
-
   /// No description provided for @railMore.
   ///
   /// In en, this message translates to:
@@ -1752,12 +1524,6 @@ abstract class L {
   /// **'Home uses the house icon'**
   String get homeLocked;
 
-  /// No description provided for @proLocked.
-  ///
-  /// In en, this message translates to:
-  /// **'Pro, locked'**
-  String get proLocked;
-
   /// No description provided for @selectedLabel.
   ///
   /// In en, this message translates to:
@@ -1769,6 +1535,18 @@ abstract class L {
   /// In en, this message translates to:
   /// **'Show on map'**
   String get showOnMap;
+
+  /// Settings banner: the app is free and open source.
+  ///
+  /// In en, this message translates to:
+  /// **'Free & open source'**
+  String get freeBannerTitle;
+
+  /// No description provided for @freeBannerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every map, voice and feature. No ads, no paywalls.'**
+  String get freeBannerBody;
 }
 
 class _LDelegate extends LocalizationsDelegate<L> {

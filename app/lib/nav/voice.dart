@@ -15,7 +15,6 @@ class VoicePersona {
     required this.rate,
     required this.emoji,
     required this.accent,
-    this.isPremium = true,
     this.pack,
   });
 
@@ -28,7 +27,6 @@ class VoicePersona {
   /// Avatar glyph drawn on a coloured disc (no likenesses).
   final String emoji;
   final int accent;
-  final bool isPremium;
 
   /// English flavour lines. Null = plain guidance in every language.
   final PhrasePack? pack;
@@ -55,16 +53,7 @@ class PhrasePack {
 }
 
 const voicePersonas = <VoicePersona>[
-  VoicePersona(
-    id: 'classic',
-    name: 'Navigator',
-    tagline: 'Clear, calm directions',
-    pitch: 1.0,
-    rate: 0.5,
-    emoji: '🧭',
-    accent: 0xFF3D7BFF,
-    isPremium: false,
-  ),
+  VoicePersona(id: 'classic', name: 'Navigator', tagline: 'Clear, calm directions', pitch: 1.0, rate: 0.5, emoji: '🧭', accent: 0xFF3D7BFF),
   VoicePersona(
     id: 'getaway',
     name: 'Getaway Driver',

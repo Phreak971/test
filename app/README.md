@@ -4,6 +4,9 @@ Your real-world map, restyled as 15 original video-game-genre worlds, with
 search, saved places, turn-by-turn navigation, character voices, CarPlay and
 Android Auto. Flutter app for **Android and iOS** (web build used for QA).
 
+Free and open source: every map, voice, icon and feature is unlocked. There
+are no purchases, subscriptions, paywalls or ads.
+
 Clean-room remake: behaviour and feature set were derived from analysing a
 reference app (see [`docs/APP_MAP.md`](docs/APP_MAP.md)); all themes, icons,
 characters, voices, copy and branding here are original.
@@ -19,8 +22,7 @@ flutter build apk --release           # Android
 flutter build ios --release           # iOS (on macOS)
 ```
 
-`--dart-define` options: `FAKE_STORE=true` (in-memory purchases; always on for
-web), `BUILD_NUMBER`, `MIN_BUILD` (force-update gate), `PRIVACY_URL`,
+`--dart-define` options: `BUILD_NUMBER`, `MIN_BUILD` (force-update gate), `PRIVACY_URL`,
 `TERMS_URL`, `COMMUNITY_URL`, `SUPPORT_EMAIL`, `APP_STORE_ID`.
 
 ## Architecture
@@ -36,7 +38,6 @@ web), `BUILD_NUMBER`, `MIN_BUILD` (force-update gate), `PRIVACY_URL`,
 | Turn-by-turn engine (snapping, progress, reroute, arrival, cues) | `lib/nav/navigation_engine.dart` |
 | Voice personas + phrases (6 languages) + TTS | `lib/nav/voice.dart`, `tts.dart` |
 | State (Riverpod) | `lib/state/` |
-| Purchases (StoreKit / Play Billing) | `lib/purchases/purchases.dart` |
 | Screens | `lib/ui/**` |
 | Car bridge (phone → CarPlay / Android Auto) | `lib/car/car_bridge.dart` |
 | CarPlay (Swift) | `ios/Runner/Car*.swift` |
@@ -50,11 +51,6 @@ host: OpenFreeMap tiles (self-host or a commercial tile host), Photon /
 Nominatim (self-host or a geocoding provider), OSRM (self-host). Attribution
 to OpenStreetMap contributors is shown on the map and must stay.
 
-**Purchases:** create these products in App Store Connect / Play Console:
-`overworld.premium.weekly`, `overworld.premium.monthly`,
-`overworld.premium.yearly` (subscriptions) and `overworld.unlock_all`
-(non-consumable). Verify subscription status server-side for production.
-
 **CarPlay** requires Apple's CarPlay *navigation* entitlement
 (`com.apple.developer.carplay-maps`) on your provisioning profile; device
 builds won't sign until it's granted. **Android Auto** navigation apps must
@@ -64,7 +60,7 @@ pass Google's Android-for-Cars review.
 
 - `flutter test`: geo maths, parsers (real API fixtures), navigation engine
   driven along a real route, voice phrases, all 30 styles + palette contrast,
-  widget flows (search, places, settings, paywall, contact, large text).
+  widget flows (search, places, settings, voices, contact, large text).
 - Styles are checked with the official MapLibre validator in CI.
 - `node tool/qa/shoot.js <out> [scenario]`: screenshots the web build in
   headless Chromium with seeded settings and fake GPS (`tool/qa/scenarios.js`).

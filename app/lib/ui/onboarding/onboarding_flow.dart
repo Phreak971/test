@@ -14,13 +14,12 @@ import '../../state/providers.dart';
 import '../../themes/icon_painter.dart';
 import '../../themes/theme_catalog.dart';
 import '../hud.dart';
-import '../paywall/paywall_screen.dart';
 import '../settings/voice_screen.dart';
 import '../themes/theme_picker_screen.dart';
 import '../themes/theme_swatch.dart';
 
 /// First-run flow: intro → genres → source → car → location →
-/// pick a world → paywall. Calls [onFinished] at the end.
+/// pick a world. Calls [onFinished] at the end.
 class OnboardingFlow extends ConsumerStatefulWidget {
   const OnboardingFlow({super.key, required this.onFinished});
 
@@ -50,27 +49,11 @@ class _OnboardingFlowState extends ConsumerState<OnboardingFlow> {
 
   void _pickWorld() {
     // Suggest the first theme matching a chosen genre.
-    final suggestion =
-        themeCatalog.where((t) => _genres.contains(t.genre) && !t.isPremium).firstOrNull ??
-        themeCatalog.where((t) => _genres.contains(t.genre)).firstOrNull;
-    if (suggestion != null && ref.read(themeUnlockedProvider(suggestion.id))) {
+    final suggestion = themeCatalog.where((t) => _genres.contains(t.genre)).firstOrNull;
+    if (suggestion != null) {
       ref.read(settingsProvider.notifier).selectTheme(suggestion.id);
     }
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ThemePickerScreen(
-          onboarding: true,
-          onDone: () {
-            final premium = ref.read(entitlementProvider).premium;
-            if (premium) {
-              _finish();
-              return;
-            }
-            Navigator.of(context).push(MaterialPageRoute(fullscreenDialog: true, builder: (_) => PaywallScreen(onClose: _finish)));
-          },
-        ),
-      ),
-    );
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => ThemePickerScreen(onboarding: true, onDone: _finish)));
   }
 
   void _finish() {

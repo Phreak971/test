@@ -52,7 +52,6 @@ struct CarState: Codable {
   var darkIconsDir: String?
 
   var alwaysDark = false
-  var premium = false
   var unit = "metric"
   var locale = "en"
   var voice = CarVoiceConfig()
@@ -70,7 +69,6 @@ struct CarSyncPayload {
   var lightIcons: [String: Data]
   var darkIcons: [String: Data]
   var alwaysDark: Bool
-  var premium: Bool
   var unit: String
   var locale: String
   var voice: CarVoiceConfig
@@ -156,7 +154,6 @@ final class CarStore {
   func apply(_ p: CarSyncPayload) {
     var next = state
     next.alwaysDark = p.alwaysDark
-    next.premium = p.premium
     next.unit = p.unit == "imperial" ? "imperial" : "metric"
     next.locale = p.locale
     next.voice = p.voice

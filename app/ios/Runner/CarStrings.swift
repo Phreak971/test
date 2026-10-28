@@ -6,7 +6,7 @@ enum CarText: String {
   case search, saved, nearby, voice, recent, home
   case noFavorites, noFavoritesDetail, noResults, searching
   case go, cancel, end, done, ok, overview
-  case proTitle, setupTitle
+  case setupTitle
   case noLocation, noRoute, genericError
   case arrived, voiceOn, voiceOff, voiceGuidance, voiceCharacter
   case restaurants, fastFood, coffee, gas, charging, parking, hotels, supermarkets, pharmacies, hospitals, subway, banks
@@ -23,7 +23,6 @@ enum CarStrings {
       .noFavorites: "No saved places", .noFavoritesDetail: "Add favorites from your phone", .noResults: "No results",
       .searching: "Searching…",
       .go: "Go", .cancel: "Cancel", .end: "End", .done: "Done", .ok: "OK", .overview: "Overview",
-      .proTitle: "Unlock Overworld Pro on your iPhone to navigate with CarPlay",
       .setupTitle: "Open Overworld on your iPhone once to set up CarPlay",
       .noLocation: "Current location not found", .noRoute: "No route found", .genericError: "Something went wrong",
       .arrived: "You have arrived", .voiceOn: "On", .voiceOff: "Muted", .voiceGuidance: "Voice guidance",
@@ -37,7 +36,6 @@ enum CarStrings {
       .noFavorites: "Keine gespeicherten Orte", .noFavoritesDetail: "Füge Favoriten auf deinem iPhone hinzu",
       .noResults: "Keine Ergebnisse", .searching: "Suche…",
       .go: "Los", .cancel: "Abbrechen", .end: "Beenden", .done: "Fertig", .ok: "OK", .overview: "Übersicht",
-      .proTitle: "Schalte Overworld Pro auf deinem iPhone frei, um mit CarPlay zu navigieren",
       .setupTitle: "Öffne Overworld einmal auf deinem iPhone, um CarPlay einzurichten",
       .noLocation: "Aktueller Standort nicht gefunden", .noRoute: "Keine Route gefunden", .genericError: "Etwas ist schiefgelaufen",
       .arrived: "Du hast dein Ziel erreicht", .voiceOn: "An", .voiceOff: "Stumm", .voiceGuidance: "Sprachansagen",
@@ -51,7 +49,6 @@ enum CarStrings {
       .noFavorites: "Aucun lieu enregistré", .noFavoritesDetail: "Ajoutez des favoris depuis votre iPhone",
       .noResults: "Aucun résultat", .searching: "Recherche…",
       .go: "Go", .cancel: "Annuler", .end: "Terminer", .done: "OK", .ok: "OK", .overview: "Aperçu",
-      .proTitle: "Débloquez Overworld Pro sur votre iPhone pour naviguer avec CarPlay",
       .setupTitle: "Ouvrez Overworld une fois sur votre iPhone pour configurer CarPlay",
       .noLocation: "Position actuelle introuvable", .noRoute: "Aucun itinéraire trouvé", .genericError: "Une erreur s'est produite",
       .arrived: "Vous êtes arrivé", .voiceOn: "Activé", .voiceOff: "Muet", .voiceGuidance: "Guidage vocal",
@@ -65,7 +62,6 @@ enum CarStrings {
       .noFavorites: "No hay lugares guardados", .noFavoritesDetail: "Añade favoritos desde tu iPhone",
       .noResults: "Sin resultados", .searching: "Buscando…",
       .go: "Ir", .cancel: "Cancelar", .end: "Finalizar", .done: "Listo", .ok: "OK", .overview: "Vista general",
-      .proTitle: "Desbloquea Overworld Pro en tu iPhone para navegar con CarPlay",
       .setupTitle: "Abre Overworld una vez en tu iPhone para configurar CarPlay",
       .noLocation: "No se encontró la ubicación actual", .noRoute: "No se encontró ninguna ruta", .genericError: "Algo salió mal",
       .arrived: "Has llegado", .voiceOn: "Activada", .voiceOff: "Silenciada", .voiceGuidance: "Guía por voz",
@@ -79,7 +75,6 @@ enum CarStrings {
       .noFavorites: "Nessun luogo salvato", .noFavoritesDetail: "Aggiungi preferiti dal tuo iPhone",
       .noResults: "Nessun risultato", .searching: "Ricerca…",
       .go: "Vai", .cancel: "Annulla", .end: "Termina", .done: "Fine", .ok: "OK", .overview: "Panoramica",
-      .proTitle: "Sblocca Overworld Pro sul tuo iPhone per navigare con CarPlay",
       .setupTitle: "Apri Overworld una volta sul tuo iPhone per configurare CarPlay",
       .noLocation: "Posizione attuale non trovata", .noRoute: "Nessun percorso trovato", .genericError: "Qualcosa è andato storto",
       .arrived: "Sei arrivato", .voiceOn: "Attiva", .voiceOff: "Disattivata", .voiceGuidance: "Guida vocale",
@@ -93,7 +88,6 @@ enum CarStrings {
       .noFavorites: "Kayıtlı yer yok", .noFavoritesDetail: "Favorileri iPhone'unuzdan ekleyin",
       .noResults: "Sonuç yok", .searching: "Aranıyor…",
       .go: "Başla", .cancel: "İptal", .end: "Bitir", .done: "Bitti", .ok: "Tamam", .overview: "Genel bakış",
-      .proTitle: "CarPlay ile navigasyon için iPhone'unuzda Overworld Pro'nun kilidini açın",
       .setupTitle: "CarPlay'i kurmak için Overworld'ü iPhone'unuzda bir kez açın",
       .noLocation: "Mevcut konum bulunamadı", .noRoute: "Rota bulunamadı", .genericError: "Bir şeyler ters gitti",
       .arrived: "Vardınız", .voiceOn: "Açık", .voiceOff: "Sessiz", .voiceGuidance: "Sesli yönlendirme",

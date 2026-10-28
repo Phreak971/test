@@ -13,7 +13,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import app.overworld.overworld.car.screens.MainNavScreen
 import app.overworld.overworld.car.screens.PermissionScreen
-import app.overworld.overworld.car.screens.ProGateScreen
 import app.overworld.overworld.car.screens.RoutePreviewScreen
 import app.overworld.overworld.car.screens.SearchScreen
 
@@ -85,12 +84,12 @@ class OverworldSession : Session() {
         val pending = CarStore.takePendingPreview()
         if (pending != null) {
             screenManager.push(main)
-            return destinationScreen(pending)
+            return RoutePreviewScreen(carContext, this, pending)
         }
         val fromIntent = navigateIntentTarget(intent) ?: return main
         screenManager.push(main)
         val place = fromIntent.place
-        return if (place != null) destinationScreen(place) else SearchScreen(carContext, this, initialQuery = fromIntent.query)
+        return if (place != null) RoutePreviewScreen(carContext, this, place) else SearchScreen(carContext, this, initialQuery = fromIntent.query)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -105,25 +104,18 @@ class OverworldSession : Session() {
         renderer.applyTheme(CarStore.snapshot, carContext.isDarkMode)
     }
 
-    /** Shows the route preview for [place], or the Pro gate when not entitled. */
+    /** Shows the route preview for [place]. */
     fun openDestination(place: CarPlace) {
         if (!initialized || lifecycle.currentState == Lifecycle.State.DESTROYED) return
         try {
-            screenManager.push(destinationScreen(place))
+            screenManager.push(RoutePreviewScreen(carContext, this, place))
         } catch (t: Throwable) {
             Log.w(TAG, "could not open destination", t)
         }
     }
 
-    private fun destinationScreen(place: CarPlace): Screen =
-        if (CarStore.snapshot.premium) RoutePreviewScreen(carContext, this, place) else ProGateScreen(carContext, this)
-
     /** Called by the preview when the driver taps Go. */
     fun startNavigation(route: Route, place: CarPlace) {
-        if (!CarStore.snapshot.premium) {
-            screenManager.push(ProGateScreen(carContext, this))
-            return
-        }
         screenManager.popToRoot()
         navigator.start(route, place)
     }

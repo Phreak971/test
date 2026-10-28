@@ -149,33 +149,10 @@ class LEn extends L {
   String get mapSelectStart => 'Start exploring';
 
   @override
-  String get proBadge => 'PRO';
-
-  @override
-  String get freeBadge => 'FREE';
-
-  @override
   String get variantLight => 'LIGHT';
 
   @override
   String get variantDark => 'DARK';
-
-  @override
-  String get unlockAllMaps => 'Unlock all maps';
-
-  @override
-  String get lockedTitle => 'This map is locked';
-
-  @override
-  String lockedBody(String name) {
-    return 'Unlock $name and every other world with Overworld Pro.';
-  }
-
-  @override
-  String get lockedCta => 'Unlock map';
-
-  @override
-  String get lockedUseFree => 'Use a free map';
 
   @override
   String get railSearch => 'Search';
@@ -380,18 +357,6 @@ class LEn extends L {
   String get settingsTitle => 'Settings';
 
   @override
-  String get premiumBannerTitle => 'Overworld Pro';
-
-  @override
-  String get premiumBannerBody => 'Unlock every map and voice.';
-
-  @override
-  String get premiumBannerCta => 'Go Pro';
-
-  @override
-  String get proActive => 'Pro is active. Thanks for your support!';
-
-  @override
   String get sectionMap => 'Map';
 
   @override
@@ -452,9 +417,6 @@ class LEn extends L {
   String get contactUs => 'Contact us';
 
   @override
-  String get restorePurchases => 'Restore purchases';
-
-  @override
   String get privacy => 'Privacy policy';
 
   @override
@@ -467,7 +429,7 @@ class LEn extends L {
   String get cleanDataTitle => 'Clean my data?';
 
   @override
-  String get cleanDataBody => 'This deletes saved places, search history and preferences on this device. Purchases are not affected.';
+  String get cleanDataBody => 'This deletes saved places, search history and preferences on this device.';
 
   @override
   String get cleanDataConfirm => 'Delete data';
@@ -551,79 +513,6 @@ class LEn extends L {
 
   @override
   String get contactSentBody => 'Your message is ready in your mail app. We\'ll get back to you soon.';
-
-  @override
-  String get paywallTitle => 'Unlock every world';
-
-  @override
-  String get paywallFeatureMaps => 'All 15 game-styled maps';
-
-  @override
-  String get paywallFeatureVoices => 'Every character voice';
-
-  @override
-  String get paywallFeatureCar => 'CarPlay & Android Auto';
-
-  @override
-  String get paywallFeatureUpdates => 'New worlds as they drop';
-
-  @override
-  String get planWeekly => 'Weekly';
-
-  @override
-  String get planMonthly => 'Monthly';
-
-  @override
-  String get planYearly => 'Yearly';
-
-  @override
-  String get planLifetime => 'Lifetime';
-
-  @override
-  String get bestValue => 'Best value';
-
-  @override
-  String get freeTrial => 'Free trial';
-
-  @override
-  String get oneTimePurchase => 'One-time purchase';
-
-  @override
-  String get billedWeekly => 'Billed weekly';
-
-  @override
-  String get billedMonthly => 'Billed monthly';
-
-  @override
-  String get billedYearly => 'Billed yearly';
-
-  @override
-  String get restore => 'Restore';
-
-  @override
-  String get purchaseSuccessTitle => 'Welcome to Pro!';
-
-  @override
-  String get purchaseSuccessBody => 'Every map and voice is now unlocked.';
-
-  @override
-  String get purchaseFailed => 'The purchase didn\'t go through. Please try again.';
-
-  @override
-  String get purchasePending => 'Your purchase is pending approval.';
-
-  @override
-  String get restoreNone => 'No previous purchases were found.';
-
-  @override
-  String get restoreDone => 'Purchases restored';
-
-  @override
-  String get storeUnavailable => 'The store isn\'t available right now.';
-
-  @override
-  String get autoRenew =>
-      'Subscriptions renew automatically unless cancelled at least 24 hours before the end of the period. Manage them in your account settings.';
 
   @override
   String get updateTitle => 'Update required';
@@ -818,14 +707,6 @@ class LEn extends L {
   String get stateOff => 'Off';
 
   @override
-  String get startFreeTrial => 'Start free trial';
-
-  @override
-  String trialTerms(int days, String price) {
-    return '$days-day free trial, then $price per year';
-  }
-
-  @override
   String get railMore => 'More';
 
   @override
@@ -855,11 +736,14 @@ class LEn extends L {
   String get homeLocked => 'Home uses the house icon';
 
   @override
-  String get proLocked => 'Pro, locked';
-
-  @override
   String get selectedLabel => 'Selected';
 
   @override
   String get showOnMap => 'Show on map';
+
+  @override
+  String get freeBannerTitle => 'Free & open source';
+
+  @override
+  String get freeBannerBody => 'Every map, voice and feature. No ads, no paywalls.';
 }

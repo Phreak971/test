@@ -11,7 +11,6 @@ import '../data/models.dart';
 import '../data/repositories.dart';
 import '../data/routing_service.dart';
 import '../data/search_service.dart';
-import '../purchases/purchases.dart';
 import '../themes/map_theme.dart';
 import '../themes/theme_catalog.dart';
 
@@ -26,12 +25,6 @@ final searchServiceProvider = Provider<SearchService>((ref) {
 
 final routingServiceProvider = Provider<RoutingService>((ref) {
   final s = RoutingService();
-  ref.onDispose(s.dispose);
-  return s;
-});
-
-final purchaseServiceProvider = Provider<PurchaseService>((ref) {
-  final s = createPurchaseService();
   ref.onDispose(s.dispose);
   return s;
 });
@@ -83,36 +76,6 @@ final activeThemeProvider = Provider<({MapTheme theme, MapVariant variant})>((re
   final theme = themeById(s.themeId);
   final variant = s.preferDark == null ? theme.baseVariant : (s.preferDark! ? MapVariant.dark : MapVariant.light);
   return (theme: theme, variant: variant);
-});
-
-// ---------------------------------------------------------------------------
-// Entitlement
-
-class EntitlementNotifier extends Notifier<Entitlement> {
-  StreamSubscription<Entitlement>? _sub;
-
-  @override
-  Entitlement build() {
-    final cached = ref.read(localStoreProvider).loadEntitlement();
-    _sub?.cancel();
-    _sub = ref.read(purchaseServiceProvider).entitlements.listen(grant);
-    ref.onDispose(() => _sub?.cancel());
-    return Entitlement(premium: cached.premium, lifetime: cached.lifetime);
-  }
-
-  void grant(Entitlement e) {
-    final merged = Entitlement(premium: state.premium || e.premium, lifetime: state.lifetime || e.lifetime);
-    state = merged;
-    unawaited(ref.read(localStoreProvider).saveEntitlement(premium: merged.premium, lifetime: merged.lifetime));
-  }
-}
-
-final entitlementProvider = NotifierProvider<EntitlementNotifier, Entitlement>(EntitlementNotifier.new);
-
-/// True when [theme] can be used right now.
-final themeUnlockedProvider = Provider.family<bool, String>((ref, themeId) {
-  final t = themeById(themeId);
-  return !t.isPremium || ref.watch(entitlementProvider).premium;
 });
 
 // ---------------------------------------------------------------------------

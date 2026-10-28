@@ -3,11 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:overworld/core/geo.dart';
 import 'package:overworld/core/units.dart';
 import 'package:overworld/data/models.dart';
-import 'package:overworld/purchases/purchases.dart';
 import 'package:overworld/state/providers.dart';
 import 'package:overworld/ui/home/places_sheets.dart';
 import 'package:overworld/ui/home/search_sheet.dart';
-import 'package:overworld/ui/paywall/paywall_screen.dart';
 import 'package:overworld/ui/settings/contact_screen.dart';
 import 'package:overworld/ui/settings/settings_screen.dart';
 import 'package:overworld/ui/settings/voice_screen.dart';
@@ -120,49 +118,35 @@ void main() {
     await tester.pumpAndSettle(const Duration(seconds: 3));
   });
 
-  testWidgets('settings: clean my data wipes places but keeps purchase', (tester) async {
+  testWidgets('settings: clean my data wipes places', (tester) async {
     final env = await makeEnv();
     final c = await pumpApp(tester, env, const SettingsScreen());
     c.read(placesProvider.notifier).add(name: 'X', location: const Geo(0, 1), icon: PlaceIcon.star);
-    c.read(entitlementProvider.notifier).grant(const Entitlement(premium: true));
     await tester.scrollUntilVisible(find.text('Clean my data'), 200, scrollable: find.byType(Scrollable).first);
     await tester.tap(find.text('Clean my data'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete data'));
     await tester.pumpAndSettle();
     expect(c.read(placesProvider), isEmpty);
-    expect(env.store.loadEntitlement().premium, isTrue);
     expect(c.read(settingsProvider).onboarded, isTrue);
     await tester.pumpAndSettle(const Duration(seconds: 3));
   });
 
-  testWidgets('paywall: buying yearly unlocks premium', (tester) async {
-    final env = await makeEnv();
-    final c = await pumpApp(tester, env, const PaywallScreen());
-    expect(find.text('Unlock every world'), findsOneWidget);
-    expect(find.text('Best value'), findsOneWidget);
-    // The CTA is pinned and visible without scrolling.
-    // Yearly (default) has a trial, so the CTA says so.
-    expect(find.text('Start free trial').hitTestable(), findsOneWidget);
-    expect(find.textContaining('3-day free trial, then'), findsOneWidget);
-    await tester.tap(find.text('Start free trial'));
-    await tester.pump(const Duration(milliseconds: 500));
-    await tester.pumpAndSettle();
-    expect(c.read(entitlementProvider).premium, isTrue);
-    expect(find.text('Welcome to Pro!'), findsOneWidget);
-    expect(c.read(themeUnlockedProvider('neon_sprawl')), isTrue);
-  });
-
-  testWidgets('premium themes and voices are locked for free users', (tester) async {
+  testWidgets('every voice is free to pick', (tester) async {
     final env = await makeEnv();
     final c = await pumpApp(tester, env, const VoiceScreen());
-    expect(c.read(themeUnlockedProvider('palm_metro')), isTrue);
-    expect(c.read(themeUnlockedProvider('neon_sprawl')), isFalse);
-    // Tapping a locked voice opens the paywall instead of selecting it.
+    expect(find.byIcon(Icons.lock_rounded), findsNothing);
     await tester.tap(find.text('Frontier Ranger'));
     await tester.pumpAndSettle();
-    expect(find.text('Unlock every world'), findsOneWidget);
-    expect(c.read(settingsProvider).voiceId, 'classic');
+    expect(c.read(settingsProvider).voiceId, 'ranger');
+  });
+
+  testWidgets('settings shows the free banner and no store actions', (tester) async {
+    final env = await makeEnv();
+    await pumpApp(tester, env, const SettingsScreen());
+    expect(find.text('Free & open source'), findsOneWidget);
+    expect(find.textContaining('Pro'), findsNothing);
+    expect(find.text('Restore purchases'), findsNothing);
   });
 
   testWidgets('contact: validation messages', (tester) async {
@@ -180,11 +164,18 @@ void main() {
 
   testWidgets('layouts survive the largest text size on a small phone', (tester) async {
     final env = await makeEnv();
-    for (final screen in [const SettingsScreen(), const PaywallScreen(), const ContactScreen(), const VoiceScreen()]) {
+    for (final screen in [const SettingsScreen(), const ContactScreen(), const VoiceScreen()]) {
       tester.platformDispatcher.textScaleFactorTestValue = 2.0;
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
       await pumpApp(tester, env, screen, size: const Size(320, 568));
       expect(tester.takeException(), isNull, reason: '${screen.runtimeType} overflowed');
+      // Lazy lists only lay out visible rows; scroll so every row is built.
+      final list = find.byType(Scrollable).first;
+      for (var i = 0; i < 12; i++) {
+        await tester.drag(list, const Offset(0, -300));
+        await tester.pump();
+        expect(tester.takeException(), isNull, reason: '${screen.runtimeType} overflowed after scrolling');
+      }
     }
   });
 }

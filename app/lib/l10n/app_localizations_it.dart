@@ -149,33 +149,10 @@ class LIt extends L {
   String get mapSelectStart => 'Inizia a esplorare';
 
   @override
-  String get proBadge => 'PRO';
-
-  @override
-  String get freeBadge => 'GRATIS';
-
-  @override
   String get variantLight => 'CHIARO';
 
   @override
   String get variantDark => 'SCURO';
-
-  @override
-  String get unlockAllMaps => 'Sblocca tutte le mappe';
-
-  @override
-  String get lockedTitle => 'Questa mappa è bloccata';
-
-  @override
-  String lockedBody(String name) {
-    return 'Sblocca $name e tutti gli altri mondi con Overworld Pro.';
-  }
-
-  @override
-  String get lockedCta => 'Sblocca mappa';
-
-  @override
-  String get lockedUseFree => 'Usa una mappa gratis';
 
   @override
   String get railSearch => 'Cerca';
@@ -380,18 +357,6 @@ class LIt extends L {
   String get settingsTitle => 'Impostazioni';
 
   @override
-  String get premiumBannerTitle => 'Overworld Pro';
-
-  @override
-  String get premiumBannerBody => 'Sblocca tutte le mappe e le voci.';
-
-  @override
-  String get premiumBannerCta => 'Passa a Pro';
-
-  @override
-  String get proActive => 'Pro è attivo. Grazie per il tuo supporto!';
-
-  @override
   String get sectionMap => 'Mappa';
 
   @override
@@ -452,9 +417,6 @@ class LIt extends L {
   String get contactUs => 'Contattaci';
 
   @override
-  String get restorePurchases => 'Ripristina acquisti';
-
-  @override
   String get privacy => 'Informativa sulla privacy';
 
   @override
@@ -467,8 +429,7 @@ class LIt extends L {
   String get cleanDataTitle => 'Cancellare i tuoi dati?';
 
   @override
-  String get cleanDataBody =>
-      'Verranno eliminati luoghi salvati, cronologia delle ricerche e preferenze su questo dispositivo. Gli acquisti non vengono toccati.';
+  String get cleanDataBody => 'Verranno eliminati luoghi salvati, cronologia delle ricerche e preferenze su questo dispositivo.';
 
   @override
   String get cleanDataConfirm => 'Elimina dati';
@@ -552,79 +513,6 @@ class LIt extends L {
 
   @override
   String get contactSentBody => 'Il tuo messaggio è pronto nella tua app di posta. Ti risponderemo presto.';
-
-  @override
-  String get paywallTitle => 'Sblocca tutti i mondi';
-
-  @override
-  String get paywallFeatureMaps => 'Tutte le 15 mappe in stile videogioco';
-
-  @override
-  String get paywallFeatureVoices => 'Tutte le voci dei personaggi';
-
-  @override
-  String get paywallFeatureCar => 'CarPlay e Android Auto';
-
-  @override
-  String get paywallFeatureUpdates => 'Nuovi mondi appena escono';
-
-  @override
-  String get planWeekly => 'Settimanale';
-
-  @override
-  String get planMonthly => 'Mensile';
-
-  @override
-  String get planYearly => 'Annuale';
-
-  @override
-  String get planLifetime => 'A vita';
-
-  @override
-  String get bestValue => 'Più conveniente';
-
-  @override
-  String get freeTrial => 'Prova gratuita';
-
-  @override
-  String get oneTimePurchase => 'Acquisto singolo';
-
-  @override
-  String get billedWeekly => 'Addebito settimanale';
-
-  @override
-  String get billedMonthly => 'Addebito mensile';
-
-  @override
-  String get billedYearly => 'Addebito annuale';
-
-  @override
-  String get restore => 'Ripristina';
-
-  @override
-  String get purchaseSuccessTitle => 'Ti diamo il benvenuto in Pro!';
-
-  @override
-  String get purchaseSuccessBody => 'Tutte le mappe e le voci sono sbloccate.';
-
-  @override
-  String get purchaseFailed => 'L’acquisto non è andato a buon fine. Riprova.';
-
-  @override
-  String get purchasePending => 'Il tuo acquisto è in attesa di approvazione.';
-
-  @override
-  String get restoreNone => 'Nessun acquisto precedente trovato.';
-
-  @override
-  String get restoreDone => 'Acquisti ripristinati';
-
-  @override
-  String get storeUnavailable => 'Lo store non è disponibile al momento.';
-
-  @override
-  String get autoRenew =>
-      'Gli abbonamenti si rinnovano automaticamente se non vengono disdetti almeno 24 ore prima della fine del periodo. Gestiscili nelle impostazioni del tuo account.';
 
   @override
   String get updateTitle => 'Aggiornamento necessario';
@@ -819,14 +707,6 @@ class LIt extends L {
   String get stateOff => 'Disattivato';
 
   @override
-  String get startFreeTrial => 'Inizia la prova gratuita';
-
-  @override
-  String trialTerms(int days, String price) {
-    return '$days giorni di prova gratuita, poi $price all’anno';
-  }
-
-  @override
   String get railMore => 'Altro';
 
   @override
@@ -862,11 +742,14 @@ class LIt extends L {
   String get homeLocked => 'Casa usa l’icona della casetta';
 
   @override
-  String get proLocked => 'Pro, bloccato';
-
-  @override
   String get selectedLabel => 'Selezionato';
 
   @override
   String get showOnMap => 'Mostra sulla mappa';
+
+  @override
+  String get freeBannerTitle => 'Gratis e open source';
+
+  @override
+  String get freeBannerBody => 'Tutte le mappe, le voci e le funzioni. Niente pubblicità, niente abbonamenti.';
 }

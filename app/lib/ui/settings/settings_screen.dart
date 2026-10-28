@@ -13,7 +13,6 @@ import '../../state/providers.dart';
 import '../../themes/map_theme.dart';
 import '../home/places_sheets.dart';
 import '../hud.dart';
-import '../paywall/paywall_screen.dart';
 import 'app_icon_screen.dart';
 import 'car_settings_screen.dart';
 import 'contact_screen.dart';
@@ -42,9 +41,13 @@ class SettingsScreen extends ConsumerWidget {
     final l = L.of(context);
     final hud = ref.watch(hudProvider);
     final s = ref.watch(settingsProvider);
-    final premium = ref.watch(entitlementProvider).premium;
     final active = ref.watch(activeThemeProvider);
     final notifier = ref.read(settingsProvider.notifier);
+
+    // Wide controls (dropdown, segmented) move under the title when they
+    // can't fit beside it: large text or a narrow screen.
+    final mq = MediaQuery.of(context);
+    final stacked = mq.textScaler.scale(16) > 20 || mq.size.width < 360;
 
     Widget tile(IconData icon, String title, {String? value, VoidCallback? onTap, Widget? trailing, Color? color}) => ListTile(
       minTileHeight: 56,
@@ -53,15 +56,20 @@ class SettingsScreen extends ConsumerWidget {
         title,
         style: TextStyle(color: color ?? hud.text, fontWeight: FontWeight.w600, fontSize: 16),
       ),
-      trailing:
-          trailing ??
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (value != null) Text(value, style: TextStyle(color: hud.muted, fontSize: 15)),
-              if (onTap != null) Icon(Icons.chevron_right_rounded, color: hud.muted),
-            ],
-          ),
+      subtitle: trailing != null && stacked ? Padding(padding: const EdgeInsets.only(top: 8), child: trailing) : null,
+      trailing: trailing != null
+          ? (stacked ? null : trailing)
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (value != null)
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: mq.size.width * 0.35),
+                    child: Text(value, style: TextStyle(color: hud.muted, fontSize: 15), overflow: TextOverflow.ellipsis),
+                  ),
+                if (onTap != null) Icon(Icons.chevron_right_rounded, color: hud.muted),
+              ],
+            ),
       onTap: onTap,
     );
 
@@ -78,13 +86,14 @@ class SettingsScreen extends ConsumerWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                  child: _PremiumBanner(hud: hud, premium: premium),
+                  child: _FreeBanner(hud: hud),
                 ),
                 HudSectionHeader(hud: hud, text: l.sectionMap),
                 tile(
                   Icons.contrast_rounded,
                   l.appearance,
                   trailing: DropdownButton<int>(
+                    isExpanded: stacked,
                     value: s.preferDark == null ? 0 : (s.preferDark! ? 2 : 1),
                     underline: const SizedBox.shrink(),
                     dropdownColor: hud.panel.withValues(alpha: 1),
@@ -106,6 +115,7 @@ class SettingsScreen extends ConsumerWidget {
                   l.distanceUnits,
                   trailing: SegmentedButton<DistanceUnit>(
                     showSelectedIcon: false,
+                    expandedInsets: stacked ? EdgeInsets.zero : null,
                     segments: [
                       ButtonSegment(value: DistanceUnit.metric, label: Text(l.kilometers)),
                       ButtonSegment(value: DistanceUnit.imperial, label: Text(l.miles)),
@@ -146,7 +156,6 @@ class SettingsScreen extends ConsumerWidget {
                   onTap: () => launchUrl(AppConfig.communityUrl, mode: LaunchMode.externalApplication),
                 ),
                 tile(Icons.mail_rounded, l.contactUs, onTap: () => push(const ContactScreen())),
-                tile(Icons.restore_rounded, l.restorePurchases, onTap: () => restorePurchases(context, ref)),
                 HudSectionHeader(hud: hud, text: l.sectionLegal),
                 tile(Icons.privacy_tip_rounded, l.privacy, onTap: () => launchUrl(AppConfig.privacyUrl)),
                 tile(Icons.description_rounded, l.terms, onTap: () => launchUrl(AppConfig.termsUrl)),
@@ -193,11 +202,10 @@ class SettingsScreen extends ConsumerWidget {
   }
 }
 
-class _PremiumBanner extends StatelessWidget {
-  const _PremiumBanner({required this.hud, required this.premium});
+class _FreeBanner extends StatelessWidget {
+  const _FreeBanner({required this.hud});
 
   final Hud hud;
-  final bool premium;
 
   @override
   Widget build(BuildContext context) {
@@ -210,23 +218,17 @@ class _PremiumBanner extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          Icon(premium ? Icons.verified_rounded : Icons.workspace_premium_rounded, color: hud.onAccent, size: 40),
+          Icon(Icons.favorite_rounded, color: hud.onAccent, size: 40),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l.premiumBannerTitle, style: displayStyle(hud, 20, color: hud.onAccent)),
-                Text(premium ? l.proActive : l.premiumBannerBody, style: TextStyle(color: hud.onAccent.withValues(alpha: 0.9))),
+                Text(l.freeBannerTitle, style: displayStyle(hud, 20, color: hud.onAccent)),
+                Text(l.freeBannerBody, style: TextStyle(color: hud.onAccent.withValues(alpha: 0.9))),
               ],
             ),
           ),
-          if (!premium)
-            FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: hud.onAccent, foregroundColor: hud.accent, minimumSize: const Size(48, 44)),
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(fullscreenDialog: true, builder: (_) => const PaywallScreen())),
-              child: Text(l.premiumBannerCta, style: const TextStyle(fontWeight: FontWeight.w800)),
-            ),
         ],
       ),
     );

@@ -219,7 +219,6 @@ class MapTheme {
     required this.poiShape,
     required this.puck,
     this.alt,
-    this.isPremium = true,
     this.overlay = MapOverlay.none,
     this.uppercaseLabels = false,
     this.italicLabels = false,
@@ -245,7 +244,6 @@ class MapTheme {
   final MapVariant baseVariant;
   final PoiShape poiShape;
   final PuckShape puck;
-  final bool isPremium;
   final MapOverlay overlay;
   final bool uppercaseLabels;
   final bool italicLabels;
