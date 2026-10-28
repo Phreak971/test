@@ -24,14 +24,13 @@ function serve() {
 }
 
 /** Opens the app with persisted settings/places and a fake GPS position. */
-async function openApp(browser, base, { settings, places, geo = { latitude: 40.758, longitude: -73.9855 }, viewport = { width: 390, height: 844 }, locale = 'en-US', premium = false } = {}) {
+async function openApp(browser, base, { settings, places, geo = { latitude: 40.758, longitude: -73.9855 }, viewport = { width: 390, height: 844 }, locale = 'en-US' } = {}) {
   const ctx = await browser.newContext({ viewport, deviceScaleFactor: 2, geolocation: geo, permissions: ['geolocation'], locale, isMobile: true, hasTouch: true });
-  await ctx.addInitScript(({ settings, places, premium }) => {
+  await ctx.addInitScript(({ settings, places }) => {
     const put = (k, v) => localStorage.setItem('flutter.' + k, JSON.stringify(v));
     if (settings) put('settings.v1', JSON.stringify(settings));
     if (places) put('saved_places.v1', JSON.stringify(places));
-    if (premium) put('entitlement.v1', JSON.stringify({ premium: true, lifetime: false }));
-  }, { settings, places, premium });
+  }, { settings, places });
   const page = await ctx.newPage();
   page.on('pageerror', (e) => console.log('PAGEERROR', e.message));
   page.on('console', (m) => { if (m.type() === 'error') console.log('CONSOLE', m.text().slice(0, 300)); });

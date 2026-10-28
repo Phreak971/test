@@ -834,4 +834,49 @@ class LDe extends L {
 
   @override
   String get openMapLinksHint => 'Links von OpenStreetMap, Google Maps und Apple Karten zulassen';
+
+  @override
+  String get searchHere => 'Hier suchen';
+
+  @override
+  String get directions => 'Route';
+
+  @override
+  String get start => 'Starten';
+
+  @override
+  String get savedChip => 'Gespeichert';
+
+  @override
+  String get homeChip => 'Zuhause';
+
+  @override
+  String get coordinates => 'Koordinaten';
+
+  @override
+  String get coordinatesCopied => 'Koordinaten kopiert';
+
+  @override
+  String get steps => 'Schritte';
+
+  @override
+  String get yourLocation => 'Dein Standort';
+
+  @override
+  String get recenter => 'Zentrieren';
+
+  @override
+  String get chooseDestination => 'Ziel wählen';
+
+  @override
+  String get sheetExpand => 'Mehr anzeigen';
+
+  @override
+  String get sheetCollapse => 'Weniger anzeigen';
+
+  @override
+  String get searchingNearby => 'Suche in der Nähe …';
+
+  @override
+  String get nothingNearby => 'Nichts in der Nähe gefunden. Verschiebe die Karte.';
 }

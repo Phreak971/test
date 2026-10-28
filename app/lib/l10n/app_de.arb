@@ -268,5 +268,20 @@
   "voiceTaglineHalfling": "Fröhlich, neugierig, immer hungrig",
   "voiceTaglineArchmage": "Streng, brillant, zieht Punkte für falsches Abbiegen ab",
   "openMapLinks": "Kartenlinks in Overworld öffnen",
-  "openMapLinksHint": "Links von OpenStreetMap, Google Maps und Apple Karten zulassen"
+  "openMapLinksHint": "Links von OpenStreetMap, Google Maps und Apple Karten zulassen",
+  "searchHere": "Hier suchen",
+  "directions": "Route",
+  "start": "Starten",
+  "savedChip": "Gespeichert",
+  "homeChip": "Zuhause",
+  "coordinates": "Koordinaten",
+  "coordinatesCopied": "Koordinaten kopiert",
+  "steps": "Schritte",
+  "yourLocation": "Dein Standort",
+  "recenter": "Zentrieren",
+  "chooseDestination": "Ziel wählen",
+  "sheetExpand": "Mehr anzeigen",
+  "sheetCollapse": "Weniger anzeigen",
+  "searchingNearby": "Suche in der Nähe …",
+  "nothingNearby": "Nichts in der Nähe gefunden. Verschiebe die Karte."
 }

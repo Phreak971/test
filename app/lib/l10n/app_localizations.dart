@@ -1709,6 +1709,96 @@ abstract class L {
   /// In en, this message translates to:
   /// **'Allow OpenStreetMap, Google Maps and Apple Maps links'**
   String get openMapLinksHint;
+
+  /// No description provided for @searchHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Search here'**
+  String get searchHere;
+
+  /// No description provided for @directions.
+  ///
+  /// In en, this message translates to:
+  /// **'Directions'**
+  String get directions;
+
+  /// No description provided for @start.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get start;
+
+  /// No description provided for @savedChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get savedChip;
+
+  /// No description provided for @homeChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get homeChip;
+
+  /// No description provided for @coordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'Coordinates'**
+  String get coordinates;
+
+  /// No description provided for @coordinatesCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Coordinates copied'**
+  String get coordinatesCopied;
+
+  /// No description provided for @steps.
+  ///
+  /// In en, this message translates to:
+  /// **'Steps'**
+  String get steps;
+
+  /// No description provided for @yourLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Your location'**
+  String get yourLocation;
+
+  /// No description provided for @recenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-center'**
+  String get recenter;
+
+  /// No description provided for @chooseDestination.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose destination'**
+  String get chooseDestination;
+
+  /// No description provided for @sheetExpand.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more'**
+  String get sheetExpand;
+
+  /// No description provided for @sheetCollapse.
+  ///
+  /// In en, this message translates to:
+  /// **'Show less'**
+  String get sheetCollapse;
+
+  /// No description provided for @searchingNearby.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching nearby…'**
+  String get searchingNearby;
+
+  /// No description provided for @nothingNearby.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found nearby. Try moving the map.'**
+  String get nothingNearby;
 }
 
 class _LDelegate extends LocalizationsDelegate<L> {

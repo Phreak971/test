@@ -268,5 +268,20 @@
   "voiceTaglineHalfling": "Allegro, curioso, sempre affamato",
   "voiceTaglineArchmage": "Severa, brillante, toglie punti per ogni svolta sbagliata",
   "openMapLinks": "Apri i link delle mappe in Overworld",
-  "openMapLinksHint": "Consenti i link di OpenStreetMap, Google Maps e Mappe di Apple"
+  "openMapLinksHint": "Consenti i link di OpenStreetMap, Google Maps e Mappe di Apple",
+  "searchHere": "Cerca qui",
+  "directions": "Indicazioni",
+  "start": "Avvia",
+  "savedChip": "Salvati",
+  "homeChip": "Casa",
+  "coordinates": "Coordinate",
+  "coordinatesCopied": "Coordinate copiate",
+  "steps": "Passaggi",
+  "yourLocation": "La tua posizione",
+  "recenter": "Ricentra",
+  "chooseDestination": "Scegli la destinazione",
+  "sheetExpand": "Mostra altro",
+  "sheetCollapse": "Mostra meno",
+  "searchingNearby": "Ricerca nelle vicinanze…",
+  "nothingNearby": "Nessun risultato vicino. Prova a spostare la mappa."
 }

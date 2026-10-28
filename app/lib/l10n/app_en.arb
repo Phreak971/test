@@ -309,5 +309,20 @@
   "voiceTaglineHalfling": "Cheerful, curious, always hungry",
   "voiceTaglineArchmage": "Stern, brilliant, docks points for wrong turns",
   "openMapLinks": "Open map links in Overworld",
-  "openMapLinksHint": "Allow OpenStreetMap, Google Maps and Apple Maps links"
+  "openMapLinksHint": "Allow OpenStreetMap, Google Maps and Apple Maps links",
+  "searchHere": "Search here",
+  "directions": "Directions",
+  "start": "Start",
+  "savedChip": "Saved",
+  "homeChip": "Home",
+  "coordinates": "Coordinates",
+  "coordinatesCopied": "Coordinates copied",
+  "steps": "Steps",
+  "yourLocation": "Your location",
+  "recenter": "Re-center",
+  "chooseDestination": "Choose destination",
+  "sheetExpand": "Show more",
+  "sheetCollapse": "Show less",
+  "searchingNearby": "Searching nearby…",
+  "nothingNearby": "Nothing found nearby. Try moving the map."
 }

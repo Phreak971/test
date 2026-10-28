@@ -827,4 +827,49 @@ class LTr extends L {
 
   @override
   String get openMapLinksHint => 'OpenStreetMap, Google Haritalar ve Apple Haritalar bağlantılarına izin ver';
+
+  @override
+  String get searchHere => 'Burada ara';
+
+  @override
+  String get directions => 'Yol tarifi';
+
+  @override
+  String get start => 'Başlat';
+
+  @override
+  String get savedChip => 'Kaydedilenler';
+
+  @override
+  String get homeChip => 'Ev';
+
+  @override
+  String get coordinates => 'Koordinatlar';
+
+  @override
+  String get coordinatesCopied => 'Koordinatlar kopyalandı';
+
+  @override
+  String get steps => 'Adımlar';
+
+  @override
+  String get yourLocation => 'Konumunuz';
+
+  @override
+  String get recenter => 'Ortala';
+
+  @override
+  String get chooseDestination => 'Hedef seç';
+
+  @override
+  String get sheetExpand => 'Daha fazla göster';
+
+  @override
+  String get sheetCollapse => 'Daha az göster';
+
+  @override
+  String get searchingNearby => 'Yakında aranıyor…';
+
+  @override
+  String get nothingNearby => 'Yakında bir şey bulunamadı. Haritayı kaydırmayı deneyin.';
 }

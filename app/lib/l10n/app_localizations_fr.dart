@@ -828,4 +828,49 @@ class LFr extends L {
 
   @override
   String get openMapLinksHint => 'Autorisez les liens OpenStreetMap, Google Maps et Apple Plans';
+
+  @override
+  String get searchHere => 'Rechercher ici';
+
+  @override
+  String get directions => 'Itinéraire';
+
+  @override
+  String get start => 'Démarrer';
+
+  @override
+  String get savedChip => 'Enregistrés';
+
+  @override
+  String get homeChip => 'Domicile';
+
+  @override
+  String get coordinates => 'Coordonnées';
+
+  @override
+  String get coordinatesCopied => 'Coordonnées copiées';
+
+  @override
+  String get steps => 'Étapes';
+
+  @override
+  String get yourLocation => 'Votre position';
+
+  @override
+  String get recenter => 'Recentrer';
+
+  @override
+  String get chooseDestination => 'Choisir la destination';
+
+  @override
+  String get sheetExpand => 'Afficher plus';
+
+  @override
+  String get sheetCollapse => 'Afficher moins';
+
+  @override
+  String get searchingNearby => 'Recherche à proximité…';
+
+  @override
+  String get nothingNearby => 'Rien trouvé à proximité. Déplacez la carte.';
 }

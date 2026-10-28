@@ -3,10 +3,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:overworld/data/models.dart';
 import 'package:overworld/data/routing_service.dart';
 import 'package:overworld/nav/navigation_engine.dart';
 import 'package:overworld/state/nav_controller.dart';
 import 'package:overworld/ui/home/place_panel.dart';
+import 'package:overworld/ui/home/results_panel.dart';
 import 'package:overworld/ui/home/route_panels.dart';
 
 import 'helpers.dart';
@@ -36,6 +38,20 @@ void main() {
       state: NavActive(dest: samplePlace, route: route, progress: progress, rerouting: true),
     ),
     'arrived': ArrivedPanel(dest: samplePlace, onDone: () {}),
+    'results-loading': ResultsPanel(
+      category: NearbyCategory.restaurant,
+      results: null,
+      from: samplePlace.location,
+      onPick: (_) {},
+      onClose: () {},
+    ),
+    'results': ResultsPanel(
+      category: NearbyCategory.pharmacy,
+      results: List.filled(6, samplePlace),
+      from: samplePlace.location,
+      onPick: (_) {},
+      onClose: () {},
+    ),
   };
 
   for (final scale in [1.0, 1.3, 2.0]) {
@@ -58,7 +74,7 @@ void main() {
             ),
             size: size,
             // Spinners never settle.
-            settle: !e.key.contains('rerouting'),
+            settle: !e.key.contains('rerouting') && !e.key.contains('loading'),
           );
           expect(tester.takeException(), isNull);
         });

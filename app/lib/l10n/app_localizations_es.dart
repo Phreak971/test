@@ -833,4 +833,49 @@ class LEs extends L {
 
   @override
   String get openMapLinksHint => 'Permite enlaces de OpenStreetMap, Google Maps y Mapas de Apple';
+
+  @override
+  String get searchHere => 'Buscar aquí';
+
+  @override
+  String get directions => 'Cómo llegar';
+
+  @override
+  String get start => 'Iniciar';
+
+  @override
+  String get savedChip => 'Guardados';
+
+  @override
+  String get homeChip => 'Casa';
+
+  @override
+  String get coordinates => 'Coordenadas';
+
+  @override
+  String get coordinatesCopied => 'Coordenadas copiadas';
+
+  @override
+  String get steps => 'Pasos';
+
+  @override
+  String get yourLocation => 'Tu ubicación';
+
+  @override
+  String get recenter => 'Centrar';
+
+  @override
+  String get chooseDestination => 'Elegir destino';
+
+  @override
+  String get sheetExpand => 'Mostrar más';
+
+  @override
+  String get sheetCollapse => 'Mostrar menos';
+
+  @override
+  String get searchingNearby => 'Buscando cerca…';
+
+  @override
+  String get nothingNearby => 'No se encontró nada cerca. Prueba a mover el mapa.';
 }

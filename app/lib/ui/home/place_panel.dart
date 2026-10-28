@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -12,6 +13,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state/location.dart';
 import '../../state/providers.dart';
 import '../hud.dart';
+import 'map_chrome.dart';
 
 /// Shareable link: opens Overworld when installed, a map page otherwise.
 Uri placeShareLink(Place p) => MapLinks(AppConfig.shareBaseUrl).shareLink(p.location, name: p.isPinned ? null : p.name);
@@ -24,6 +26,8 @@ SavedPlace? savedMatch(List<SavedPlace> saved, Place p) {
   return null;
 }
 
+/// Place card, Maps-style: name, category and distance with an action row;
+/// drag up for address, coordinates and contact details.
 class PlacePanel extends ConsumerWidget {
   const PlacePanel({
     super.key,
@@ -32,11 +36,15 @@ class PlacePanel extends ConsumerWidget {
     required this.onDirections,
     required this.onSave,
     required this.onEdit,
+    this.onStart,
   });
 
   final Place place;
   final VoidCallback onClose;
   final VoidCallback onDirections;
+
+  /// Route and start guidance straight away (null hides the button).
+  final VoidCallback? onStart;
   final VoidCallback onSave;
   final ValueChanged<SavedPlace> onEdit;
 
@@ -52,13 +60,26 @@ class PlacePanel extends ConsumerWidget {
       if (place.isPinned) l.pinnedLocation else ?place.category,
       if (me != null) l.distanceAway(formatDistance(distanceM(me, place.location), unit)),
     ].join(' · ');
+    final coords = '${place.location.lat.toStringAsFixed(5)}, ${place.location.lng.toStringAsFixed(5)}';
 
-    return HudPanel(
-      hud: hud,
-      padding: const EdgeInsets.fromLTRB(18, 14, 10, 16),
-      radius: hud.radius.clamp(12, 28),
+    void share() {
+      final box = context.findRenderObject() as RenderBox?;
+      SharePlus.instance.share(
+        ShareParams(
+          text: [title, ?place.address, placeShareLink(place).toString()].join('\n'),
+          sharePositionOrigin: box == null ? null : box.localToGlobal(Offset.zero) & box.size,
+        ),
+      );
+    }
+
+    void openWebsite() {
+      final w = place.website!;
+      launchUrl(Uri.parse(w.startsWith('http') ? w : 'https://$w'), mode: LaunchMode.externalApplication);
+    }
+
+    final header = Padding(
+      padding: const EdgeInsets.fromLTRB(18, 0, 8, 14),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -80,11 +101,11 @@ class PlacePanel extends ConsumerWidget {
                       ),
                     ],
                     if (place.address != null) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
                         place.address!,
                         style: TextStyle(color: hud.muted, fontSize: 14),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
@@ -99,105 +120,133 @@ class PlacePanel extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: PrimaryButton(hud: hud, label: l.getDirections, icon: Icons.directions_rounded, onPressed: onDirections),
-          ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                _Action(
+                ActionPill(hud: hud, icon: Icons.directions_rounded, label: l.directions, primary: true, onTap: onDirections),
+                if (onStart != null) ActionPill(hud: hud, icon: Icons.navigation_rounded, label: l.start, onTap: onStart!),
+                ActionPill(
                   hud: hud,
                   icon: saved != null ? Icons.bookmark_rounded : Icons.bookmark_add_outlined,
                   label: saved != null ? l.edit : l.savePlace,
                   onTap: saved != null ? () => onEdit(saved) : onSave,
                 ),
+                ActionPill(hud: hud, icon: shareIcon, label: l.share, onTap: share),
                 if (place.phone != null)
-                  _Action(
+                  ActionPill(
                     hud: hud,
                     icon: Icons.call_rounded,
                     label: l.call,
                     onTap: () => launchUrl(Uri(scheme: 'tel', path: place.phone)),
                   ),
-                if (place.website != null)
-                  _Action(
-                    hud: hud,
-                    icon: Icons.public_rounded,
-                    label: l.website,
-                    onTap: () {
-                      final w = place.website!;
-                      launchUrl(Uri.parse(w.startsWith('http') ? w : 'https://$w'), mode: LaunchMode.externalApplication);
-                    },
-                  ),
-                if (place.social != null)
-                  _Action(
-                    hud: hud,
-                    icon: Icons.camera_alt_rounded,
-                    label: 'Instagram',
-                    onTap: () => launchUrl(Uri.parse(place.social!), mode: LaunchMode.externalApplication),
-                  ),
-                _Action(
-                  hud: hud,
-                  icon: shareIcon,
-                  label: l.share,
-                  onTap: () {
-                    final box = context.findRenderObject() as RenderBox?;
-                    SharePlus.instance.share(
-                      ShareParams(
-                        text: [title, ?place.address, placeShareLink(place).toString()].join('\n'),
-                        sharePositionOrigin: box == null ? null : box.localToGlobal(Offset.zero) & box.size,
-                      ),
-                    );
-                  },
-                ),
+                if (place.website != null) ActionPill(hud: hud, icon: Icons.public_rounded, label: l.website, onTap: openWebsite),
               ],
             ),
           ),
         ],
       ),
     );
+
+    Widget row(IconData icon, String text, {VoidCallback? onTap, String? hint}) => ListTile(
+      minTileHeight: 52,
+      leading: Icon(icon, color: hud.accentText),
+      title: Text(text, style: TextStyle(color: hud.text, fontSize: 15)),
+      subtitle: hint == null ? null : Text(hint, style: TextStyle(color: hud.muted, fontSize: 13)),
+      onTap: onTap,
+    );
+
+    final details = Column(
+      children: [
+        Divider(height: 1, color: hud.text.withValues(alpha: 0.1)),
+        if (place.address != null) row(Icons.place_rounded, place.address!),
+        row(
+          Icons.my_location_rounded,
+          coords,
+          hint: l.coordinates,
+          onTap: () {
+            Clipboard.setData(ClipboardData(text: coords));
+            ref.read(toastProvider.notifier).show(l.coordinatesCopied);
+          },
+        ),
+        if (place.phone != null)
+          row(
+            Icons.call_rounded,
+            place.phone!,
+            onTap: () => launchUrl(Uri(scheme: 'tel', path: place.phone)),
+          ),
+        if (place.website != null) row(Icons.public_rounded, place.website!, onTap: openWebsite),
+        if (place.social != null)
+          row(
+            Icons.camera_alt_rounded,
+            'Instagram',
+            onTap: () => launchUrl(Uri.parse(place.social!), mode: LaunchMode.externalApplication),
+          ),
+        const SizedBox(height: 8),
+      ],
+    );
+
+    return MapSheet(hud: hud, header: header, details: details, onDismiss: onClose);
   }
 }
 
-class _Action extends StatelessWidget {
-  const _Action({required this.hud, required this.icon, required this.label, required this.onTap});
+/// Rounded action button in a sheet's action row.
+class ActionPill extends StatelessWidget {
+  const ActionPill({
+    super.key,
+    required this.hud,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.primary = false,
+    this.iconOnly = false,
+  });
 
   final Hud hud;
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final bool primary;
+
+  /// Label only in tooltip/semantics (tight layouts, large text).
+  final bool iconOnly;
 
   @override
   Widget build(BuildContext context) {
+    final fg = primary ? hud.onAccent : hud.accentText;
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: Semantics(
         button: true,
         label: label,
         excludeSemantics: true,
-        child: Material(
-          color: hud.text.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(hud.radius.clamp(6, 22)),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(hud.radius.clamp(6, 22)),
-            onTap: onTap,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 48, minWidth: 72),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(icon, color: hud.text, size: 22),
-                    const SizedBox(height: 4),
-                    Text(
-                      label,
-                      style: TextStyle(color: hud.text, fontSize: 12, fontWeight: FontWeight.w600),
-                    ),
-                  ],
+        child: Tooltip(
+          message: iconOnly ? label : '',
+          excludeFromSemantics: true,
+          child: Material(
+            color: primary ? hud.accent : Colors.transparent,
+            shape: StadiumBorder(side: BorderSide(color: primary ? Colors.transparent : hud.text.withValues(alpha: 0.25))),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: onTap,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 44, minWidth: 48),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: iconOnly ? 12 : 16, vertical: 10),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(icon, color: fg, size: 20),
+                      if (!iconOnly) ...[
+                        const SizedBox(width: 6),
+                        Text(
+                          label,
+                          style: TextStyle(color: primary ? fg : hud.text, fontWeight: FontWeight.w700, fontSize: 14),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
             ),

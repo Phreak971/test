@@ -833,4 +833,49 @@ class LIt extends L {
 
   @override
   String get openMapLinksHint => 'Consenti i link di OpenStreetMap, Google Maps e Mappe di Apple';
+
+  @override
+  String get searchHere => 'Cerca qui';
+
+  @override
+  String get directions => 'Indicazioni';
+
+  @override
+  String get start => 'Avvia';
+
+  @override
+  String get savedChip => 'Salvati';
+
+  @override
+  String get homeChip => 'Casa';
+
+  @override
+  String get coordinates => 'Coordinate';
+
+  @override
+  String get coordinatesCopied => 'Coordinate copiate';
+
+  @override
+  String get steps => 'Passaggi';
+
+  @override
+  String get yourLocation => 'La tua posizione';
+
+  @override
+  String get recenter => 'Ricentra';
+
+  @override
+  String get chooseDestination => 'Scegli la destinazione';
+
+  @override
+  String get sheetExpand => 'Mostra altro';
+
+  @override
+  String get sheetCollapse => 'Mostra meno';
+
+  @override
+  String get searchingNearby => 'Ricerca nelle vicinanze…';
+
+  @override
+  String get nothingNearby => 'Nessun risultato vicino. Prova a spostare la mappa.';
 }

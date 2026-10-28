@@ -827,4 +827,49 @@ class LEn extends L {
 
   @override
   String get openMapLinksHint => 'Allow OpenStreetMap, Google Maps and Apple Maps links';
+
+  @override
+  String get searchHere => 'Search here';
+
+  @override
+  String get directions => 'Directions';
+
+  @override
+  String get start => 'Start';
+
+  @override
+  String get savedChip => 'Saved';
+
+  @override
+  String get homeChip => 'Home';
+
+  @override
+  String get coordinates => 'Coordinates';
+
+  @override
+  String get coordinatesCopied => 'Coordinates copied';
+
+  @override
+  String get steps => 'Steps';
+
+  @override
+  String get yourLocation => 'Your location';
+
+  @override
+  String get recenter => 'Re-center';
+
+  @override
+  String get chooseDestination => 'Choose destination';
+
+  @override
+  String get sheetExpand => 'Show more';
+
+  @override
+  String get sheetCollapse => 'Show less';
+
+  @override
+  String get searchingNearby => 'Searching nearby…';
+
+  @override
+  String get nothingNearby => 'Nothing found nearby. Try moving the map.';
 }

@@ -15,13 +15,14 @@ import '../../l10n/app_localizations.dart';
 import '../../state/location.dart';
 import '../../state/nav_controller.dart';
 import '../../state/providers.dart';
-import '../../themes/map_theme.dart';
 import '../../themes/style_builder.dart';
 import '../hud.dart';
 import '../map/game_map.dart';
 import '../map/map_overlay_fx.dart';
 import '../settings/settings_screen.dart';
 import '../themes/theme_picker_screen.dart';
+import 'map_chrome.dart';
+import 'results_panel.dart';
 import 'location_permission_sheet.dart';
 import 'place_panel.dart';
 import 'places_sheets.dart';
@@ -46,6 +47,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   /// Nearby results currently plotted on the map.
   (NearbyCategory, List<Place>)? _results;
+
+  /// Category chip whose results are loading.
+  NearbyCategory? _nearbyLoading;
+  int _nearbyToken = 0;
+
+  /// Measured chrome, for control placement and the map's content insets.
+  double _topH = 0;
+  double _bottomH = 0;
   bool _follow = true;
   bool _centeredOnce = false;
   String? _areaName;
@@ -307,54 +316,66 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     await _map.flyTo(pos, zoom: 16);
   }
 
-  void _toggleAppearance() {
-    final a = ref.read(activeThemeProvider);
-    final nextDark = a.variant != MapVariant.dark;
-    ref.read(settingsProvider.notifier).setPreferDark(nextDark == (a.theme.baseVariant == MapVariant.dark) ? null : nextDark);
+  Future<void> _runNearby(NearbyCategory c) async {
+    final token = ++_nearbyToken;
+    final cam = _map.camera;
+    final center = cam == null ? _searchCenter : toGeo(cam.target);
+    setState(() {
+      _nearbyLoading = c;
+      _results = null;
+      _selected = null;
+      _follow = false;
+    });
+    try {
+      final r = await ref.read(searchServiceProvider).nearby(c, center, lang: Localizations.localeOf(context).languageCode);
+      if (!mounted || token != _nearbyToken) return;
+      setState(() {
+        _nearbyLoading = null;
+        _results = (c, r);
+      });
+      if (r.isNotEmpty) unawaited(_map.fitPoints([for (final p in r) p.location]));
+    } catch (_) {
+      if (!mounted || token != _nearbyToken) return;
+      setState(() => _nearbyLoading = null);
+      ref.read(toastProvider.notifier).show(L.of(context).searchUnavailable, kind: ToastKind.error);
+    }
   }
 
-  Future<void> _openMore(BuildContext button, MapVariant variant) async {
-    final l = L.of(context);
-    final hud = ref.read(hudProvider);
-    final box = button.findRenderObject() as RenderBox?;
-    final overlay = Overlay.of(context).context.findRenderObject() as RenderBox?;
-    if (box == null || overlay == null) return;
-    final topLeft = box.localToGlobal(Offset.zero, ancestor: overlay);
-    final choice = await showMenu<String>(
-      context: context,
-      color: hud.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(hud.radius.clamp(8, 18))),
-      position: RelativeRect.fromRect(topLeft & box.size, Offset.zero & overlay.size),
-      items: [
-        for (final (id, icon, label) in [
-          ('nearby', Icons.local_dining_rounded, l.railNearby),
-          ('home', Icons.home_rounded, l.railHome),
-          ('appearance', variant == MapVariant.dark ? Icons.light_mode_rounded : Icons.dark_mode_rounded, l.mapAppearance),
-        ])
-          PopupMenuItem(
-            value: id,
-            height: 52,
-            child: Row(
-              children: [
-                Icon(icon, color: hud.accentText),
-                const SizedBox(width: 12),
-                Text(
-                  label,
-                  style: TextStyle(color: hud.text, fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-          ),
-      ],
+  void _clearResults() => setState(() {
+    _nearbyToken++;
+    _nearbyLoading = null;
+    _results = null;
+  });
+
+  /// Directions button: pick a destination, then preview the route.
+  Future<void> _chooseDestination() async {
+    final res = await showHudSheet<SearchOutcome>(
+      context,
+      hud: ref.read(hudProvider),
+      expand: true,
+      builder: (_) => SearchSheet(center: _searchCenter, autofocus: true),
     );
-    switch (choice) {
-      case 'nearby':
-        await _openSearch(nearby: true);
-      case 'home':
-        _goHome();
-      case 'appearance':
-        _toggleAppearance();
+    if (res is PickedPlace) await _directions(res.place);
+  }
+
+  /// "Start" on a place: route and go.
+  Future<void> _startTo(Place p) async {
+    await _directions(p);
+    final nav = ref.read(navProvider);
+    if (mounted && nav is NavPreview && nav.route != null) {
+      HapticFeedback.mediumImpact();
+      ref.read(navProvider.notifier).start();
     }
+  }
+
+  void _setTop(Size s) {
+    if ((s.height - _topH).abs() < 1) return;
+    setState(() => _topH = s.height);
+  }
+
+  void _setBottom(Size s) {
+    if ((s.height - _bottomH).abs() < 1) return;
+    setState(() => _bottomH = s.height);
   }
 
   void _openThemes() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ThemePickerScreen()));
@@ -381,6 +402,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   // -------------------------------------------------------------- build
+
+  static const _chipCategories = [
+    NearbyCategory.restaurant,
+    NearbyCategory.cafe,
+    NearbyCategory.fuel,
+    NearbyCategory.supermarket,
+    NearbyCategory.hotel,
+    NearbyCategory.parking,
+    NearbyCategory.charging,
+    NearbyCategory.pharmacy,
+    NearbyCategory.fastFood,
+    NearbyCategory.subway,
+    NearbyCategory.hospital,
+    NearbyCategory.bank,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -411,35 +447,139 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _ => null,
     };
     final navigating = nav is NavActive;
+    final idle = nav is NavIdle;
     final mq = MediaQuery.of(context);
     _map.reduceMotion = MediaQuery.disableAnimationsOf(context);
+    final wide = mq.size.width >= 700;
+    final side = EdgeInsets.only(left: 12 + mq.padding.left, right: 12 + mq.padding.right);
 
     Widget? bottom;
     if (nav is NavPreview) {
-      bottom = RoutePreviewPanel(key: const ValueKey('preview'), state: nav, onClose: () => ref.read(navProvider.notifier).cancel());
+      bottom = RoutePreviewPanel(
+        key: ValueKey('preview-${nav.dest.id}'),
+        state: nav,
+        onClose: () => ref.read(navProvider.notifier).cancel(),
+      );
     } else if (nav is NavActive) {
       bottom = NavBottomBar(key: const ValueKey('navbar'), state: nav, onEnd: () => ref.read(navProvider.notifier).cancel());
     } else if (nav is NavArrived) {
       bottom = ArrivedPanel(key: const ValueKey('arrived'), dest: nav.dest, onDone: () => ref.read(navProvider.notifier).cancel());
     } else if (_selected != null) {
+      final p = _selected!;
       bottom = PlacePanel(
-        key: ValueKey('place-${_selected!.id}'),
-        place: _selected!,
+        key: ValueKey('place-${p.id}'),
+        place: p,
         onClose: () => setState(() => _selected = null),
-        onDirections: () => _directions(_selected!),
-        onSave: () => _savePlace(_selected!),
+        onDirections: () => _directions(p),
+        onStart: () => _startTo(p),
+        onSave: () => _savePlace(p),
         onEdit: _editSaved,
+      );
+    } else if (_nearbyLoading != null || _results != null) {
+      final cat = _nearbyLoading ?? _results!.$1;
+      final cam = _map.camera;
+      bottom = ResultsPanel(
+        key: ValueKey('results-${cat.name}'),
+        category: cat,
+        results: _nearbyLoading != null ? null : _results!.$2,
+        from: loc.position ?? (cam == null ? _initialCenter : toGeo(cam.target)),
+        onPick: (p) => _select(p),
+        onClose: _clearResults,
       );
     }
 
+    // Keep the camera's focus clear of the chrome (Maps-style padding).
+    final bottomInset = bottom == null ? 0.0 : _bottomH + 8;
+    // Navigating: puck in the lower part of the screen to show the road ahead.
+    final topInset = navigating ? mq.size.height * 0.45 : mq.padding.top + _topH + 8;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(
+        _map.setInsets(
+          EdgeInsets.only(top: topInset, bottom: wide ? 0 : bottomInset, left: wide && bottom != null ? 480 + mq.padding.left : 0),
+        ),
+      );
+    });
+
+    final Widget top;
+    if (navigating) {
+      top = Align(
+        alignment: Alignment.topLeft,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 520),
+          child: ManeuverBanner(state: nav),
+        ),
+      );
+    } else if (nav is NavPreview) {
+      top = Align(
+        alignment: Alignment.topLeft,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: RouteHeaderCard(
+            dest: nav.dest,
+            onBack: () {
+              final d = nav.dest;
+              ref.read(navProvider.notifier).cancel();
+              _select(d, fly: false);
+            },
+          ),
+        ),
+      );
+    } else {
+      final home = ref.watch(homePlaceProvider);
+      final selectedCat = _nearbyLoading ?? _results?.$1;
+      top = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: SearchPill(hud: hud, onSearch: _openSearch, onSettings: _openSettings),
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            height: 44,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
+              children: [
+                for (final chip in <Widget>[
+                  QuickChip(
+                    hud: hud,
+                    icon: Icons.home_rounded,
+                    label: l.homeChip,
+                    onTap: home == null ? _goHome : () => _directions(home.toPlace()),
+                  ),
+                  QuickChip(hud: hud, icon: Icons.bookmark_rounded, label: l.savedChip, onTap: _openSaved),
+                  for (final c in _chipCategories)
+                    QuickChip(
+                      hud: hud,
+                      icon: categoryIcon(c),
+                      label: categoryLabel(l, c),
+                      selected: c == selectedCat,
+                      onTap: () => c == selectedCat ? _clearResults() : _runNearby(c),
+                    ),
+                ])
+                  Padding(padding: const EdgeInsets.only(right: 8, bottom: 4), child: chip),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    final controlsBottom = mq.padding.bottom + (bottom != null && !wide ? _bottomH + 16 : _attributionClearance);
+
     return PopScope(
-      canPop: _selected == null && nav is NavIdle,
+      canPop: _selected == null && _results == null && _nearbyLoading == null && idle,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
-        if (nav is! NavIdle) {
+        if (!idle) {
           ref.read(navProvider.notifier).cancel();
-        } else {
+        } else if (_selected != null) {
           setState(() => _selected = null);
+        } else {
+          _clearResults();
         }
       },
       child: AnnotatedRegion<SystemUiOverlayStyle>(
@@ -460,7 +600,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     user: userPos,
                     userBearing: userBearing,
                     places: places,
-                    pin: _selected?.isPinned == true ? _selected!.location : null,
+                    // Mark whatever is selected (saved places have their own pins).
+                    pin: _selected != null && savedMatch(places, _selected!) == null ? _selected!.location : null,
                     dest: dest,
                     route: route,
                     results: navigating || _results == null ? const [] : [for (final p in _results!.$2) (p, nearbyPoiIcon(_results!.$1))],
@@ -478,78 +619,45 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 child: MapOverlayFx(overlay: theme.overlay, palette: palette),
               ),
 
-              // Title badge (top-left) or maneuver banner while navigating.
+              // Top: search + quick chips, route card, or maneuver banner.
               Positioned(
-                left: 12 + mq.padding.left,
-                right: (navigating ? 12 : 76) + mq.padding.right,
+                left: side.left,
+                right: side.right,
                 top: mq.padding.top + 8,
-                child: navigating
-                    ? Align(
-                        alignment: Alignment.topLeft,
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 520),
-                          child: ManeuverBanner(state: nav),
-                        ),
-                      )
-                    : Align(
-                        alignment: Alignment.centerLeft,
-                        child: _TitleBadge(hud: hud, theme: theme, variant: variant, onTap: _openThemes),
-                      ),
+                child: MeasureSize(onChange: _setTop, child: top),
               ),
 
-              if (_results != null && !navigating)
+              // Right column under the top chrome: map worlds, compass.
+              if (!navigating)
                 Positioned(
-                  left: 12 + mq.padding.left,
-                  top: mq.padding.top + 80,
-                  child: InputChip(
-                    avatar: Icon(categoryIcon(_results!.$1), size: 18, color: hud.accentText),
-                    label: Text('${categoryLabel(l, _results!.$1)} · ${_results!.$2.length}'),
-                    labelStyle: TextStyle(color: hud.text, fontWeight: FontWeight.w700),
-                    backgroundColor: hud.panel,
-                    side: BorderSide(color: hud.text.withValues(alpha: 0.15)),
-                    deleteIcon: Icon(Icons.close_rounded, color: hud.muted, size: 18),
-                    deleteButtonTooltipMessage: l.close,
-                    onDeleted: () => setState(() => _results = null),
-                    onPressed: () => _openSearch(category: _results!.$1),
-                  ),
-                ),
-
-              // Right rail: four primary actions plus a "More" menu so it fits
-              // above the map controls on small phones and in landscape.
-              if (!navigating && (bottom == null || mq.size.height >= 700))
-                Positioned(
-                  right: 12 + mq.padding.right,
-                  top: mq.padding.top + 8,
-                  bottom: mq.padding.bottom + (bottom != null ? 16 + _bottomInset(nav) + 64 : _attributionClearance + 128),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        for (final b in <Widget>[
-                          HudIconButton(hud: hud, icon: Icons.search_rounded, label: l.railSearch, onPressed: _openSearch),
-                          HudIconButton(hud: hud, icon: Icons.map_rounded, label: l.railChangeMap, onPressed: _openThemes),
-                          HudIconButton(hud: hud, icon: Icons.bookmarks_rounded, label: l.railSaved, onPressed: _openSaved),
-                          Builder(
-                            builder: (btn) => HudIconButton(
-                              hud: hud,
-                              icon: Icons.more_horiz_rounded,
-                              label: l.railMore,
-                              onPressed: () => _openMore(btn, variant),
-                            ),
-                          ),
-                          HudIconButton(hud: hud, icon: Icons.settings_rounded, label: l.railSettings, onPressed: _openSettings),
-                        ])
-                          Padding(padding: const EdgeInsets.only(bottom: 8), child: b),
+                  right: side.right,
+                  top: mq.padding.top + _topH + 20,
+                  child: Column(
+                    children: [
+                      MapFab(hud: hud, icon: Icons.layers_rounded, label: l.railChangeMap, size: 44, onPressed: _openThemes),
+                      if (_bearing.abs() > 2) ...[
+                        const SizedBox(height: 10),
+                        MapFab(
+                          hud: hud,
+                          icon: Icons.explore_rounded,
+                          label: l.railCompass,
+                          size: 44,
+                          onPressed: () {
+                            _map.resetNorth();
+                            setState(() => _bearing = 0);
+                          },
+                        ),
                       ],
-                    ),
+                    ],
                   ),
                 ),
 
-              // Bottom-left area label + bottom-right map controls.
-              if (bottom == null)
+              // Area name (bottom-left) when nothing else is there.
+              if (bottom == null && idle)
                 Positioned(
-                  left: 12 + mq.padding.left,
+                  left: side.left,
                   bottom: mq.padding.bottom + _attributionClearance,
-                  right: 140,
+                  right: 150,
                   child: _areaName == null
                       ? const SizedBox.shrink()
                       : Semantics(
@@ -567,58 +675,69 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                         ),
                 ),
-              Positioned(
-                right: 12 + mq.padding.right,
-                bottom: mq.padding.bottom + (bottom != null ? 16 + _bottomInset(nav) : _attributionClearance),
-                child: Column(
-                  children: [
-                    if (_bearing.abs() > 2)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: HudIconButton(
-                          hud: hud,
-                          icon: Icons.explore_rounded,
-                          label: l.railCompass,
-                          onPressed: () {
-                            _map.resetNorth();
-                            setState(() => _bearing = 0);
-                          },
-                        ),
-                      ),
-                    if (!navigating || !_follow)
-                      HudIconButton(
+
+              // Bottom-right: directions and my location, riding above sheets
+              // (hidden while a sheet is pulled up over most of the map).
+              if (!navigating && (bottom == null || wide || _bottomH < mq.size.height * 0.45))
+                AnimatedPositioned(
+                  duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 180),
+                  right: side.right,
+                  bottom: controlsBottom,
+                  child: Column(
+                    children: [
+                      if (bottom == null) ...[
+                        MapFab(hud: hud, icon: Icons.directions_rounded, label: l.directions, primary: true, onPressed: _chooseDestination),
+                        const SizedBox(height: 12),
+                      ],
+                      MapFab(
                         hud: hud,
                         icon: _follow ? Icons.my_location_rounded : Icons.location_searching_rounded,
                         label: l.railRecenter,
                         active: _follow && loc.position != null,
                         onPressed: _recenter,
                       ),
-                  ],
-                ),
-              ),
-
-              // Bottom panel.
-              Positioned(
-                left: 8 + mq.padding.left,
-                right: 8 + mq.padding.right,
-                bottom: mq.padding.bottom + 8,
-                // Docked bottom-left and width-capped on tablets / landscape.
-                child: Align(
-                  alignment: Alignment.bottomLeft,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 480),
-                    child: AnimatedSwitcher(
-                      duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 220),
-                      transitionBuilder: (c, a) => SlideTransition(
-                        position: Tween(
-                          begin: const Offset(0, 0.25),
-                          end: Offset.zero,
-                        ).animate(CurvedAnimation(parent: a, curve: Curves.easeOutCubic)),
-                        child: FadeTransition(opacity: a, child: c),
-                      ),
-                      child: bottom ?? const SizedBox.shrink(),
-                    ),
+                    ],
                   ),
+                ),
+
+              // While navigating and panned away: Re-center.
+              if (navigating && !_follow)
+                Positioned(
+                  left: side.left,
+                  bottom: mq.padding.bottom + _bottomH + 20,
+                  child: RecenterPill(hud: hud, onPressed: _recenter),
+                ),
+
+              // Bottom sheet / bar.
+              Positioned(
+                left: (wide ? 12 : 0) + mq.padding.left,
+                right: wide ? null : mq.padding.right,
+                bottom: wide ? mq.padding.bottom + 12 : 0,
+                width: wide ? 480 : null,
+                child: AnimatedSwitcher(
+                  duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 220),
+                  transitionBuilder: (c, a) => SlideTransition(
+                    position: Tween(
+                      begin: const Offset(0, 0.25),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(parent: a, curve: Curves.easeOutCubic)),
+                    child: FadeTransition(opacity: a, child: c),
+                  ),
+                  child: bottom == null
+                      ? const SizedBox.shrink()
+                      : MeasureSize(
+                          key: bottom.key,
+                          onChange: _setBottom,
+                          // Phone sheets run to the screen edge (they pad for
+                          // the home indicator themselves); bars and tablet
+                          // sheets float.
+                          child: _isSheet(nav) && !wide
+                              ? bottom
+                              : Padding(
+                                  padding: wide ? EdgeInsets.zero : EdgeInsets.fromLTRB(8, 0, 8, mq.padding.bottom + 8),
+                                  child: MediaQuery.removePadding(context: context, removeBottom: true, child: bottom),
+                                ),
+                        ),
                 ),
               ),
               const ToastHost(),
@@ -629,60 +748,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  double _bottomInset(NavState nav) => switch (nav) {
-    NavActive() => 84,
-    NavPreview() => 190,
-    NavArrived() => 220,
-    NavIdle() => 230,
-  };
-}
-
-class _TitleBadge extends StatelessWidget {
-  const _TitleBadge({required this.hud, required this.theme, required this.variant, required this.onTap});
-
-  final Hud hud;
-  final MapTheme theme;
-  final MapVariant variant;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = L.of(context);
-    final palette = theme.palette(variant);
-    return Semantics(
-      button: true,
-      label: '${theme.name}, ${variant == MapVariant.dark ? l.variantDark : l.variantLight}. ${l.railChangeMap}',
-      excludeSemantics: true,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              theme.name.toUpperCase(),
-              style: displayStyle(hud, 26, color: Color(palette.label)).copyWith(
-                letterSpacing: 0.5,
-                shadows: [
-                  Shadow(color: Color(palette.labelHalo), blurRadius: 0, offset: const Offset(2, 2)),
-                  Shadow(color: Color(palette.labelHalo), blurRadius: 8),
-                ],
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.only(top: 2),
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-              decoration: BoxDecoration(color: hud.accent, borderRadius: BorderRadius.circular(3)),
-              child: Text(
-                '[${variant == MapVariant.dark ? l.variantDark : l.variantLight}]',
-                style: displayStyle(hud, 12, color: hud.onAccent).copyWith(letterSpacing: 1),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  /// Draggable sheets sit flush with the screen bottom; bars float.
+  bool _isSheet(NavState nav) => nav is NavPreview || (nav is NavIdle);
 }
 
 /// POI icon id used to plot results of a nearby category.

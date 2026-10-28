@@ -35,6 +35,32 @@ class GameMapController {
   /// Set from MediaQuery.disableAnimations; camera jumps instead of flying.
   bool reduceMotion = false;
 
+  EdgeInsets _insets = EdgeInsets.zero;
+
+  /// Screen area covered by app chrome (search bar, sheets). Camera targets,
+  /// the followed puck and fitted bounds are centred in what remains.
+  Future<void> setInsets(EdgeInsets insets) async {
+    if (insets == _insets) return;
+    _insets = insets;
+    final c = _c;
+    if (c == null) return;
+    // Changing insets cancels a running camera animation, so a fly that was
+    // just started (e.g. following the puck as navigation begins) is replayed.
+    final recent = _lastFly != null && DateTime.now().difference(_lastFly!.at) < const Duration(milliseconds: 1500);
+    _beginProgrammatic(const Duration(milliseconds: 300));
+    try {
+      await c.updateContentInsets(insets, !reduceMotion && !recent);
+    } catch (_) {
+      // Older platform implementations; the camera just ignores chrome.
+    }
+    if (recent) {
+      final f = _lastFly!;
+      await flyTo(f.target, zoom: f.zoom, bearing: f.bearing, tilt: f.tilt, duration: f.duration);
+    }
+  }
+
+  ({Geo target, double? zoom, double? bearing, double? tilt, Duration duration, DateTime at})? _lastFly;
+
   Future<void> flyTo(
     Geo target, {
     double? zoom,
@@ -45,6 +71,7 @@ class GameMapController {
     final c = _c;
     if (c == null) return;
     if (reduceMotion) duration = const Duration(milliseconds: 1);
+    _lastFly = (target: target, zoom: zoom, bearing: bearing, tilt: tilt, duration: duration, at: DateTime.now());
     _beginProgrammatic(duration);
     final pos = c.cameraPosition;
     await c.animateCamera(
@@ -60,7 +87,7 @@ class GameMapController {
     );
   }
 
-  Future<void> fitPoints(List<Geo> points, {EdgeInsets padding = const EdgeInsets.fromLTRB(60, 140, 60, 320)}) async {
+  Future<void> fitPoints(List<Geo> points, {EdgeInsets padding = const EdgeInsets.all(48)}) async {
     final c = _c;
     if (c == null || points.isEmpty) return;
     if (points.length == 1) return flyTo(points.first, zoom: 15);
@@ -96,6 +123,10 @@ class GameMapController {
   void _attach(_GameMapState s, MapLibreMapController c) {
     _state = s;
     _c = c;
+    // A new map (e.g. after a theme switch) starts without insets.
+    if (_insets != EdgeInsets.zero) {
+      unawaited(c.updateContentInsets(_insets, false).catchError((Object _) {}));
+    }
   }
 
   /// Only the map state that currently owns the controller may detach it

@@ -268,5 +268,20 @@
   "voiceTaglineHalfling": "Neşeli, meraklı, hep aç",
   "voiceTaglineArchmage": "Sert, parlak, yanlış dönüşlerde puan kırar",
   "openMapLinks": "Harita bağlantılarını Overworld'de aç",
-  "openMapLinksHint": "OpenStreetMap, Google Haritalar ve Apple Haritalar bağlantılarına izin ver"
+  "openMapLinksHint": "OpenStreetMap, Google Haritalar ve Apple Haritalar bağlantılarına izin ver",
+  "searchHere": "Burada ara",
+  "directions": "Yol tarifi",
+  "start": "Başlat",
+  "savedChip": "Kaydedilenler",
+  "homeChip": "Ev",
+  "coordinates": "Koordinatlar",
+  "coordinatesCopied": "Koordinatlar kopyalandı",
+  "steps": "Adımlar",
+  "yourLocation": "Konumunuz",
+  "recenter": "Ortala",
+  "chooseDestination": "Hedef seç",
+  "sheetExpand": "Daha fazla göster",
+  "sheetCollapse": "Daha az göster",
+  "searchingNearby": "Yakında aranıyor…",
+  "nothingNearby": "Yakında bir şey bulunamadı. Haritayı kaydırmayı deneyin."
 }

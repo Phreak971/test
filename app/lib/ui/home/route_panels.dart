@@ -11,6 +11,8 @@ import '../../nav/voice.dart';
 import '../../state/nav_controller.dart';
 import '../../state/providers.dart';
 import '../hud.dart';
+import 'map_chrome.dart';
+import 'place_panel.dart';
 
 IconData maneuverIcon(ManeuverKind k) => switch (k) {
   ManeuverKind.depart => Icons.navigation_rounded,
@@ -42,18 +44,33 @@ String _arrivalTime(BuildContext context, double s) {
   return (use24 ? DateFormat.Hm(locale) : DateFormat.jm(locale)).format(at);
 }
 
-/// Bottom panel shown while previewing a route.
-class RoutePreviewPanel extends ConsumerWidget {
+/// Bottom sheet while previewing a route: time, distance, arrival, Start,
+/// and the turn-by-turn steps (drag up or tap Steps).
+class RoutePreviewPanel extends ConsumerStatefulWidget {
   const RoutePreviewPanel({super.key, required this.state, required this.onClose});
 
   final NavPreview state;
   final VoidCallback onClose;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<RoutePreviewPanel> createState() => _RoutePreviewPanelState();
+}
+
+class _RoutePreviewPanelState extends ConsumerState<RoutePreviewPanel> {
+  final _steps = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    _steps.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l = L.of(context);
     final hud = ref.watch(hudProvider);
     final unit = ref.watch(settingsProvider.select((s) => s.unit));
+    final state = widget.state;
     final r = state.route;
 
     Widget body;
@@ -114,23 +131,38 @@ class RoutePreviewPanel extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 14),
-          PrimaryButton(
-            hud: hud,
-            label: l.startNow,
-            icon: Icons.navigation_rounded,
-            onPressed: () {
-              HapticFeedback.mediumImpact();
-              ref.read(navProvider.notifier).start();
-            },
+          Row(
+            children: [
+              Expanded(
+                child: PrimaryButton(
+                  hud: hud,
+                  label: l.start,
+                  icon: Icons.navigation_rounded,
+                  onPressed: () {
+                    HapticFeedback.mediumImpact();
+                    ref.read(navProvider.notifier).start();
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              ValueListenableBuilder<bool>(
+                valueListenable: _steps,
+                builder: (_, open, _) => ActionPill(
+                  hud: hud,
+                  iconOnly: MediaQuery.sizeOf(context).width < 360 || MediaQuery.textScalerOf(context).scale(1) > 1.3,
+                  icon: open ? Icons.expand_more_rounded : Icons.format_list_bulleted_rounded,
+                  label: l.steps,
+                  onTap: () => _steps.value = !open,
+                ),
+              ),
+            ],
           ),
         ],
       );
     }
 
-    return HudPanel(
-      hud: hud,
-      radius: hud.radius.clamp(12, 28),
-      padding: const EdgeInsets.fromLTRB(18, 12, 10, 16),
+    final header = Padding(
+      padding: const EdgeInsets.fromLTRB(18, 0, 10, 16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,46 +170,121 @@ class RoutePreviewPanel extends ConsumerWidget {
           Row(
             children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      upper(context, l.routeTitle),
-                      style: displayStyle(hud, 12, weight: FontWeight.w600, color: hud.muted).copyWith(letterSpacing: 1.2),
-                    ),
-                    const SizedBox(height: 2),
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: l.fromMyLocation,
-                            style: TextStyle(color: hud.muted),
-                          ),
-                          const TextSpan(text: '  →  '),
-                          TextSpan(
-                            text: state.dest.name,
-                            style: const TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                        ],
-                      ),
-                      style: TextStyle(color: hud.text, fontSize: 15),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                child: Text(
+                  state.dest.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: hud.text, fontSize: 16, fontWeight: FontWeight.w700),
                 ),
               ),
               IconButton(
-                onPressed: onClose,
+                onPressed: widget.onClose,
                 tooltip: l.close,
                 icon: Icon(Icons.close_rounded, color: hud.muted),
                 constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
               ),
             ],
           ),
-          const SizedBox(height: 8),
           Padding(padding: const EdgeInsets.only(right: 8), child: body),
         ],
+      ),
+    );
+
+    final lang = Localizations.localeOf(context).languageCode;
+    final details = r == null || state.loading || state.error != null
+        ? null
+        : Column(
+            children: [
+              Divider(height: 1, color: hud.text.withValues(alpha: 0.1)),
+              for (var i = 1; i < r.steps.length; i++)
+                ListTile(
+                  minTileHeight: 56,
+                  leading: Icon(maneuverIcon(r.steps[i].kind), color: hud.accentText, size: 28),
+                  title: Text(
+                    phraseFor(VoiceCue(step: r.steps[i], stage: CueStage.now, distanceM: 0, stepIndex: i), voicePersonas.first, unit, lang),
+                    style: TextStyle(color: hud.text, fontSize: 15, fontWeight: FontWeight.w600),
+                  ),
+                  subtitle: i + 1 < r.steps.length
+                      ? Text(formatDistance(r.steps[i].distanceM, unit), style: TextStyle(color: hud.muted, fontSize: 13))
+                      : null,
+                ),
+              const SizedBox(height: 8),
+            ],
+          );
+
+    return MapSheet(hud: hud, header: header, details: details, expanded: _steps, onDismiss: widget.onClose);
+  }
+}
+
+/// Top card while previewing: where the route starts and ends.
+class RouteHeaderCard extends ConsumerWidget {
+  const RouteHeaderCard({super.key, required this.dest, required this.onBack});
+
+  final Place dest;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = L.of(context);
+    final hud = ref.watch(hudProvider);
+    Widget line(Widget dot, String text, {bool strong = false}) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          SizedBox(width: 22, child: Center(child: dot)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: strong ? hud.text : hud.muted, fontSize: 15, fontWeight: strong ? FontWeight.w700 : FontWeight.w500),
+            ),
+          ),
+        ],
+      ),
+    );
+    return Material(
+      color: hud.panelOpaque,
+      elevation: 4,
+      shadowColor: Colors.black54,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(hud.radius.clamp(12, 24).toDouble()),
+        side: BorderSide(color: hud.text.withValues(alpha: 0.12)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(4, 6, 14, 6),
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: onBack,
+              tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+              icon: Icon(Icons.arrow_back_rounded, color: hud.text),
+              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+            ),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  line(
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: hud.accent,
+                        border: Border.all(color: hud.text, width: 2),
+                      ),
+                    ),
+                    l.yourLocation,
+                  ),
+                  Divider(height: 1, indent: 32, color: hud.text.withValues(alpha: 0.12)),
+                  line(Icon(Icons.place_rounded, color: hud.danger, size: 20), dest.name, strong: true),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
